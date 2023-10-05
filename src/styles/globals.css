@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+:root{
+  --bg-color: black;
+  --bg-color-opacity: rgba(30, 30, 30, 0.4);
+  --text-description: #D1D1D1;
+  --text-description-dark: #979797;
+  --text-description-light: #e2e2e2;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+}
