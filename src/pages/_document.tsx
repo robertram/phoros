@@ -4,13 +4,12 @@ import Script from 'next/script'
 
 
 export default function Document() {
-
   const title="Phoros"
   const description="The platform to connect in twitter lists with your nft"
   return (
     <Html lang='en'>
       <Head>
-        <title>CheckMyTicket</title>
+        <title>Phoros</title>
         <link rel="icon" type="image/x-icon" href="/favicon3.ico" />
         <meta charSet="UTF-8" />
         <meta name="description" content={description} />

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react'
 
-import storage from "../firebase/firebaseConfig"
+//import storage from "../firebase/firebaseConfig"
 import { ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
 import { uuid } from 'uuidv4';
 
@@ -68,23 +68,23 @@ export default function EditAccount({ address }: any) {
             onChange={(event) => {
               const image = event?.target?.files ? event.target.files[0] : ''
               if (image) {
-                const storageRef = ref(storage, `/${data?.name + uuid()}/${image.name + uuid()}`)
-                const uploadTask = uploadBytesResumable(storageRef, image);
-                uploadTask.on(
-                  "state_changed",
-                  (snapshot) => {
-                    const percent = Math.round(
-                      (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-                    );
-                    setImageUploadPercentage(percent)
-                  },
-                  (err) => console.log(err),
-                  () => {
-                    getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-                      setData({ ...data!, profilePicture: url })
-                    });
-                  }
-                );
+                //const storageRef = ref(storage, `/${data?.name + uuid()}/${image.name + uuid()}`)
+                // const uploadTask = uploadBytesResumable(storageRef, image);
+                // uploadTask.on(
+                //   "state_changed",
+                //   (snapshot) => {
+                //     const percent = Math.round(
+                //       (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                //     );
+                //     setImageUploadPercentage(percent)
+                //   },
+                //   (err) => console.log(err),
+                //   () => {
+                //     getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                //       setData({ ...data!, profilePicture: url })
+                //     });
+                //   }
+                // );
               }
 
             }}

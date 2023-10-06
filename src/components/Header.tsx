@@ -57,7 +57,6 @@ const Header = () => {
         <div className="flex md:flex-1">
           <a href="#" className="-m-1.5 p-1.5">
             <WhiteLogo className="w-[130px] min-[400px]:w-[180px] md:w-[200px]" />
-            {/* <img className="h-16 w-auto" src="/CheckMyTicket.png" alt="" /> */}
           </a>
         </div>
         {/* <div className="flex md:hidden">

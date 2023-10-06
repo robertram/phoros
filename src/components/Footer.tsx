@@ -30,7 +30,6 @@ export default function Footer({ newsletterDescription, newsletterCtaText, newsl
     <section className='w-full p-[30px] md:px-[60px] md:py-[80px] mt-[50px]'>
       <div className="flex md:flex-row flex-col border-gray-500 border-t-2 border-solid md:border-0">
         <div className='newsletter w-full md:w-[40%]'>
-          {/* <img className="h-16 w-auto" src="/CheckMyTicket.png" alt="" /> */}
             <WhiteLogo className="w-[200px] mb-[10px]" />
           <p className='text-base mb-[20px]'>{newsletterDescription}</p>
           <FooterMailchimpNewsletter />

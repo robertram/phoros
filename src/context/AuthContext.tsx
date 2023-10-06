@@ -28,10 +28,10 @@ export const AuthProvider = ({ children }: any) => {
 
   useEffect(() => {
     if (typeof localStorage !== 'undefined') {
-      const userData = JSON.parse(localStorage.getItem('user') ?? '');
+      const userData = JSON.parse(localStorage.getItem('user') ?? '{}');
       setUser(userData)
-      setName(userData?._tokenResponse.screenName)
-      setProfileImage(userData?._tokenResponse.photoUrl)
+      setName(userData?._tokenResponse?.screenName)
+      setProfileImage(userData?._tokenResponse?.photoUrl)
     } else {
       console.error('localStorage is not available in this environment.');
     }
@@ -54,6 +54,8 @@ export const AuthProvider = ({ children }: any) => {
     localStorage.removeItem('user');
   };
 
+  console.log('user!', user);
+  
   return (
     <AuthContext.Provider value={{ user, login, logout, name, profileImage }}>
       {children}

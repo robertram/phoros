@@ -26,7 +26,7 @@ const sendBroadcastNotification = async ({
     type: 1, // broadcast
     identityType: 2, // direct payload
     notification: {
-      title: `CheckMyTicket new event created`,
+      title: `Phoros new event created`,
       body: `New event created. Check it out!`
     },
     payload: {
