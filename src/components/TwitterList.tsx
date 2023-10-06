@@ -7,7 +7,7 @@ interface EventType {
   isPrivate: boolean
 }
 
-function TwitterList() {
+export const CreateTwitterList = () => {
   const [error, setError] = useState(null);
   const [listCreated, setListCreated] = useState(false);
   const [createdListInformation, setCreatedListInformation] = useState<any>({});
@@ -115,4 +115,3 @@ function TwitterList() {
   );
 }
 
-export default TwitterList;

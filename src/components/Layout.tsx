@@ -42,7 +42,7 @@ export default function Layout({ ...props }: Props) {
       <SEO title={title ? `${title} | Phoros` : 'Phoros'} description={description} />
       {firstRoute === '' ? '' : <NavBar />}
       <main className='min-h-[71vh]' {...props} />
-      {firstRoute === '' || firstRoute === 'landing' ? '' :
+      {/* {firstRoute === '' || firstRoute === 'landing' ? '' :
         <Footer
           newsletterDescription={newsletterDescription}
           newsletterCtaText={newsletterCtaText}
@@ -51,7 +51,7 @@ export default function Layout({ ...props }: Props) {
           socialLinks={socialLinks}
           otherLinks={otherLinks}
         />
-      }
+      } */}
     </>
   )
 }

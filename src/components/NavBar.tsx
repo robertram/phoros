@@ -7,30 +7,29 @@ import { IoIosNotifications } from 'react-icons/io'
 import { ENV } from '@pushprotocol/restapi/src/lib/constants'
 import { optInChannel } from '@/utils/sendNotification'
 import CustomLink from './CustomLink'
-import { Login } from './Login'
-import { usePaper } from "@/context/PaperContext";
-import { checkIsAdmin } from '@/utils/paper'
 import WhiteLogo from '@/icons/WhiteLogo'
 import { TwitterLogin } from './TwiiterLogin'
+import { useWeb3Modal } from '@web3modal/wagmi/react'
 
 const NavBar = () => {
+  // 4. Use modal hook
+  const { open } = useWeb3Modal()
   const [showChainAlert, setShowChainAlert] = useState(true)
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState([])
-  const { connected, address } = usePaper()
 
   useEffect(() => {
     // declare the data fetching function
     const fetchNotifications = async () => {
-      if (connected && address) {
-        const notifications = await PushAPI.user.getFeeds({
-          user: `eip155:80001:${address}`, // user address in CAIP
-          env: ENV.STAGING
-        })
-        console.log(address, 'notifications', notifications)
+      // if (connected && address) {
+      //   const notifications = await PushAPI.user.getFeeds({
+      //     user: `eip155:80001:${address}`, // user address in CAIP
+      //     env: ENV.STAGING
+      //   })
+      //   console.log(address, 'notifications', notifications)
 
-        setNotifications(notifications)
-      }
+      //   setNotifications(notifications)
+      // }
     }
 
     //   // call the function
@@ -62,6 +61,10 @@ const NavBar = () => {
       title: 'Explore',
       link: '/explore'
     },
+    {
+      title: 'Create List',
+      link: '/create-list'
+    },
     // {
     //   title: 'Marketplace',
     //   link: '/marketplace'
@@ -71,16 +74,6 @@ const NavBar = () => {
     //   link: '/create-event',
     //   loggedIn: true
     // },
-    {
-      title: 'Account',
-      link: '/account',
-      loggedIn: true
-    },
-    {
-      title: 'Admin',
-      link: '/admin',
-      isAdmin: true
-    },
   ]
 
   const [showMobileMenu, setShowMobileMenu] = useState(false)
@@ -102,7 +95,7 @@ const NavBar = () => {
         </Link>
 
         <div className='items-center lg:order-2 hidden md:flex'>
-          {address ? (
+          {/* {address ? (
             <button
               className={`cursor-pointer mr-2 `}
               onClick={() => {
@@ -113,16 +106,18 @@ const NavBar = () => {
             </button>
           ) : (
             ''
-          )}
+          )} */}
 
           {headerItems.map((item, index) => {
-            if (item.loggedIn && !connected) return null
-            if (item.isAdmin && !checkIsAdmin()) return null
+            //if (item.loggedIn && !connected) return null
+            //if (item.isAdmin && !checkIsAdmin()) return null
             return <CustomLink href={item.link} key={index} onClick={() => { setShowMobileMenu(false) }}>{item.title}</CustomLink>
           })}
 
           <div className='z-50'>
             <TwitterLogin />
+
+            <w3m-button />
             {/* <Login className='!mt-0' /> */}
           </div>
 
@@ -150,14 +145,16 @@ const NavBar = () => {
         <div className={`mt-2 absolute z-10 bg-black left-0 justify-between items-center w-full lg:flex lg:w-auto lg:order-1 h-screen ${showMobileMenu ? 'z-20' : 'hidden'}`} id="mobile-menu-2">
           <ul className="pb-2 flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
             {headerItems.map((item, index) => {
-              if (item.loggedIn && !connected) return null
-              if (item.isAdmin && !checkIsAdmin()) return null
+              //if (item.loggedIn && !connected) return null
+              //if (item.isAdmin && !checkIsAdmin()) return null
               return <CustomLink href={item.link} key={index} onClick={() => { setShowMobileMenu(false) }}>{item.title}</CustomLink>
             })}
 
             <div className='py-2 px-4 z-50 '>
               {/* <Login /> */}
               <TwitterLogin />
+
+              <w3m-button />
             </div>
           </ul>
         </div>
@@ -172,7 +169,7 @@ const NavBar = () => {
               key={0}
               className='mr-3'
               onClick={() => {
-                if (address) optInChannel(address, {})
+                //if (address) optInChannel(address, {})
               }}
             >
               Subscribe

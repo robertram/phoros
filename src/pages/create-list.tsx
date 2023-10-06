@@ -1,15 +1,14 @@
 import Layout from "@/components/Layout";
 import NavBar from "@/components/NavBar";
+import { CreateTwitterList } from "@/components/TwitterList";
 
-export default function Index() {
-
+export default function CreateList() {
   return (
-    <Layout>
+    <div>
       <NavBar />
       <div className='px-[20px] max-w-large flex items-center m-auto'>
-
-
+        <CreateTwitterList />
       </div>
-    </Layout>
+    </div>
   )
 }
