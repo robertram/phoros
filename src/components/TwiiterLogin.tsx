@@ -1,6 +1,5 @@
-import React, { useContext } from 'react'
-
-import { AuthContext } from '@/context/AuthContext';
+import { useAuth } from '@/context/AuthContext';
+import React from 'react'
 import { Avatar } from './Avatar';
 //import initializeFirebaseClient from "@/firebase/initFirebaseAuth";
 
@@ -10,8 +9,7 @@ interface Props {
 }
 
 export const TwitterLogin: React.FC<Props> = ({ buttonText, className }) => {
-  // const { auth, db } = initializeFirebaseClient();
-  const { user, name, profileImage, login, logout } = useContext(AuthContext);
+  const { user, name, profileImage, login, logout } = useAuth();
 
   return (
     <div>
