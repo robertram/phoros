@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { AiOutlineCopy } from 'react-icons/ai';
+import { Loading } from './Loading';
 import { Toggle } from './Toggle';
 
 interface EventType {
@@ -9,6 +11,8 @@ interface EventType {
 
 export const CreateTwitterList = () => {
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const [listCreated, setListCreated] = useState(false);
   const [createdListInformation, setCreatedListInformation] = useState<any>({});
   const [listData, setListData] = useState<EventType>({
@@ -18,6 +22,7 @@ export const CreateTwitterList = () => {
   })
 
   const createList = async (event: any) => {
+    setLoading(true)
     event.preventDefault()
     const response = await fetch('/api/twitter/create-list',
       {
@@ -37,11 +42,14 @@ export const CreateTwitterList = () => {
       .then(response => {
         setCreatedListInformation(response);
         setListCreated(true)
+        setLoading(false)
       })
       .catch((err) => {
         setError(err.message);
         setListCreated(false)
+        setLoading(false)
       });
+    setLoading(false)
   }
 
   return (
@@ -50,13 +58,20 @@ export const CreateTwitterList = () => {
 
       {listCreated && <div>
         <p className='text-green-400'>List Created</p>
-        <p>Id:
+        <div className='flex'>
           <a
             className='underline'
             rel="noreferrer"
             target="_blank"
             href={`https://twitter.com/i/lists/${createdListInformation?.data?.id}`}
-          >{createdListInformation?.data?.name}</a></p>
+          >{createdListInformation?.data?.name}</a>
+          <button
+            className='flex'
+            onClick={() => { navigator.clipboard.writeText(`https://twitter.com/i/lists/${createdListInformation?.data?.id}`) }}
+          >
+            <AiOutlineCopy size={20} />
+          </button>
+        </div>
       </div>}
 
       {error && <p className='text-red-500'>{error}</p>}
@@ -107,10 +122,11 @@ export const CreateTwitterList = () => {
           </div>
         </div>
         <button
+          disabled={loading}
           onClick={createList}
-          className='bg-blue-500 text-white font-semibold px-4 py-2 rounded-md mt-4 ml-[20px]'
+          className='bg-blue-500 text-white font-semibold px-4 py-2 rounded-md mt-4'
         >
-          Create List
+          {loading ? <Loading /> : 'Create List'}
         </button>
       </form>
     </div>

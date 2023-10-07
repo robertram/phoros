@@ -2,7 +2,6 @@ import { HTMLAttributes, useEffect, useState } from 'react'
 import Footer from './Footer'
 import NavBar from './NavBar'
 import { useRouter } from 'next/router'
-import useContentful from '@/hooks/useContentful'
 import SEO from './SEO'
 
 interface Props extends HTMLAttributes<HTMLElement> {
@@ -18,22 +17,6 @@ interface LayoutProps {
 export default function Layout({ ...props }: Props) {
   const router = useRouter()
   const firstRoute = router.pathname.split('/')[1] //router.asPath.split('/')[1]
-
-  const [footer, setFooter] = useState<any>([]);
-  const { getEntries } = useContentful();
-
-  useEffect(() => {
-    getEntries('blockFooter').then((response) => response && setFooter(response[0]));
-  }, []);
-
-  const {
-    newsletterDescription,
-    newsletterCtaText,
-    newsletterConcentText,
-    copyrightText,
-    socialLinks,
-    otherLinks
-  } = footer
 
   const { title, description } = props;
 
