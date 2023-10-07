@@ -1,7 +1,5 @@
 // eslint-disable-next-line
 // @ts-ignore
-import { SeatsioSeatingChart } from '@seatsio/seatsio-react';
-
 import Link from 'next/link'
 import { useState, ReactNode } from 'react';
 
