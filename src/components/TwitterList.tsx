@@ -23,7 +23,7 @@ export const CreateTwitterList = () => {
       {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(listData)
@@ -50,11 +50,13 @@ export const CreateTwitterList = () => {
 
       {listCreated && <div>
         <p className='text-green-400'>List Created</p>
-        <p>Id: <a
-          className='underline'
-          target="_blank"
-          href={`https://twitter.com/i/lists/${createdListInformation?.data?.id}`}
-        >{createdListInformation?.data?.name}</a></p>
+        <p>Id:
+          <a
+            className='underline'
+            rel="noreferrer"
+            target="_blank"
+            href={`https://twitter.com/i/lists/${createdListInformation?.data?.id}`}
+          >{createdListInformation?.data?.name}</a></p>
       </div>}
 
       {error && <p className='text-red-500'>{error}</p>}

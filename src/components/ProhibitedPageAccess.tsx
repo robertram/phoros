@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Button from "./Button";
-import { Login } from "./Login";
+//import { Login } from "./Login";
 
 interface ProhibitedPageAccessProps {
   text?: string
@@ -14,7 +14,7 @@ export default function ProhibitedPageAccess({ text }: ProhibitedPageAccessProps
       </div>
 
       <div className="m-auto flex">
-        <Login className="!w-[300px] m-auto" />
+        {/* <Login className="!w-[300px] m-auto" /> */}
       </div>
     </div>
   )
