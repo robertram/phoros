@@ -22,6 +22,7 @@
     "contentful": "^10.4.2",
     "eslint": "8.39.0",
     "eslint-config-next": "13.3.1",
+    "ethers": "^5.7.2",
     "firebase": "^9.23.0",
     "firebase-admin": "^11.10.1",
     "got": "^13.0.0",

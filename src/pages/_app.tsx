@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import { AuthProvider } from '@/context/AuthContext';
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
 import { WagmiConfig } from 'wagmi'
-import { arbitrum, mainnet, polygonMumbai } from 'wagmi/chains'
+import { arbitrum, mainnet, polygonMumbai, gnosis, gnosisChiado } from 'wagmi/chains'
 import Moralis from 'moralis';
 
 function MyApp({ Component, pageProps }: any) {
@@ -21,7 +21,7 @@ function MyApp({ Component, pageProps }: any) {
     icons: ['https://avatars.githubusercontent.com/u/37784886']
   }
 
-  const chains = [mainnet, arbitrum, polygonMumbai]
+  const chains = [mainnet, arbitrum, polygonMumbai, gnosis, gnosisChiado]
   const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
 
   // 3. Create modal

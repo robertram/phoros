@@ -2,7 +2,6 @@ import * as PushAPI from '@pushprotocol/restapi'
 import { ethers } from 'ethers'
 import { ENV } from '@pushprotocol/restapi/src/lib/constants'
 import Web3 from 'web3'
-//import { getWalletClient } from '@wagmi/core'
 
 interface NotificationParameters {
   eventName: string

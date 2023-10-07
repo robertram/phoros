@@ -18,7 +18,7 @@ const Button = ({ children, link, onClick, disabled, className, secondary }: But
     <button
       disabled={disabled}
       className={secondary ? secondaryStyle :
-        `mt-[20px] w-full rounded-md bg-custom-purple px-[20px] py-[10px] hover:bg-custom-purple ${className}`}
+        `mt-[20px] w-full rounded-[100px] bg-black text-white px-[20px] py-[10px] ${className}`}
       onClick={() => {
         if (link) router.push(link)
         else if (onClick) { onClick() }
