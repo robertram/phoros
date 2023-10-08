@@ -9,9 +9,10 @@ import { signInWithCustomToken, signOut } from "firebase/auth";
 import { getDoc, doc, serverTimestamp, setDoc } from "firebase/firestore";
 import initializeFirebaseClient from "@/firebase/initFirebaseAuth";
 import { Network, Alchemy } from 'alchemy-sdk'
+import { useAccount } from 'wagmi';
 
 type AuthContextType = {
-  address: string
+  address?: string
   user: any
   login: () => void
   logout: () => void
@@ -36,9 +37,11 @@ export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<any>(null);
   const [name, setName] = useState<any>(null);
   const [profileImage, setProfileImage] = useState<any>(null);
-  const [address, setAddress] = useState<any>(undefined);
+  //const [address, setAddress] = useState<any>(undefined);
   const [activeChain, setActiveChain] = useState<any>(1);
   const { auth, db } = initializeFirebaseClient();
+
+  const { address } = useAccount()
 
   useEffect(() => {
     if (typeof localStorage !== 'undefined') {
@@ -112,7 +115,7 @@ export const AuthProvider = ({ children }: any) => {
       );
       const addresses = await provider.listAccounts();
       if (addresses.length) {
-        setAddress(addresses[0])
+        //setAddress(addresses[0])
         setActiveChain(provider?._network?.chainId)
       } else {
 
