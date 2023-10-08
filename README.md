@@ -45,8 +45,7 @@ Before you begin, ensure you have met the following requirements:
 
 src
    components/
-
-├── context/
+   context/
 
 ├── firebase/
 
