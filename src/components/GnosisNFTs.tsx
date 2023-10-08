@@ -93,7 +93,7 @@ export const GnosisNFTs = () => {
 
   return (
     <div>
-      <h2 className="text-3xl">Your POAPs</h2>
+      {/* <h2 className="text-3xl">Your POAPs</h2> */}
       {tokensUri.map((item, index) => {
         return (
           <PoapInfo uri={item.uri} tokenId={item.tokenId} key={index} />

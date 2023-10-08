@@ -39,7 +39,7 @@ const NavBar = () => {
     return (
       <div className='relative flex flex-wrap justify-between items-center mx-auto max-w-screen-xl'>
         <Link href='/' className='flex items-center '>
-          <p className='text-3xl'>Phoros</p>
+          <p className='text-3xl font-semibold'>Phoros</p>
         </Link>
 
         <w3m-button size='md' label='Log In' />

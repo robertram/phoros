@@ -8,6 +8,11 @@ import POAP from '../../../abis/POAP.json'
 import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection, where } from "firebase/firestore";
 import Modal from "@/components/Modal";
+import editData from "@/firebase/firestore/editData";
+import { limitStringTo200Characters } from "@/utils/utils";
+import { CardButton } from "@/components/CardButton";
+import AddUser from "@/icons/AddUser";
+import Twitter from "@/icons/Twitter";
 
 export default function Community() {
   const router = useRouter();
@@ -21,6 +26,8 @@ export default function Community() {
   const [listInfo, setListInfo] = useState<any>({});
   const [showEnterUsername, setShowEnterUsername] = useState(false);
   const [twitterUsername, setTwitterUsername] = useState('');
+  const [addToListError, setAddToListError] = useState(false)
+  const [error, setError] = useState('')
 
   const getUserId = async () => {
     setLoading(true)
@@ -59,6 +66,17 @@ export default function Community() {
     }
   }, [userInfo])
 
+
+  const addUserToWaitlist = async (id: string, data: any) => {
+    if (!id) return
+    const { result, error } = await editData('lists', id, data)
+    if (error) {
+      //setError(`Firebase error: ${error}`)
+      return console.log('Add to firebase error', error)
+    }
+    return { result }
+  }
+
   const addUserToList = async () => {
     setLoading(true)
     if (!userInfo?.id || !listInfo?.listId) {
@@ -66,6 +84,20 @@ export default function Community() {
       return null
     }
 
+    const waitlistArray = [
+      ...listInfo?.waitlist,
+      userInfo?.id
+    ]
+
+    const isRepeated = listInfo?.waitlist.includes(userInfo?.id);
+
+    if (isRepeated) {
+      setError('You are still on the waitlist')
+      setLoading(false)
+      return null
+    }
+
+    addUserToWaitlist(listInfo.id, { waitlist: waitlistArray })
     await fetch('/api/twitter/add-user-to-list',
       {
         method: 'POST',
@@ -87,16 +119,14 @@ export default function Community() {
         setTwitterUsername('')
       })
       .catch((err) => {
+        console.log('err', err);
+        setAddToListError(true)
         setUserAddedToList(false)
         setLoading(false)
         setTwitterUsername('')
       });
     setLoading(false)
   }
-
-  // useEffect(() => {
-  //   addUserToList()
-  // }, [userInfo])
 
   const getTokenURI = async (tokenId: string) => {
     const web3 = new Web3('https://rpc.gnosischain.com');
@@ -160,40 +190,73 @@ export default function Community() {
     }
   }, [eventId]);
 
+  console.log('communityData', communityData);
+
   return (
     <Layout>
       <div className='px-[16px] max-w-large flex items-center m-auto'>
-        <div>
-          <div>
-            <img src={communityData?.image_url} className="w-[100px] h-[100px] object-cover" />
-          </div>
-          <h1 className="text-3xl">{communityData?.name}</h1>
+        <div className="w-full">
 
-          {!userAddedToList && listInfo &&
-            <Button
-              disabled={loading}
-              className=""
-              onClick={() => setShowEnterUsername(true)}
-            >
-              {loading ? <Loading /> : 'Join List'}
-            </Button>
-          }
+          <div className="w-full">
+            <div className="m-auto">
+              <img src={communityData?.image_url} className="w-[100px] h-[100px] object-cover m-auto" />
+            </div>
+            <h1 className="text-3xl text-center mt-[10px]">{communityData?.name}</h1>
+            <p className="text-base mt-[10px]">{limitStringTo200Characters(communityData?.description)}</p>
+
+
+
+            {listInfo && <div className="flex justify-between gap-4 mt-[50px]">
+              <CardButton
+                onClick={() => {
+                  window.open(`https://twitter.com/i/lists/${listInfo?.listId}`, '_blank');
+                }}
+                title="Open in X"
+                icon={<Twitter className="m-auto" />}
+              />
+              <CardButton
+                disabled={loading}
+                onClick={() => setShowEnterUsername(true)}
+                title="Join List"
+                icon={<AddUser className="m-auto" />}
+                loading={loading}
+              />
+            </div>}
+          </div>
+
+          {error && <p className="text-red-500">{error}</p>}
 
           {userAddedToList &&
             <p className="text-xl text-green-400">You were added to the list</p>
           }
 
           {!listInfo &&
-            <p className="text-base">There are no lists for this event</p>
+            <p className="text-xl mt-[20px]">There are no lists for this event</p>
           }
 
-          <a
-            rel="noreferrer"
-            target="_blank"
-            href={`https://twitter.com/i/lists/${listInfo?.listId}`}
+          <Modal
+            show={addToListError}
+            setShow={() => setAddToListError(false)}
           >
-            Open in twitter
-          </a>
+            <div className="">
+              <div className="flex justify-between">
+                <h2 className="text-xl mb-[10px]">You are on the list!</h2>
+              </div>
+
+              <div>
+                <p className="">But you have to wait.</p>
+                <p className="">You will become a member in 15 minutes aproximately.</p>
+              </div>
+
+              <Button
+                onClick={() => {
+                  setAddToListError(false)
+                }}
+              >
+                Confirm
+              </Button>
+            </div>
+          </Modal>
 
           <Modal
             show={showEnterUsername}
@@ -233,7 +296,6 @@ export default function Community() {
               >
                 Confirm
               </Button>
-
             </div>
           </Modal>
         </div>

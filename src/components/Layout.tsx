@@ -27,7 +27,7 @@ export default function Layout({ ...props }: Props) {
       {firstRoute === '' ? '' : <NavBar />}
       <main className='min-h-[71vh]' {...props} />
 
-      <FloatingButton/>
+      {/* <FloatingButton/> */}
       {/* {firstRoute === '' || firstRoute === 'landing' ? '' :
         <Footer
           newsletterDescription={newsletterDescription}
