@@ -41,7 +41,6 @@ export default function Community() {
       })
       .then(response => {
         setUserInfo(response?.data)
-        addUserToList()
         setLoading(false)
         setShowEnterUsername(false)
         setTwitterUsername('')
@@ -54,8 +53,18 @@ export default function Community() {
     setLoading(false)
   }
 
+  useEffect(() => {
+    if (userInfo?.id && listInfo?.listId) {
+      addUserToList()
+    }
+  }, [userInfo])
+
   const addUserToList = async () => {
     setLoading(true)
+    if (!userInfo?.id || !listInfo?.listId) {
+      console.log('cant add to list', 'userInfo?.id', userInfo?.id, 'listInfo?.listId', listInfo?.listId)
+      return null
+    }
 
     await fetch('/api/twitter/add-user-to-list',
       {
@@ -151,8 +160,6 @@ export default function Community() {
     }
   }, [eventId]);
 
-  console.log('listInfo!', listInfo);
-
   return (
     <Layout>
       <div className='px-[16px] max-w-large flex items-center m-auto'>
@@ -162,7 +169,7 @@ export default function Community() {
           </div>
           <h1 className="text-3xl">{communityData?.name}</h1>
 
-          {listInfo &&
+          {!userAddedToList && listInfo &&
             <Button
               disabled={loading}
               className=""
@@ -170,6 +177,10 @@ export default function Community() {
             >
               {loading ? <Loading /> : 'Join List'}
             </Button>
+          }
+
+          {userAddedToList &&
+            <p className="text-xl text-green-400">You were added to the list</p>
           }
 
           {!listInfo &&
