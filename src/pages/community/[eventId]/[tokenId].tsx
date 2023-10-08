@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Web3 from 'web3'
 import POAP from '../../../abis/POAP.json'
 import { getDocuments, db } from "@/firebase/firestore/getData";
-import { query, collection, where } from "firebase/firestore";
+import { query, collection, where, arrayUnion } from "firebase/firestore";
 import Modal from "@/components/Modal";
 import editData from "@/firebase/firestore/editData";
 import { limitStringTo200Characters, removeAtSymbol } from "@/utils/utils";
@@ -66,9 +66,9 @@ export default function Community() {
     }
   }, [userInfo])
 
-
-  const addUserToWaitlist = async (id: string, data: any) => {
+  const addUserToFirebaseList = async (id: string, data: any) => {
     if (!id) return
+
     const { result, error } = await editData('lists', id, data)
     if (error) {
       //setError(`Firebase error: ${error}`)
@@ -84,7 +84,7 @@ export default function Community() {
       return null
     }
 
-    const waitlistArray = [
+    const usersArray = [
       ...listInfo?.waitlist,
       userInfo?.id
     ]
@@ -97,7 +97,6 @@ export default function Community() {
       return null
     }
 
-    addUserToWaitlist(listInfo.id, { waitlist: waitlistArray })
     await fetch('/api/twitter/add-user-to-list',
       {
         method: 'POST',
@@ -114,17 +113,32 @@ export default function Community() {
         return response.json()
       })
       .then(response => {
+        const dataToUpdate = {
+          members: arrayUnion(userInfo?.id)
+        };
+        addUserToFirebaseList(listInfo.id, dataToUpdate)
         setUserAddedToList(true)
         setLoading(false)
         setTwitterUsername('')
       })
       .catch((err) => {
+        const dataToUpdate = {
+          waitlist: arrayUnion(userInfo?.id)
+        };
+        addUserToFirebaseList(listInfo.id, dataToUpdate)
         console.log('err', err);
         setAddToListError(true)
         setUserAddedToList(false)
         setLoading(false)
         setTwitterUsername('')
       });
+
+    if (eventId) {
+      getAllData().then((result: any) => {
+        console.log('GET DATA');
+        setListInfo(result.result[0])
+      })
+    }
     setLoading(false)
   }
 
@@ -177,14 +191,15 @@ export default function Community() {
       .catch(console.error);
   }, [tokenUri])
 
-  useEffect(() => {
-    const getAllData = async () => {
-      const customQuery = query(collection(db, "lists"), where("eventId", "==", eventId));
-      return await getDocuments({ customQuery })
-    }
+  const getAllData = async () => {
+    const customQuery = query(collection(db, "lists"), where("eventId", "==", eventId));
+    return await getDocuments({ customQuery })
+  }
 
+  useEffect(() => {
     if (eventId) {
       getAllData().then((result: any) => {
+        console.log('GET DATA');
         setListInfo(result.result[0])
       })
     }
