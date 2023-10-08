@@ -45,26 +45,27 @@ Before you begin, ensure you have met the following requirements:
 
 src
 
-   components/
+---components/
 
-   context/
+---context/
 
-   firebase/
+---firebase/
 
-   hooks/
+---hooks/
 
-   icons/
+---icons/
 
-   lib/
+---lib/
 
-   pages/
+---pages/
 
-   styles/
+---styles/
 
-   types/
+---types/
 
-   utils/
+---utils/
 
+functions
 
 
 
