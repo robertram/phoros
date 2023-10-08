@@ -44,24 +44,26 @@ Before you begin, ensure you have met the following requirements:
 ## Project Sitemap
 
 src
+
    components/
+
    context/
 
-├── firebase/
+   firebase/
 
-├── hooks/
+   hooks/
 
-├── icons/
+   icons/
 
-├── lib/
+   lib/
 
-├── pages/
+   pages/
 
-├── styles/
+   styles/
 
-├── types/
+   types/
 
-└── utils/
+   utils/
 
 
 
