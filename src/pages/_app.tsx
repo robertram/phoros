@@ -6,7 +6,6 @@ import { AuthProvider } from '@/context/AuthContext';
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
 import { WagmiConfig } from 'wagmi'
 import { arbitrum, mainnet, polygonMumbai, gnosis, gnosisChiado } from 'wagmi/chains'
-import Moralis from 'moralis';
 
 function MyApp({ Component, pageProps }: any) {
   const router = useRouter()
