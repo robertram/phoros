@@ -11,8 +11,8 @@ interface PoapItemContainerProps {
   contractAddress?: string
   title: string
   image: string
-  eventId: string
-  tokenId: any
+  eventId?: string
+  tokenId?: any
 }
 
 export const PoapItemContainer = ({ title, image, eventId, tokenId }: PoapItemContainerProps) => {
@@ -23,8 +23,9 @@ export const PoapItemContainer = ({ title, image, eventId, tokenId }: PoapItemCo
 
   return (
     <a
-      href={`/community/${eventId}/${tokenId}`}
-      className="flex p-[12px] bg-gray-100 mb-[12px] rounded-[8px] no-underline cursor-pointer">
+      href={eventId && tokenId ? `/community/${eventId}/${tokenId}` : '#'}
+      className={`flex p-[12px] bg-gray-100 mb-[12px] rounded-[8px] no-underline ${eventId && tokenId ? 'cursor-pointer' : ''}`}
+    >
       <div className="mr-[12px]">
         <img src={image} className="min-w-[64px] min-h-[64px] w-[64px] h-[64px] object-cover rounded-full"></img>
       </div>

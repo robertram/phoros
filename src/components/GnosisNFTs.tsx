@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import POAP from '../abis/POAP.json'
 import Web3 from 'web3'
-import { useAuth } from "@/context/AuthContext";
 import { PoapInfo } from "./PoapInfo";
 import { useAccount } from "wagmi";
+import { getDocuments, db } from "@/firebase/firestore/getData";
+import { query, collection } from "firebase/firestore";
+import { Loading } from "./Loading";
 
 export const GnosisNFTs = () => {
-  //const { address } = useAuth()
-  const { address, isConnected } = useAccount()
+  const { address } = useAccount()
   const [userBalance, setUserBalance] = useState<number>(0)
   const [tokensByUser, setTokensByUser] = useState<any[]>([])
   const [tokensUri, setTokensUri] = useState<any[]>([])
-  const [tokenDetailsFetched, setTokenDetailsFetched] = useState<boolean>(false)
+  const [lists, setLists] = useState<any[]>([])
+  const [tokensWithLists, setTokensWithLists] = useState<any[]>([])
 
   const balanceOf = (address: string) => {
     const web3 = new Web3('https://rpc.gnosischain.com');
@@ -93,12 +95,47 @@ export const GnosisNFTs = () => {
     })();
   }, [userBalance])
 
+  useEffect(() => {
+    const getAllData = async () => {
+      const customQuery = query(collection(db, "lists"));
+      return await getDocuments({ customQuery })
+    }
+    getAllData().then((result: any) => {
+      setLists(result.result)
+    })
+  }, []);
+
+  const getPoapsWithList = () => {
+    const listEventIds = new Set(lists.map((list) => list.eventId));
+    const filteredTokensURI = tokensUri.filter((tokenURI) => {
+      const tokenEventId = tokenURI.uri.split('/')[4]
+      return listEventIds.has(tokenEventId)
+    });
+    const mergedItems = filteredTokensURI.map((tokenURI) => {
+      const tokenEventId = tokenURI.uri.split('/')[4]
+      const matchingList = lists.find((list) => list.eventId === tokenEventId);
+      if (matchingList) {
+        return { ...tokenURI, ...matchingList };
+      }
+      return tokenURI;
+    });
+
+    setTokensWithLists(mergedItems)
+  }
+
+  useEffect(() => {
+    if (lists && tokensUri) {
+      getPoapsWithList()
+    }
+  }, [lists, tokensUri])
+
+  if (tokensWithLists.length===0) return <Loading />
+
   return (
     <div>
-      {/* <h2 className="text-3xl">Your POAPs</h2> */}
-      {tokensUri.map((item, index) => {
+      {tokensWithLists.map((item, index) => {
         return (
-          <PoapInfo uri={item.uri} tokenId={item.tokenId} key={index} />
+          <PoapInfo data={item} uri={item.uri} tokenId={item.tokenId} key={index} />
         )
       })}
     </div>

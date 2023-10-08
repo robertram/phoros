@@ -5,9 +5,10 @@ import { PoapItemContainer } from "./PoapItemContainer";
 interface PoapInfoProps {
   uri: string
   tokenId: number
+  data?: any
 }
 
-export const PoapInfo = ({ uri, tokenId }: PoapInfoProps) => {
+export const PoapInfo = ({ uri, tokenId, data }: PoapInfoProps) => {
   const [loading, setLoading] = useState(false);
   const [poapData, setPoapData] = useState<any>({});
 
@@ -40,7 +41,7 @@ export const PoapInfo = ({ uri, tokenId }: PoapInfoProps) => {
 
   return (
     <div>
-      <PoapItemContainer title={poapData.name} image={poapData.image_url} eventId={eventId} tokenId={tokenId ?? ''} />
+      <PoapItemContainer title={data.name} image={data.image} eventId={eventId} tokenId={tokenId ?? ''} />
     </div>
   )
 }

@@ -5,12 +5,15 @@ import { AiOutlineCopy } from 'react-icons/ai';
 import { uuid } from 'uuidv4';
 import { Loading } from './Loading';
 import { Toggle } from './Toggle';
+import storage from "../firebase/firebaseConfig"
+import { ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
 
 interface EventType {
   name: string
   description: string
   isPrivate: boolean
   listId?: string
+  image?: string
 }
 
 export const CreateTwitterList = () => {
@@ -25,7 +28,8 @@ export const CreateTwitterList = () => {
     name: '',
     description: '',
     isPrivate: false,
-    listId: ''
+    listId: '',
+    image: ''
   })
 
   const createList = async (event: any) => {
@@ -59,7 +63,7 @@ export const CreateTwitterList = () => {
     setLoading(false)
   }
 
-  const addEventToFirebase = async (data: any) => {
+  const addListToFirebase = async (data: any) => {
     const firebaseData = {
       ...listData,
       listId: data?.id,
@@ -77,7 +81,7 @@ export const CreateTwitterList = () => {
 
   useEffect(() => {
     if (createdListInformation) {
-      addEventToFirebase(createdListInformation.data)
+      addListToFirebase(createdListInformation.data)
     }
   }, [listCreated])
 
@@ -131,6 +135,42 @@ export const CreateTwitterList = () => {
               setListData({ ...listData, description: event.target.value })
             }
           />
+        </div>
+
+        <div className='mb-[20px] flex flex-col md:flex-row'>
+          <div className='flex flex-col'>
+            <label htmlFor='image'>Image</label>
+            <input
+              type='file'
+              id='image'
+              onChange={(event) => {
+                const image = event?.target?.files ? event.target.files[0] : ''
+                if (image) {
+                  const storageRef = ref(storage, `/${listData?.name + uuid()}/${image.name + uuid()}`)
+                  const uploadTask = uploadBytesResumable(storageRef, image);
+                  uploadTask.on(
+                    "state_changed",
+                    (snapshot) => {
+                      const percent = Math.round(
+                        (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                      );
+                      //setImageUploadPercentage(percent)
+                    },
+                    (err) => console.log(err),
+                    () => {
+                      getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                        setListData({ ...listData, image: url })
+                      });
+                    }
+                  );
+                }
+
+              }}
+            />
+          </div>
+
+          {/* <div>{imageUploadPercentage > 1 && imageUploadPercentage < 100 ? `Uploading ${imageUploadPercentage}%...` : ''}</div> */}
+          {listData.image && <img src={listData.image} className='w-auto h-[220px] object-cover' />}
         </div>
 
         <div className='mb-[20px] flex flex-col'>

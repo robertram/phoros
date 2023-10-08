@@ -1,6 +1,5 @@
 import Button from "@/components/Button";
 import Layout from "@/components/Layout";
-import { Loading } from "@/components/Loading";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Web3 from 'web3'
@@ -13,6 +12,9 @@ import { limitStringTo200Characters, removeAtSymbol } from "@/utils/utils";
 import { CardButton } from "@/components/CardButton";
 import AddUser from "@/icons/AddUser";
 import Twitter from "@/icons/Twitter";
+import { PoapInfo } from "@/components/PoapInfo";
+import { PoapItemContainer } from "@/components/PoapItemContainer";
+import { Loading } from "@/components/Loading";
 
 export default function Community() {
   const router = useRouter();
@@ -20,14 +22,14 @@ export default function Community() {
   const eventId = Array.isArray(router.query.eventId) ? router.query.eventId[1] : router.query.eventId;
   const [tokenUri, setTokenUri] = useState<any>()
   const [loading, setLoading] = useState(false);
-  const [communityData, setCommunityData] = useState<any>()
   const [userAddedToList, setUserAddedToList] = useState(false);
   const [userInfo, setUserInfo] = useState<any>({});
-  const [listInfo, setListInfo] = useState<any>({});
+  const [listInfo, setListInfo] = useState<any>();
   const [showEnterUsername, setShowEnterUsername] = useState(false);
   const [twitterUsername, setTwitterUsername] = useState('');
   const [addToListError, setAddToListError] = useState(false)
   const [error, setError] = useState('')
+  const [tokenData, setTokenData] = useState<any>({});
 
   const getUserId = async () => {
     setLoading(true)
@@ -135,7 +137,6 @@ export default function Community() {
 
     if (eventId) {
       getAllData().then((result: any) => {
-        console.log('GET DATA');
         setListInfo(result.result[0])
       })
     }
@@ -179,11 +180,9 @@ export default function Community() {
           return response.json()
         })
         .then(response => {
-          setCommunityData(response)
-          setLoading(false)
+          setTokenData(response)
         })
         .catch((err) => {
-          setLoading(false)
         });
     }
 
@@ -199,7 +198,6 @@ export default function Community() {
   useEffect(() => {
     if (eventId) {
       getAllData().then((result: any) => {
-        console.log('GET DATA');
         setListInfo(result.result[0])
       })
     }
@@ -211,13 +209,19 @@ export default function Community() {
         <div className="w-full">
 
           <div className="w-full">
-            <div className="m-auto">
-              <img src={communityData?.image_url} className="w-[100px] h-[100px] object-cover m-auto" />
-            </div>
-            <h1 className="text-3xl text-center mt-[10px]">{communityData?.name}</h1>
-            <p className="text-base mt-[10px]">{limitStringTo200Characters(communityData?.description)}</p>
-
-
+            {listInfo ?
+              <div>
+                <div className="m-auto">
+                  <img src={listInfo?.image} className="w-[100px] h-[100px] object-cover m-auto rounded-full" />
+                </div>
+                <h1 className="text-3xl text-center mt-[10px]">{listInfo?.name}</h1>
+                <p className="text-base mt-[10px]">{limitStringTo200Characters(listInfo?.description)}</p>
+              </div>
+              :
+              <div className="w-full flex justify-center">
+                <Loading />
+              </div>
+            }
 
             {listInfo && <div className="flex justify-between gap-4 mt-[50px]">
               <CardButton
@@ -246,6 +250,13 @@ export default function Community() {
           {!listInfo &&
             <p className="text-xl mt-[20px]">There are no lists for this event</p>
           }
+
+          <div className="mt-[20px]">
+            <h2 className="text-base font-medium">Collectibles Required</h2>
+            <div>
+              <PoapItemContainer title={tokenData.name} image={tokenData.image_url} />
+            </div>
+          </div>
 
           <Modal
             show={addToListError}
