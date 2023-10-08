@@ -64,16 +64,16 @@ exports.addToTwitterListEvery15Minutes = functions.pubsub.schedule('*/1 * * * *'
   console.log('stringToRemove', stringToRemove);
   
 
-  // Update the document to remove the string from the array
-  // docRef.update({
-  //   members: firebase.firestore.FieldValue.arrayRemove(stringToRemove)
-  // })
-  //   .then(() => {
-  //     console.log('String removed from the array successfully');
-  //   })
-  //   .catch((error) => {
-  //     console.error('Error removing string from the array: ', error);
-  //   });
+  //pdate the document to remove the string from the array
+  docRef.update({
+    members: firebase.firestore.FieldValue.arrayRemove(stringToRemove)
+  })
+    .then(() => {
+      console.log('String removed from the array successfully');
+    })
+    .catch((error) => {
+      console.error('Error removing string from the array: ', error);
+    });
 
 
 

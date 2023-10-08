@@ -5,9 +5,14 @@ import NavBar from "@/components/NavBar";
 import { OwnedNFTs } from "@/components/OwnedNFTs";
 import { useAuth } from "@/context/AuthContext";
 import { getShortAddress } from "@/lib/utils";
+import { useAccount } from "wagmi";
 
 export default function Index() {
-  const { address } = useAuth()
+  //const { address } = useAuth()
+
+  const { address, isConnecting, isDisconnected, isConnected } = useAccount()
+
+  console.log('isConnected', isConnected);
 
   return (
     <Layout>

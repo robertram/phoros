@@ -3,9 +3,11 @@ import POAP from '../abis/POAP.json'
 import Web3 from 'web3'
 import { useAuth } from "@/context/AuthContext";
 import { PoapInfo } from "./PoapInfo";
+import { useAccount } from "wagmi";
 
 export const GnosisNFTs = () => {
-  const { address } = useAuth()
+  //const { address } = useAuth()
+  const { address, isConnected } = useAccount()
   const [userBalance, setUserBalance] = useState<number>(0)
   const [tokensByUser, setTokensByUser] = useState<any[]>([])
   const [tokensUri, setTokensUri] = useState<any[]>([])
@@ -76,7 +78,7 @@ export const GnosisNFTs = () => {
 
   // 1- Get balance
   useEffect(() => {
-    balanceOf(address);
+    balanceOf(address ?? '');
   }, [address])
 
   // 2-  Get details of owner of each token
@@ -84,7 +86,7 @@ export const GnosisNFTs = () => {
     (async () => {
       const tokenDetailsArray: any[] = []
       for (let i = 0; i < userBalance; i++) {
-        const tokenDetails = await tokenDetailsOfOwnerByIndex(address, i)
+        const tokenDetails = await tokenDetailsOfOwnerByIndex(address ?? '', i)
         tokenDetailsArray.push(tokenDetails)
       }
       getTokensByUser(tokenDetailsArray)

@@ -9,3 +9,11 @@ export const limitStringTo200Characters = (inputString: string) => {
     return inputString?.substring(0, 100) + '...';
   }
 }
+
+export const removeAtSymbol = (inputString: string) => {
+  if (inputString.includes("@")) {
+    return inputString.replace("@", "");
+  } else {
+    return inputString;
+  }
+}

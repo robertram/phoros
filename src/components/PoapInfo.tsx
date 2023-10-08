@@ -11,8 +11,6 @@ export const PoapInfo = ({ uri, tokenId }: PoapInfoProps) => {
   const [loading, setLoading] = useState(false);
   const [poapData, setPoapData] = useState<any>({});
 
-  console.log('PAOP tokenId', tokenId);
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
@@ -36,12 +34,9 @@ export const PoapInfo = ({ uri, tokenId }: PoapInfoProps) => {
       .catch(console.error);
   }, [])
 
-  console.log('poapData', poapData);
-
   if (loading) return <Loading />
 
   const eventId = poapData?.external_url?.split('/')[4]
-  console.log('eventId', eventId);
 
   return (
     <div>

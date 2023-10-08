@@ -40,8 +40,6 @@ export const AuthProvider = ({ children }: any) => {
   const [activeChain, setActiveChain] = useState<any>(1);
   const { auth, db } = initializeFirebaseClient();
 
- 
-
   useEffect(() => {
     if (typeof localStorage !== 'undefined') {
       const userData = JSON.parse(localStorage.getItem('user') ?? '{}');
@@ -116,7 +114,9 @@ export const AuthProvider = ({ children }: any) => {
       if (addresses.length) {
         setAddress(addresses[0])
         setActiveChain(provider?._network?.chainId)
-      } else { }
+      } else {
+
+      }
     }
 
     getUserWallet()

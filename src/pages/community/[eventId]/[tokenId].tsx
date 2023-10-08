@@ -9,7 +9,7 @@ import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection, where } from "firebase/firestore";
 import Modal from "@/components/Modal";
 import editData from "@/firebase/firestore/editData";
-import { limitStringTo200Characters } from "@/utils/utils";
+import { limitStringTo200Characters, removeAtSymbol } from "@/utils/utils";
 import { CardButton } from "@/components/CardButton";
 import AddUser from "@/icons/AddUser";
 import Twitter from "@/icons/Twitter";
@@ -190,8 +190,6 @@ export default function Community() {
     }
   }, [eventId]);
 
-  console.log('communityData', communityData);
-
   return (
     <Layout>
       <div className='px-[16px] max-w-large flex items-center m-auto'>
@@ -279,11 +277,12 @@ export default function Community() {
                   type='text'
                   id='username'
                   className='border border-gray-300 rounded-md p-2 w-full text-black'
-                  placeholder='Enter the List Description'
+                  placeholder='Enter your X handle'
                   value={twitterUsername}
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    const userHandle = removeAtSymbol(event.target.value)
                     setTwitterUsername(event.target.value)
-                  }
+                  }}
                 />
               </div>
 
