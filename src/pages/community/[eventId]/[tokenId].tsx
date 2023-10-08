@@ -17,7 +17,7 @@ export default function Community() {
   const [loading, setLoading] = useState(false);
   const [communityData, setCommunityData] = useState<any>()
   const [userAddedToList, setUserAddedToList] = useState(false);
-  const [userInfo, setUserInfo] = useState({});
+  const [userInfo, setUserInfo] = useState<any>({});
   const [listInfo, setListInfo] = useState<any>({});
   const [showEnterUsername, setShowEnterUsername] = useState(false);
   const [twitterUsername, setTwitterUsername] = useState('');
@@ -44,10 +44,12 @@ export default function Community() {
         addUserToList()
         setLoading(false)
         setShowEnterUsername(false)
+        setTwitterUsername('')
       })
       .catch((err) => {
         setLoading(false)
         setShowEnterUsername(false)
+        setTwitterUsername('')
       });
     setLoading(false)
   }
@@ -62,7 +64,7 @@ export default function Community() {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ ...userInfo, listId: listInfo?.listId })
+        body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId })
       })
       .then(response => {
         if (!response.ok) {
@@ -73,10 +75,12 @@ export default function Community() {
       .then(response => {
         setUserAddedToList(true)
         setLoading(false)
+        setTwitterUsername('')
       })
       .catch((err) => {
         setUserAddedToList(false)
         setLoading(false)
+        setTwitterUsername('')
       });
     setLoading(false)
   }

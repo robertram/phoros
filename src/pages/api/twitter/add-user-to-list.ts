@@ -4,7 +4,7 @@ import TwitterApi from 'twitter-api-v2';
 export default async function handler(req: any, res: any) {
   try {
     const listId = req.body?.listId
-    const userId = req.body?.id
+    const userId = req.body?.userId
 
     const userClient = new TwitterApi({
       appKey: process.env.NEXT_PUBLIC_TWITTER_KEY ?? '',
