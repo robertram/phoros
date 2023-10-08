@@ -30,5 +30,30 @@ Before you begin, ensure you have met the following requirements:
 <img width="436" alt="Screenshot 2023-10-08 at 1 06 04 PM" src="https://github.com/robertram/phoros/assets/37461123/1c1bd860-f858-4ac3-a597-0ffb281b2b94">
 
 
+## Tech Stack
+
+- web3modal
+- alchemy-sdk
+- wagmi
+- twitter-api-v2
+- nextjs
+- tailwindcss
+- typescript
+
+
+## Project Sitemap
+
+src
+├── components/
+├── context/
+├── firebase/
+├── hooks/
+├── icons/
+├── lib/
+├── pages/
+├── styles/
+├── types/
+└── utils/
+
 
 
