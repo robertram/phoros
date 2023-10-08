@@ -1,6 +1,8 @@
 import Layout from "@/components/Layout";
 import NavBar from "@/components/NavBar";
-import { CreateTwitterList } from "@/components/TwitterList";
+import { CreateTwitterList } from "@/components/CreateTwitterList";
+import addData from '@/firebase/firestore/addData'
+import { useState } from "react";
 
 export default function CreateList() {
   return (

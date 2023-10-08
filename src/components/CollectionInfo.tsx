@@ -27,11 +27,11 @@ export const CollectionInfo = ({ contractAddress, title, image }: CollectionInfo
       <div className="">
         <p className="text-1xl">{title}</p>
         
-        <div className="flex">
+        {/* <div className="flex">
           <p className="text-base">
             250 members
           </p>
-        </div>
+        </div> */}
       </div>
 
       {/* <div>

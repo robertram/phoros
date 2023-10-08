@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import addData from '@/firebase/firestore/addData';
+import React, { useEffect, useState } from 'react';
 import { AiOutlineCopy } from 'react-icons/ai';
+import { uuid } from 'uuidv4';
 import { Loading } from './Loading';
 import { Toggle } from './Toggle';
 
@@ -7,10 +10,13 @@ interface EventType {
   name: string
   description: string
   isPrivate: boolean
+  listId?: string
 }
 
 export const CreateTwitterList = () => {
+  const { address } = useAuth()
   const [error, setError] = useState(null);
+  const [errorFirebase, setErrorFirebase] = useState<string>('')
   const [loading, setLoading] = useState(false);
 
   const [listCreated, setListCreated] = useState(false);
@@ -18,13 +24,14 @@ export const CreateTwitterList = () => {
   const [listData, setListData] = useState<EventType>({
     name: '',
     description: '',
-    isPrivate: false
+    isPrivate: false,
+    listId: ''
   })
 
   const createList = async (event: any) => {
     setLoading(true)
     event.preventDefault()
-    const response = await fetch('/api/twitter/create-list',
+    await fetch('/api/twitter/create-list',
       {
         method: 'POST',
         headers: {
@@ -51,6 +58,28 @@ export const CreateTwitterList = () => {
       });
     setLoading(false)
   }
+
+  const addEventToFirebase = async (data: any) => {
+    const firebaseData = {
+      ...listData,
+      listId: data?.id,
+      owner: address
+    }
+
+    const { result, error } = await addData('lists', uuid(), firebaseData)
+
+    if (error) {
+      setErrorFirebase(`Firebase error: ${error}`)
+      return console.log('Add to firebase error', error)
+    }
+    return { result }
+  }
+
+  useEffect(() => {
+    if (createdListInformation) {
+      addEventToFirebase(createdListInformation.data)
+    }
+  }, [listCreated])
 
   return (
     <div>
@@ -91,7 +120,7 @@ export const CreateTwitterList = () => {
           />
         </div>
         <div className='mb-[20px]'>
-          <label htmlFor='name'>List Description</label>
+          <label htmlFor='description'>List Description</label>
           <input
             type='text'
             id='description'

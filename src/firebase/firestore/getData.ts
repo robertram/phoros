@@ -32,18 +32,13 @@ export async function getDocuments({ collectionName, customQuery }: GetDocuments
 
   let result = null;
   let error = null;
-  const activeChain = process.env.NEXT_PUBLIC_CHAIN
 
   try {
     const data: any = []
     querySnapshot.forEach((doc) => {
       const newData: any = doc.data()
-      const showTestEvents = activeChain === newData.chain || activeChain === "mumbai"
-
-      if (!newData.hideEvent && showTestEvents) {
-        newData.id = doc.id;
-        data.push(newData)
-      }
+      newData.id = doc.id;
+      data.push(newData)
     });
 
     result = data

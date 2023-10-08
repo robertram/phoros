@@ -3,6 +3,7 @@ import Footer from './Footer'
 import NavBar from './NavBar'
 import { useRouter } from 'next/router'
 import SEO from './SEO'
+import { FloatingButton } from './FloatingButton'
 
 interface Props extends HTMLAttributes<HTMLElement> {
   title?: string
@@ -25,6 +26,8 @@ export default function Layout({ ...props }: Props) {
       <SEO title={title ? `${title} | Phoros` : 'Phoros'} description={description} />
       {firstRoute === '' ? '' : <NavBar />}
       <main className='min-h-[71vh]' {...props} />
+
+      <FloatingButton/>
       {/* {firstRoute === '' || firstRoute === 'landing' ? '' :
         <Footer
           newsletterDescription={newsletterDescription}
