@@ -40,8 +40,6 @@ export const PoapInfo = ({ uri, tokenId, data }: PoapInfoProps) => {
   const eventId = poapData?.external_url?.split('/')[4]
 
   return (
-    <div>
-      <PoapItemContainer title={data.name} image={data.image} eventId={eventId} tokenId={tokenId ?? ''} />
-    </div>
+      <PoapItemContainer title={data.name} image={data.image} eventId={eventId} tokenId={tokenId ?? ''} listId={data.listId} />
   )
 }

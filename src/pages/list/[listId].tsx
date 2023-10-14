@@ -3,7 +3,7 @@ import Layout from "@/components/Layout";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Web3 from 'web3'
-import POAP from '../../../abis/POAP.json'
+import POAP from '@/abis/POAP.json'
 import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection, where, arrayUnion } from "firebase/firestore";
 import Modal from "@/components/Modal";
@@ -15,11 +15,15 @@ import Twitter from "@/icons/Twitter";
 import { PoapInfo } from "@/components/PoapInfo";
 import { PoapItemContainer } from "@/components/PoapItemContainer";
 import { Loading } from "@/components/Loading";
+import { ResponseDto, NftTokenDetail } from '@tatumio/tatum'
+import useTatum from "@/hooks/useTatum";
 
 export default function Community() {
+  const tatum = useTatum()
   const router = useRouter();
   const tokenId = Array.isArray(router.query.tokenId) ? router.query.tokenId[1] : router.query.tokenId;
-  const eventId = Array.isArray(router.query.eventId) ? router.query.eventId[1] : router.query.eventId;
+  const listId = Array.isArray(router.query.listId) ? router.query.listId[1] : router.query.listId;
+  //const eventId = Array.isArray(router.query.eventId) ? router.query.eventId[1] : router.query.eventId;
   const [tokenUri, setTokenUri] = useState<any>()
   const [loading, setLoading] = useState(false);
   const [userAddedToList, setUserAddedToList] = useState(false);
@@ -30,8 +34,11 @@ export default function Community() {
   const [addToListError, setAddToListError] = useState(false)
   const [error, setError] = useState('')
   const [tokenData, setTokenData] = useState<any>({});
+  const [requiredNFTs, setRequiredNFTs] = useState<any[]>([]);
+  const [requiredPOAPs, setRequiredPOAPs] = useState<any[]>([]);
+  const [requiredPOAPsURI, setRequiredPOAPsURI] = useState<any[]>([]);
 
-  const getUserId = async () => {
+  const getUserId = async (twitterUsername: string) => {
     setLoading(true)
     await fetch('/api/twitter/get-user-id',
       {
@@ -86,12 +93,12 @@ export default function Community() {
       return null
     }
 
-    const usersArray = [
-      ...listInfo?.waitlist,
-      userInfo?.id
-    ]
+    // const usersArray = [
+    //   ...listInfo?.waitlist,
+    //   userInfo?.id
+    // ]
 
-    const isRepeated = listInfo?.waitlist.includes(userInfo?.id);
+    const isRepeated = listInfo?.waitlist?.includes(userInfo?.id);
 
     if (isRepeated) {
       setError('You are still on the waitlist')
@@ -135,7 +142,7 @@ export default function Community() {
         setTwitterUsername('')
       });
 
-    if (eventId) {
+    if (listId) {
       getAllData().then((result: any) => {
         setListInfo(result.result[0])
       })
@@ -143,40 +150,71 @@ export default function Community() {
     setLoading(false)
   }
 
-  const getTokenURI = async (tokenId: string) => {
+  const getPOAPsTokensURI = async (tokenId: string) => {
     const web3 = new Web3('https://rpc.gnosischain.com');
     const nftContractAddress = '0x22c1f6050e56d2876009903609a2cc3fef83b415';
     const nftContract: any = new web3.eth.Contract(POAP, nftContractAddress);
-    return await nftContract?.methods?.tokenURI(tokenId)
-      .call()
-      .then((tokenUri: any) => {
-        if (tokenUri) {
-          setTokenUri({
-            uri: tokenUri,
-            tokenId
-          })
+
+    await Promise.all(
+      listInfo?.requiredNFTs.map(async (item: number) => {
+        if (!requiredPOAPs.some(existingItem => existingItem?.split('/')[5] === item)) {
+
+          await nftContract?.methods?.tokenURI(item)
+            .call()
+            .then((tokenUri: any) => {
+              setRequiredPOAPs(oldArray => [...oldArray, tokenUri]);
+            })
+            .catch((error: any) => {
+              console.error('Error fetching NFTs:', error);
+            });
         }
       })
-      .catch((error: any) => {
-        console.error('Error fetching NFTs:', error);
-      });
+    )
   }
 
   useEffect(() => {
-    if (tokenId) {
-      getTokenURI(tokenId)
+    const fetchRequiredPoapsURI = async () => {
+      await Promise.all(
+        requiredPOAPs.map(async (item) => {
+          console.log('requiredPOAPs item', item);
+          await fetch(item)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('Couldnt get poaps');
+              }
+              //setLoading(false)
+              return response.json()
+            })
+            .then(response => {
+              setRequiredPOAPsURI(oldArray => [...oldArray, response]);
+              //setTokenData(response)
+            })
+            .catch((err) => {
+            });
+        })
+      )
     }
-  }, [tokenId])
+    if (requiredPOAPs.length > 0) {
+      fetchRequiredPoapsURI()
+        .catch(console.error);
+    }
+  }, [requiredPOAPs])
+
+  useEffect(() => {
+    if (listInfo?.isPoap && listInfo?.requiredNFTs > 0 && listInfo?.eventId) {
+      getPOAPsTokensURI(listInfo?.requiredNFTs)
+    }
+  }, [listInfo])
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
+      //setLoading(true)
       await fetch(tokenUri.uri)
         .then(response => {
           if (!response.ok) {
             throw new Error('Couldnt get poaps');
           }
-          setLoading(false)
+          //setLoading(false)
           return response.json()
         })
         .then(response => {
@@ -190,18 +228,42 @@ export default function Community() {
       .catch(console.error);
   }, [tokenUri])
 
+  useEffect(() => {
+    const fetchRequiredNFTsData = async () => {
+      await Promise.all(
+        listInfo?.requiredNFTs.map(async (item: number) => {
+          if (!requiredNFTs.some(existingItem => existingItem?.tokenId === item)) {
+            const metadata: ResponseDto<NftTokenDetail | null> = await tatum.nft.getNftMetadata({
+              tokenAddress: listInfo?.contractAddress,
+              tokenId: item
+            })
+            setRequiredNFTs(oldArray => [...oldArray, metadata.data]);
+          }
+        })
+      )
+    }
+
+    if (!listInfo?.isPoap) {
+      fetchRequiredNFTsData()
+        .catch(console.error);
+    }
+  }, [listInfo])
+
   const getAllData = async () => {
-    const customQuery = query(collection(db, "lists"), where("eventId", "==", eventId));
+    const customQuery = query(collection(db, "lists"), where("listId", "==", listId));
     return await getDocuments({ customQuery })
   }
 
   useEffect(() => {
-    if (eventId) {
+    if (listId) {
       getAllData().then((result: any) => {
         setListInfo(result.result[0])
       })
     }
-  }, [eventId]);
+  }, [listId]);
+
+  console.log('tokenData', tokenData);
+
 
   return (
     <Layout>
@@ -253,9 +315,25 @@ export default function Community() {
 
           <div className="mt-[20px]">
             <h2 className="text-base font-medium">Collectibles Required</h2>
-            <div>
-              <PoapItemContainer title={tokenData.name} image={tokenData.image_url} />
-            </div>
+            {/* {listInfo?.isPoap && <PoapItemContainer title={tokenData.name} image={tokenData.image_url} />} */}
+
+            {listInfo?.isPoap && requiredPOAPsURI.length > 0 && requiredPOAPsURI.map((item: any, index: number) => {
+              return (
+                <div key={index}>
+                  <PoapItemContainer title={item?.name} image={item?.image_url} />
+                </div>
+              )
+            })}
+
+            {requiredNFTs.length > 0 && requiredNFTs.map((item: any, index: number) => {
+              const image = item?.metadata?.image?.replace("ipfs://", "https://ipfs.io/ipfs/");
+
+              return (
+                <div key={index}>
+                  <PoapItemContainer title={item?.metadata?.name} image={image} />
+                </div>
+              )
+            })}
           </div>
 
           <Modal
@@ -315,7 +393,7 @@ export default function Community() {
               <Button
                 disabled={twitterUsername == ''}
                 onClick={() => {
-                  getUserId()
+                  getUserId(twitterUsername)
                 }}
                 className={`mt-[0]  ${twitterUsername == '' ? 'bg-[#4BA3E3]' : 'bg-[#91D1F8]'}`}
               >
