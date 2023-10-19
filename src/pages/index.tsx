@@ -1,3 +1,4 @@
+import { FloatingButton } from "@/components/FloatingButton";
 import { GnosisNFTs } from "@/components/GnosisNFTs";
 import Layout from "@/components/Layout";
 import NavBar from "@/components/NavBar";
@@ -49,6 +50,7 @@ export default function Index() {
           </div>
         }
       </div>
+      <FloatingButton />
     </Layout >
   )
 }

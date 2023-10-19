@@ -8,7 +8,7 @@ import { Toggle } from './Toggle';
 import storage from "../firebase/firebaseConfig"
 import { ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
 
-interface EventType {
+interface ListType {
   name: string
   description: string
   isPrivate: boolean
@@ -24,7 +24,8 @@ export const CreateTwitterList = () => {
 
   const [listCreated, setListCreated] = useState(false);
   const [createdListInformation, setCreatedListInformation] = useState<any>({});
-  const [listData, setListData] = useState<EventType>({
+  const [authTwitterLink, setAuthTwitterLink] = useState<string>('');
+  const [listData, setListData] = useState<ListType>({
     name: '',
     description: '',
     isPrivate: false,
@@ -63,6 +64,39 @@ export const CreateTwitterList = () => {
     setLoading(false)
   }
 
+  const getAuthLink = async () => {
+    setLoading(true)
+    await fetch('/api/twitter/auth',
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(listData)
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json()
+      })
+      .then(response => {
+        console.log('getAuthLink response', response);
+        setAuthTwitterLink(response.url)
+        setCreatedListInformation(response);
+        setLoading(false)
+
+        return response
+      })
+      .catch((err) => {
+        setError(err.message);
+        setListCreated(false)
+        setLoading(false)
+      });
+    setLoading(false)
+  }
+
   const addListToFirebase = async (data: any) => {
     const firebaseData = {
       ...listData,
@@ -84,6 +118,14 @@ export const CreateTwitterList = () => {
       addListToFirebase(createdListInformation.data)
     }
   }, [listCreated])
+
+  useEffect(() => {
+    const getAuthLinkTwitter = async () => {
+      const authLink = await getAuthLink()
+      console.log('authLink useEffect', authLink);
+    }
+    getAuthLinkTwitter()
+  }, [])
 
   return (
     <div>
@@ -197,7 +239,15 @@ export const CreateTwitterList = () => {
         >
           {loading ? <Loading /> : 'Create List'}
         </button>
+
+
       </form>
+
+      <button onClick={getAuthLink}>Twitter auth</button>
+      {authTwitterLink}
+      <a
+        className='bg-blue-500 text-white font-semibold px-4 py-2 rounded-md mt-4'
+        href={authTwitterLink}>Authorize Twitter</a>
     </div>
   );
 }
