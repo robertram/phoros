@@ -7,6 +7,8 @@ import { Loading } from './Loading';
 import { Toggle } from './Toggle';
 import storage from "../firebase/firebaseConfig"
 import { ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebase/firestore/getData';
 
 interface ListType {
   name: string
@@ -17,14 +19,13 @@ interface ListType {
 }
 
 export const CreateTwitterList = () => {
+  const [user, setUser] = useState<any>()
   const { address } = useAuth()
   const [error, setError] = useState(null);
   const [errorFirebase, setErrorFirebase] = useState<string>('')
   const [loading, setLoading] = useState(false);
-
   const [listCreated, setListCreated] = useState(false);
   const [createdListInformation, setCreatedListInformation] = useState<any>({});
-  const [authTwitterLink, setAuthTwitterLink] = useState<string>('');
   const [listData, setListData] = useState<ListType>({
     name: '',
     description: '',
@@ -36,14 +37,18 @@ export const CreateTwitterList = () => {
   const createList = async (event: any) => {
     setLoading(true)
     event.preventDefault()
-    await fetch('/api/twitter/create-list',
+
+    console.log('{ listData, user }', { ...listData, ...user });
+    
+    await fetch('/api/twitter/create-list-user',
       {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(listData)
+        body: JSON.stringify({ ...listData, ...user })
+        //body: JSON.stringify(listData)
       })
       .then(response => {
         if (!response.ok) {
@@ -55,39 +60,6 @@ export const CreateTwitterList = () => {
         setCreatedListInformation(response);
         setListCreated(true)
         setLoading(false)
-      })
-      .catch((err) => {
-        setError(err.message);
-        setListCreated(false)
-        setLoading(false)
-      });
-    setLoading(false)
-  }
-
-  const getAuthLink = async () => {
-    setLoading(true)
-    await fetch('/api/twitter/auth',
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(listData)
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json()
-      })
-      .then(response => {
-        console.log('getAuthLink response', response);
-        setAuthTwitterLink(response.url)
-        setCreatedListInformation(response);
-        setLoading(false)
-
-        return response
       })
       .catch((err) => {
         setError(err.message);
@@ -120,12 +92,18 @@ export const CreateTwitterList = () => {
   }, [listCreated])
 
   useEffect(() => {
-    const getAuthLinkTwitter = async () => {
-      const authLink = await getAuthLink()
-      console.log('authLink useEffect', authLink);
+    const getUserInfo = async () => {
+      const usersRef = doc(db, 'users', address ?? '')
+      const docSnap = await getDoc(usersRef)
+      return docSnap.data()
     }
-    getAuthLinkTwitter()
-  }, [])
+
+    if (address) {
+      getUserInfo().then((result: any) => {
+        setUser(result)
+      })
+    }
+  }, [address]);
 
   return (
     <div>
@@ -219,7 +197,6 @@ export const CreateTwitterList = () => {
           <div className='flex justify-between'>
             <div>
               <p className='text-2xl'>Is Private?</p>
-              {/* <p className='text-body'>The users can resell their event tickets</p> */}
             </div>
             <div className='my-auto'>
               <Toggle
@@ -239,15 +216,7 @@ export const CreateTwitterList = () => {
         >
           {loading ? <Loading /> : 'Create List'}
         </button>
-
-
       </form>
-
-      <button onClick={getAuthLink}>Twitter auth</button>
-      {authTwitterLink}
-      <a
-        className='bg-blue-500 text-white font-semibold px-4 py-2 rounded-md mt-4'
-        href={authTwitterLink}>Authorize Twitter</a>
     </div>
   );
 }

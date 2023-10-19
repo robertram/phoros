@@ -1,8 +1,7 @@
 import Create from "@/icons/Create"
 import Link from "next/link"
 import { useEffect, useState } from "react";
-
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firestore/getData';
 import { useAuth } from "@/context/AuthContext";
 import Button from "./Button";
@@ -23,11 +22,7 @@ export const FloatingButton = () => {
 
     if (address) {
       getUserInfo().then((result: any) => {
-
-        console.log('result', result);
         setUser(result)
-        // setUserInfo(result)
-        // setData(result)
       })
     }
   }, [address]);
