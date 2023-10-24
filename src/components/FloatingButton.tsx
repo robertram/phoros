@@ -6,6 +6,7 @@ import { db } from '@/firebase/firestore/getData';
 import { useAuth } from "@/context/AuthContext";
 import Button from "./Button";
 import Modal from "./Modal";
+import { AuthorizeButton } from "./AuthorizeButton";
 
 export const FloatingButton = () => {
   const { address } = useAuth()
@@ -27,7 +28,10 @@ export const FloatingButton = () => {
     }
   }, [address]);
 
-  if (!user?.authToken) {
+  console.log('user', user);
+  
+
+  if (!user?.refreshToken || !user?.accessToken) {
     return (
       <>
         <div>
@@ -57,12 +61,14 @@ export const FloatingButton = () => {
             </div>
 
 
-            <Link
+            {/* <Link
               href='/authorize'
               className='bg-blue-500 text-white font-semibold px-4 py-2 rounded-md mt-4'
             >
               Verify with X (twitter)
-            </Link>
+            </Link> */}
+
+            <AuthorizeButton />
           </div>
 
         </Modal>

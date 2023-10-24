@@ -8,7 +8,7 @@ export default function CreateList() {
   return (
     <div>
       <NavBar />
-      <div className='px-4 max-w-large flex items-center m-auto'>
+      <div className='px-4 max-w-large flex items-center m-auto w-full'>
         <CreateTwitterList />
       </div>
     </div>

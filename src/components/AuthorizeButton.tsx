@@ -13,7 +13,7 @@ interface AuthTwitterProps {
   state: string
 }
 
-export default function Authorize() {
+export const AuthorizeButton = () => {
   const router = useRouter()
   const { address } = useAuth()
   const [error, setError] = useState(null);
@@ -63,64 +63,39 @@ export default function Authorize() {
     getAuthLinkTwitter()
   }, [])
 
-  const getUserAccessToken = async () => {
-    setLoading(true)
+  const updateUserInfo = async () => {
     console.log('authTwitter', authTwitter);
-    await fetch('/api/twitter/auth-callback',
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ code: router.query.code, address: address })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json()
-      })
-      .then(response => {
-        console.log('access token res', response);
-        setAuthorizationSuccess(true)
-        setLoading(false)
-        return response
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false)
-      });
-    setLoading(false)
+    if (authTwitter.url && authTwitter.codeVerifier && authTwitter.state) {
+      setLoading(true)
+      const usersRef = doc(db, 'users', address ?? '')
+
+      try {
+        await setDoc(usersRef, { ...authTwitter, code: router.query.code }, { merge: true })
+        router.push('/create-list')
+      } catch (err) {
+        console.error('You dont have permission')
+      }
+      setLoading(false)
+    }
   }
 
-  useEffect(() => {
-    const getAccessToken = async () => {
-      await getUserAccessToken()
-    }
-    if (router.query.code != undefined) {
-      getAccessToken()
-    }
-  }, [router.query])
-
-  useEffect(() => {
-    if (authorizationSuccess) {
-      router.push('create-list')
-    }
-  }, [authorizationSuccess])
-
   return (
-    <Layout>
-      <div className='px-[16px] max-w-large flex items-center m-auto'>
-        {!authorizationSuccess ?
-          <Loading />
-          :
-          <div>
-            <h1 className="text-2xl">Authorized!</h1>
-            <p className="text-bae">Redirecting...</p>
-          </div>
-        }
-      </div>
-    </Layout>
+    <div>
+      {address ?
+        <div>
+          {/* <div className="mb-[20px]">
+              <h2 className="text-3xl font-bold">Authorize your twitter account</h2>
+              <p className="text-base">Authorize and copy the pin from the twitter window</p>
+            </div> */}
+          <a
+            href={authTwitter.url ?? ''}
+            className='bg-blue-500 text-white font-semibold px-4 py-2 rounded-md mt-4 my-[20px] cursor-pointer'
+          >
+            Verify with X (twitter)
+          </a>
+        </div>
+        : <w3m-button size='md' label='Log In' />
+      }
+    </div>
   )
 }

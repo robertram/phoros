@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useAccount } from "wagmi";
 
 export default function Index() {
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState(1);
   const { address } = useAccount()
 
   const tabsList = ["NFTs", "POAPs"]

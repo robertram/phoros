@@ -285,22 +285,24 @@ export default function Community() {
               </div>
             }
 
-            {listInfo && <div className="flex justify-between gap-4 mt-[50px]">
-              <CardButton
-                onClick={() => {
-                  window.open(`https://twitter.com/i/lists/${listInfo?.listId}`, '_blank');
-                }}
-                title="Open in X"
-                icon={<Twitter className="m-auto" />}
-              />
-              <CardButton
-                disabled={loading}
-                onClick={() => setShowEnterUsername(true)}
-                title="Join List"
-                icon={<AddUser className="m-auto" />}
-                loading={loading}
-              />
-            </div>}
+            {listInfo &&
+              <div className="flex justify-between gap-4 mt-[50px]">
+                <CardButton
+                  onClick={() => {
+                    window.open(`https://twitter.com/i/lists/${listInfo?.listId}`, '_blank');
+                  }}
+                  title="Open in X"
+                  icon={<Twitter className="m-auto" />}
+                />
+                <CardButton
+                  disabled={loading}
+                  onClick={() => setShowEnterUsername(true)}
+                  title="Join List"
+                  icon={<AddUser className="m-auto" />}
+                  loading={loading}
+                />
+              </div>
+            }
           </div>
 
           {error && <p className="text-red-500">{error}</p>}
