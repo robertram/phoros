@@ -43,10 +43,10 @@ export const AuthorizeButton = () => {
         return response.json()
       })
       .then(response => {
-        console.log('getAuthLink response', response);
+        console.log('response auth twitter', response);
+        
         setAuthTwitter(response)
         setLoading(false)
-
         return response
       })
       .catch((err) => {
@@ -60,8 +60,10 @@ export const AuthorizeButton = () => {
     const getAuthLinkTwitter = async () => {
       await getAuthLink()
     }
-    getAuthLinkTwitter()
-  }, [])
+    if (address) {
+      getAuthLinkTwitter()
+    }
+  }, [address])
 
   const updateUserInfo = async () => {
     console.log('authTwitter', authTwitter);

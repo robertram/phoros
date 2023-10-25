@@ -60,14 +60,6 @@ export const FloatingButton = () => {
               </button>
             </div>
 
-
-            {/* <Link
-              href='/authorize'
-              className='bg-blue-500 text-white font-semibold px-4 py-2 rounded-md mt-4'
-            >
-              Verify with X (twitter)
-            </Link> */}
-
             <AuthorizeButton />
           </div>
 

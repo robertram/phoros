@@ -17,6 +17,7 @@ import { PoapItemContainer } from "@/components/PoapItemContainer";
 import { Loading } from "@/components/Loading";
 import { ResponseDto, NftTokenDetail } from '@tatumio/tatum'
 import useTatum from "@/hooks/useTatum";
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function Community() {
   const tatum = useTatum()
@@ -37,6 +38,23 @@ export default function Community() {
   const [requiredNFTs, setRequiredNFTs] = useState<any[]>([]);
   const [requiredPOAPs, setRequiredPOAPs] = useState<any[]>([]);
   const [requiredPOAPsURI, setRequiredPOAPsURI] = useState<any[]>([]);
+  const [user, setUser] = useState<any>()
+
+  console.log('listInfo', listInfo);
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const usersRef = doc(db, 'users', listInfo?.owner ?? '')
+      const docSnap = await getDoc(usersRef)
+      return docSnap.data()
+    }
+
+    if (listInfo?.owner) {
+      getUserInfo().then((result: any) => {
+        setUser(result)
+      })
+    }
+  }, [listInfo]);
 
   const getUserId = async (twitterUsername: string) => {
     setLoading(true)
@@ -113,7 +131,7 @@ export default function Community() {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId })
+        body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, ...user })
       })
       .then(response => {
         if (!response.ok) {

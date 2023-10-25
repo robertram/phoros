@@ -68,4 +68,5 @@ src
 functions
 
 
-
+# Ngrok Tunnel
+ngrok http --domain=phoros.ngrok.dev 3000
