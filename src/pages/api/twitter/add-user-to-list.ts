@@ -1,23 +1,21 @@
-//import TwitterApi from 'twitter-api-v2';
 import TwitterApi from 'twitter-api-v2';
 
 export default async function handler(req: any, res: any) {
   try {
+    //New Member info
     const listId = req.body?.listId
     const userId = req.body?.userId
+    //Twitter Access
     const accessToken = req.body?.accessToken
+    const expireTime = req.body?.expireTime
 
-    console.log('listId', listId);
-    console.log('userId', userId);
-    console.log('accessToken', accessToken);
+    if (Date.now() > expireTime) {
+      return res.status(401).json({ error: 'Access token expired' });
+    }
 
     if (listId && userId && accessToken) {
       const twitterClient = new TwitterApi(accessToken);
       const userClient = twitterClient.readWrite;
-
-      // console.log('listId', listId);
-      // console.log('userId', userId);
-      // console.log('accessToken', accessToken);
 
       const addListMember = await userClient.v2.addListMember(listId, userId);
       console.log('addListMember', addListMember);

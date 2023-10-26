@@ -3,11 +3,11 @@ import { withSessionRoute } from '../../../lib/session'
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firestore/getData';
 
-const updateUserInfo = async (accessToken: string, refreshToken: string, address: string) => {
+const updateUserInfo = async (accessToken: string, refreshToken: string, expireTime: number, address: string) => {
   const usersRef = doc(db, 'users', address ?? '')
 
   try {
-    await setDoc(usersRef, { accessToken, refreshToken }, { merge: true })
+    await setDoc(usersRef, { accessToken, refreshToken, expireTime }, { merge: true })
   } catch (err) {
     console.error('You dont have permission')
   }
@@ -34,7 +34,9 @@ const handler = async (req: any, res: any) => {
 
         const { data: userObject } = await loggedClient.v2.me();
 
-        updateUserInfo(accessToken, refreshToken ?? '', address)
+        const expireTime = Date.now() + (expiresIn * 1000);
+
+        updateUserInfo(accessToken, refreshToken ?? '', expireTime, address)
 
         res.status(200).json({ message: 'Success', user: userObject });
       } catch (error) {

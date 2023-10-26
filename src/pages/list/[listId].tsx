@@ -39,14 +39,14 @@ export default function Community() {
   const [requiredPOAPs, setRequiredPOAPs] = useState<any[]>([]);
   const [requiredPOAPsURI, setRequiredPOAPsURI] = useState<any[]>([]);
   const [user, setUser] = useState<any>()
-
   console.log('listInfo', listInfo);
 
   useEffect(() => {
     const getUserInfo = async () => {
       const usersRef = doc(db, 'users', listInfo?.owner ?? '')
       const docSnap = await getDoc(usersRef)
-      return docSnap.data()
+
+      return { ...docSnap.data(), id: docSnap.id };
     }
 
     if (listInfo?.owner) {
@@ -89,7 +89,7 @@ export default function Community() {
 
   useEffect(() => {
     if (userInfo?.id && listInfo?.listId) {
-      addUserToList()
+      addUserToList2()
     }
   }, [userInfo])
 
@@ -104,17 +104,104 @@ export default function Community() {
     return { result }
   }
 
+  const addUserToList2 = async () => {
+    setLoading(true);
+    try {
+      if (!userInfo?.id || !listInfo?.listId) {
+        console.log('cant add to list', 'userInfo?.id', userInfo?.id, 'listInfo?.listId', listInfo?.listId);
+        return;
+      }
+
+      const isRepeated = listInfo?.waitlist?.includes(userInfo?.id);
+
+      if (isRepeated) {
+        setError('You are still on the waitlist');
+        setLoading(false);
+        return;
+      }
+
+      let response = await fetch('/api/twitter/add-user-to-list', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, ...user })
+      });
+
+      if (response.status === 401) {
+        // Access token might be expired, try to refresh it
+
+        console.log(401, 'user', user);
+        
+        const refreshResponse = await fetch('/api/twitter/refresh-token', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ...user, refreshToken: user?.refreshToken  })
+        });
+
+        if (!refreshResponse.ok) {
+          throw new Error('Failed to refresh token');
+        }
+
+        const refreshData = await refreshResponse.json();
+        const newAccessToken = refreshData.accessToken;
+        const newExpireTime = refreshData.expireIn;
+
+        // Retry the original request with the new access token
+        response = await fetch('/api/twitter/add-user-to-list', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, accessToken: newAccessToken, expireTime: newExpireTime })
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      const dataToUpdate = {
+        members: arrayUnion(userInfo?.id)
+      };
+      addUserToFirebaseList(listInfo.id, dataToUpdate);
+      setUserAddedToList(true);
+      setLoading(false);
+      setTwitterUsername('');
+    } catch (err) {
+      console.error('Error adding user to list:', err);
+      const dataToUpdate = {
+        waitlist: arrayUnion(userInfo?.id)
+      };
+      addUserToFirebaseList(listInfo.id, dataToUpdate);
+      setError('Failed to add user to list');
+      setUserAddedToList(false);
+      setLoading(false);
+      setTwitterUsername('');
+    }
+
+    if (listId) {
+      getAllData().then((result) => {
+        setListInfo(result.result[0]);
+      });
+    }
+    setLoading(false);
+  }
+
+
   const addUserToList = async () => {
     setLoading(true)
+
     if (!userInfo?.id || !listInfo?.listId) {
       console.log('cant add to list', 'userInfo?.id', userInfo?.id, 'listInfo?.listId', listInfo?.listId)
       return null
     }
-
-    // const usersArray = [
-    //   ...listInfo?.waitlist,
-    //   userInfo?.id
-    // ]
 
     const isRepeated = listInfo?.waitlist?.includes(userInfo?.id);
 
