@@ -20,6 +20,9 @@ module.exports = {
       maxWidth:{
         'normal':'1200px', 
         'large':'2100px'
+      }, 
+      fontFamily: {
+        satoshi: ['var(--font-satoshi)']
       }
     },
     screens: {
