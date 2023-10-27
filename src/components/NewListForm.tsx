@@ -8,33 +8,14 @@ interface NewListFormProps {
   listData: any
   setListData: (listData: any) => void
   error: any
-  onSubmit: (event: any) => Promise<void>
   loading: boolean
   setStep: (step: number) => void
 }
 
-export const NewListForm = ({ listData, setListData, error, onSubmit, loading, setStep }: NewListFormProps) => {
+export const NewListForm = ({ listData, setListData, error, loading, setStep }: NewListFormProps) => {
 
   return (
     <div>
-      {/* {listCreated && <div>
-        <p className='text-green-400'>List Created</p>
-        <div className='flex'>
-          <a
-            className='underline'
-            rel="noreferrer"
-            target="_blank"
-            href={`https://twitter.com/i/lists/${createdListInformation?.data?.id}`}
-          >{createdListInformation?.data?.name}</a>
-          <button
-            className='flex'
-            onClick={() => { navigator.clipboard.writeText(`https://twitter.com/i/lists/${createdListInformation?.data?.id}`) }}
-          >
-            <AiOutlineCopy size={20} />
-          </button>
-        </div>
-      </div>} */}
-
       {error && <p className='text-red-500'>{error}</p>}
 
       <form>
@@ -128,8 +109,6 @@ export const NewListForm = ({ listData, setListData, error, onSubmit, loading, s
           Continue
         </button>
       </form>
-
-
     </div>
   )
 }

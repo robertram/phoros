@@ -24,7 +24,7 @@ interface ListType {
 export const CreateTwitterList = () => {
   const [user, setUser] = useState<any>()
   const { address } = useAuth()
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<any>(null);
   const [errorFirebase, setErrorFirebase] = useState<string>('')
   const [loading, setLoading] = useState(false);
   const [listCreated, setListCreated] = useState(false);
@@ -38,36 +38,75 @@ export const CreateTwitterList = () => {
   })
   const [activeTab, setActiveTab] = useState(0);
 
-  const createList = async (event: any) => {
-    setLoading(true)
+  const createList = async () => {
+    setLoading(true);
+    try {
+      if (!user?.accessToken || !listData) {
+        console.log('cant create list',);
+        return;
+      }
 
-    await fetch('/api/twitter/create-list-user-v2',
-      {
+      let response = await fetch('/api/twitter/create-list-user-v2', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ ...listData, ...user })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json()
-      })
-      .then(response => {
-        setCreatedListInformation(response);
-        setListCreated(true)
-        setActiveTab(2)
-        setLoading(false)
-      })
-      .catch((err) => {
-        setError(err.message);
-        setListCreated(false)
-        setLoading(false)
       });
-    setLoading(false)
+
+      if (response.status === 401) {
+        // Access token might be expired, try to refresh it
+
+        console.log(401, 'user', user);
+
+        const refreshResponse = await fetch('/api/twitter/refresh-token', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ...user, refreshToken: user?.refreshToken })
+        });
+
+        if (!refreshResponse.ok) {
+          throw new Error('Failed to refresh token');
+        }
+
+        const refreshData = await refreshResponse.json();
+        const newAccessToken = refreshData.accessToken;
+        const newExpireTime = refreshData.expireIn;
+
+        // Retry the original request with the new access token
+        response = await fetch('/api/twitter/create-list-user-v2', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ...listData, accessToken: newAccessToken, expireTime: newExpireTime })
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+
+      setCreatedListInformation(data);
+      setListCreated(true)
+      setActiveTab(2)
+      setLoading(false)
+
+    } catch (err) {
+      console.error('Error adding user to list:', err);
+      setError(err);
+      setListCreated(false)
+      setLoading(false)
+    }
+
+    setLoading(false);
   }
 
   const addListToFirebase = async (data: any) => {
@@ -96,7 +135,8 @@ export const CreateTwitterList = () => {
     const getUserInfo = async () => {
       const usersRef = doc(db, 'users', address ?? '')
       const docSnap = await getDoc(usersRef)
-      return docSnap.data()
+
+      return { ...docSnap.data(), id: docSnap.id };
     }
 
     if (address) {
@@ -122,7 +162,6 @@ export const CreateTwitterList = () => {
           listData={listData}
           setListData={setListData}
           error={error}
-          onSubmit={createList}
           loading={loading}
         />
       }

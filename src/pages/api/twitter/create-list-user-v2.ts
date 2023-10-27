@@ -6,8 +6,11 @@ export default async function handler(req: any, res: any) {
     const description = req.body?.description
     const isPrivate = req.body?.isPrivate || false
     const accessToken = req.body?.accessToken
+    const expireTime = req.body?.expireTime
 
-    console.log('accessToken', accessToken);
+    if (Date.now() > expireTime) {
+      return res.status(401).json({ error: 'Access token expired' });
+    }
 
     if (name && description) {
       const twitterClient = new TwitterApi(accessToken);

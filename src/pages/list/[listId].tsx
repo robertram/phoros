@@ -194,67 +194,6 @@ export default function Community() {
     setLoading(false);
   }
 
-
-  const addUserToList = async () => {
-    setLoading(true)
-
-    if (!userInfo?.id || !listInfo?.listId) {
-      console.log('cant add to list', 'userInfo?.id', userInfo?.id, 'listInfo?.listId', listInfo?.listId)
-      return null
-    }
-
-    const isRepeated = listInfo?.waitlist?.includes(userInfo?.id);
-
-    if (isRepeated) {
-      setError('You are still on the waitlist')
-      setLoading(false)
-      return null
-    }
-
-    await fetch('/api/twitter/add-user-to-list',
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, ...user })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json()
-      })
-      .then(response => {
-        const dataToUpdate = {
-          members: arrayUnion(userInfo?.id)
-        };
-        addUserToFirebaseList(listInfo.id, dataToUpdate)
-        setUserAddedToList(true)
-        setLoading(false)
-        setTwitterUsername('')
-      })
-      .catch((err) => {
-        const dataToUpdate = {
-          waitlist: arrayUnion(userInfo?.id)
-        };
-        addUserToFirebaseList(listInfo.id, dataToUpdate)
-        console.log('err', err);
-        setAddToListError(true)
-        setUserAddedToList(false)
-        setLoading(false)
-        setTwitterUsername('')
-      });
-
-    if (listId) {
-      getAllData().then((result: any) => {
-        setListInfo(result.result[0])
-      })
-    }
-    setLoading(false)
-  }
-
   const getPOAPsTokensURI = async (tokenId: string) => {
     const web3 = new Web3('https://rpc.gnosischain.com');
     const nftContractAddress = '0x22c1f6050e56d2876009903609a2cc3fef83b415';
