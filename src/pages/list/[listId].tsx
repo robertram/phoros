@@ -17,6 +17,7 @@ import { PoapItemContainer } from "@/components/PoapItemContainer";
 import { Loading } from "@/components/Loading";
 import { ResponseDto, NftTokenDetail } from '@tatumio/tatum'
 import useTatum from "@/hooks/useTatum";
+import { doc, getDoc } from 'firebase/firestore';
 
 export default function Community() {
   const tatum = useTatum()
@@ -37,6 +38,23 @@ export default function Community() {
   const [requiredNFTs, setRequiredNFTs] = useState<any[]>([]);
   const [requiredPOAPs, setRequiredPOAPs] = useState<any[]>([]);
   const [requiredPOAPsURI, setRequiredPOAPsURI] = useState<any[]>([]);
+  const [user, setUser] = useState<any>()
+  console.log('listInfo', listInfo);
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const usersRef = doc(db, 'users', listInfo?.owner ?? '')
+      const docSnap = await getDoc(usersRef)
+
+      return { ...docSnap.data(), id: docSnap.id };
+    }
+
+    if (listInfo?.owner) {
+      getUserInfo().then((result: any) => {
+        setUser(result)
+      })
+    }
+  }, [listInfo]);
 
   const getUserId = async (twitterUsername: string) => {
     setLoading(true)
@@ -71,7 +89,7 @@ export default function Community() {
 
   useEffect(() => {
     if (userInfo?.id && listInfo?.listId) {
-      addUserToList()
+      addUserToList2()
     }
   }, [userInfo])
 
@@ -86,68 +104,94 @@ export default function Community() {
     return { result }
   }
 
-  const addUserToList = async () => {
-    setLoading(true)
-    if (!userInfo?.id || !listInfo?.listId) {
-      console.log('cant add to list', 'userInfo?.id', userInfo?.id, 'listInfo?.listId', listInfo?.listId)
-      return null
-    }
+  const addUserToList2 = async () => {
+    setLoading(true);
+    try {
+      if (!userInfo?.id || !listInfo?.listId) {
+        console.log('cant add to list', 'userInfo?.id', userInfo?.id, 'listInfo?.listId', listInfo?.listId);
+        return;
+      }
 
-    // const usersArray = [
-    //   ...listInfo?.waitlist,
-    //   userInfo?.id
-    // ]
+      const isRepeated = listInfo?.waitlist?.includes(userInfo?.id);
 
-    const isRepeated = listInfo?.waitlist?.includes(userInfo?.id);
+      if (isRepeated) {
+        setError('You are still on the waitlist');
+        setLoading(false);
+        return;
+      }
 
-    if (isRepeated) {
-      setError('You are still on the waitlist')
-      setLoading(false)
-      return null
-    }
-
-    await fetch('/api/twitter/add-user-to-list',
-      {
+      let response = await fetch('/api/twitter/add-user-to-list', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId })
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json()
-      })
-      .then(response => {
-        const dataToUpdate = {
-          members: arrayUnion(userInfo?.id)
-        };
-        addUserToFirebaseList(listInfo.id, dataToUpdate)
-        setUserAddedToList(true)
-        setLoading(false)
-        setTwitterUsername('')
-      })
-      .catch((err) => {
-        const dataToUpdate = {
-          waitlist: arrayUnion(userInfo?.id)
-        };
-        addUserToFirebaseList(listInfo.id, dataToUpdate)
-        console.log('err', err);
-        setAddToListError(true)
-        setUserAddedToList(false)
-        setLoading(false)
-        setTwitterUsername('')
+        body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, ...user })
       });
 
-    if (listId) {
-      getAllData().then((result: any) => {
-        setListInfo(result.result[0])
-      })
+      if (response.status === 401) {
+        // Access token might be expired, try to refresh it
+
+        console.log(401, 'user', user);
+        
+        const refreshResponse = await fetch('/api/twitter/refresh-token', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ...user, refreshToken: user?.refreshToken  })
+        });
+
+        if (!refreshResponse.ok) {
+          throw new Error('Failed to refresh token');
+        }
+
+        const refreshData = await refreshResponse.json();
+        const newAccessToken = refreshData.accessToken;
+        const newExpireTime = refreshData.expireIn;
+
+        // Retry the original request with the new access token
+        response = await fetch('/api/twitter/add-user-to-list', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, accessToken: newAccessToken, expireTime: newExpireTime })
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      const dataToUpdate = {
+        members: arrayUnion(userInfo?.id)
+      };
+      addUserToFirebaseList(listInfo.id, dataToUpdate);
+      setUserAddedToList(true);
+      setLoading(false);
+      setTwitterUsername('');
+    } catch (err) {
+      console.error('Error adding user to list:', err);
+      const dataToUpdate = {
+        waitlist: arrayUnion(userInfo?.id)
+      };
+      addUserToFirebaseList(listInfo.id, dataToUpdate);
+      setError('Failed to add user to list');
+      setUserAddedToList(false);
+      setLoading(false);
+      setTwitterUsername('');
     }
-    setLoading(false)
+
+    if (listId) {
+      getAllData().then((result) => {
+        setListInfo(result.result[0]);
+      });
+    }
+    setLoading(false);
   }
 
   const getPOAPsTokensURI = async (tokenId: string) => {
@@ -285,22 +329,24 @@ export default function Community() {
               </div>
             }
 
-            {listInfo && <div className="flex justify-between gap-4 mt-[50px]">
-              <CardButton
-                onClick={() => {
-                  window.open(`https://twitter.com/i/lists/${listInfo?.listId}`, '_blank');
-                }}
-                title="Open in X"
-                icon={<Twitter className="m-auto" />}
-              />
-              <CardButton
-                disabled={loading}
-                onClick={() => setShowEnterUsername(true)}
-                title="Join List"
-                icon={<AddUser className="m-auto" />}
-                loading={loading}
-              />
-            </div>}
+            {listInfo &&
+              <div className="flex justify-between gap-4 mt-[50px]">
+                <CardButton
+                  onClick={() => {
+                    window.open(`https://twitter.com/i/lists/${listInfo?.listId}`, '_blank');
+                  }}
+                  title="Open in X"
+                  icon={<Twitter className="m-auto" />}
+                />
+                <CardButton
+                  disabled={loading}
+                  onClick={() => setShowEnterUsername(true)}
+                  title="Join List"
+                  icon={<AddUser className="m-auto" />}
+                  loading={loading}
+                />
+              </div>
+            }
           </div>
 
           {error && <p className="text-red-500">{error}</p>}

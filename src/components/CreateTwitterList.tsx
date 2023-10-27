@@ -7,8 +7,13 @@ import { Loading } from './Loading';
 import { Toggle } from './Toggle';
 import storage from "../firebase/firebaseConfig"
 import { ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/firebase/firestore/getData';
+import { NewListForm } from './NewListForm';
+import { NewListPreview } from './NewListPreview';
+import { NewListCreated } from './NewListCreated';
 
-interface EventType {
+interface ListType {
   name: string
   description: string
   isPrivate: boolean
@@ -17,50 +22,91 @@ interface EventType {
 }
 
 export const CreateTwitterList = () => {
+  const [user, setUser] = useState<any>()
   const { address } = useAuth()
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<any>(null);
   const [errorFirebase, setErrorFirebase] = useState<string>('')
   const [loading, setLoading] = useState(false);
-
   const [listCreated, setListCreated] = useState(false);
   const [createdListInformation, setCreatedListInformation] = useState<any>({});
-  const [listData, setListData] = useState<EventType>({
+  const [listData, setListData] = useState<ListType>({
     name: '',
     description: '',
     isPrivate: false,
     listId: '',
     image: ''
   })
+  const [activeTab, setActiveTab] = useState(0);
 
-  const createList = async (event: any) => {
-    setLoading(true)
-    event.preventDefault()
-    await fetch('/api/twitter/create-list',
-      {
+  const createList = async () => {
+    setLoading(true);
+    try {
+      if (!user?.accessToken || !listData) {
+        console.log('cant create list',);
+        return;
+      }
+
+      let response = await fetch('/api/twitter/create-list-user', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(listData)
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json()
-      })
-      .then(response => {
-        setCreatedListInformation(response);
-        setListCreated(true)
-        setLoading(false)
-      })
-      .catch((err) => {
-        setError(err.message);
-        setListCreated(false)
-        setLoading(false)
+        body: JSON.stringify({ ...listData, ...user })
       });
-    setLoading(false)
+
+      if (response.status === 401) {
+        // Access token might be expired, try to refresh it
+
+        console.log(401, 'user', user);
+
+        const refreshResponse = await fetch('/api/twitter/refresh-token', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ...user, refreshToken: user?.refreshToken })
+        });
+
+        if (!refreshResponse.ok) {
+          throw new Error('Failed to refresh token');
+        }
+
+        const refreshData = await refreshResponse.json();
+        const newAccessToken = refreshData.accessToken;
+        const newExpireTime = refreshData.expireIn;
+
+        // Retry the original request with the new access token
+        response = await fetch('/api/twitter/create-list-user', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ...listData, accessToken: newAccessToken, expireTime: newExpireTime })
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+
+      setCreatedListInformation(data);
+      setListCreated(true)
+      setActiveTab(2)
+      setLoading(false)
+
+    } catch (err) {
+      console.error('Error adding user to list:', err);
+      setError(err);
+      setListCreated(false)
+      setLoading(false)
+    }
+
+    setLoading(false);
   }
 
   const addListToFirebase = async (data: any) => {
@@ -85,119 +131,53 @@ export const CreateTwitterList = () => {
     }
   }, [listCreated])
 
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const usersRef = doc(db, 'users', address ?? '')
+      const docSnap = await getDoc(usersRef)
+
+      return { ...docSnap.data(), id: docSnap.id };
+    }
+
+    if (address) {
+      getUserInfo().then((result: any) => {
+        setUser(result)
+      })
+    }
+  }, [address]);
+
   return (
-    <div>
-      <h1 className='text-3xl'>Create List</h1>
-
-      {listCreated && <div>
-        <p className='text-green-400'>List Created</p>
-        <div className='flex'>
-          <a
-            className='underline'
-            rel="noreferrer"
-            target="_blank"
-            href={`https://twitter.com/i/lists/${createdListInformation?.data?.id}`}
-          >{createdListInformation?.data?.name}</a>
-          <button
-            className='flex'
-            onClick={() => { navigator.clipboard.writeText(`https://twitter.com/i/lists/${createdListInformation?.data?.id}`) }}
-          >
-            <AiOutlineCopy size={20} />
-          </button>
+    <div className='w-full'>
+      {activeTab != 2 &&
+        <div>
+          <h1 className='text-3xl'>Create List</h1>
+          {activeTab === 0 && <p className='text-base'>Please complete the following details</p>}
+          {activeTab === 1 && <p className='text-base'>Please complete the list details and launch it</p>}
         </div>
-      </div>}
+      }
 
-      {error && <p className='text-red-500'>{error}</p>}
+      {activeTab === 0 &&
+        <NewListForm
+          setStep={setActiveTab}
+          listData={listData}
+          setListData={setListData}
+          error={error}
+          loading={loading}
+        />
+      }
 
-      <form>
-        <div className='mb-[20px]'>
-          <label htmlFor='name'>List Name</label>
-          <input
-            type='text'
-            id='name'
-            className='border border-gray-300 rounded-md p-2 w-full text-black'
-            placeholder='Enter the List Name'
-            value={listData.name}
-            onChange={(event) =>
-              setListData({ ...listData, name: event.target.value })
-            }
-          />
-        </div>
-        <div className='mb-[20px]'>
-          <label htmlFor='description'>List Description</label>
-          <input
-            type='text'
-            id='description'
-            className='border border-gray-300 rounded-md p-2 w-full text-black'
-            placeholder='Enter the List Description'
-            value={listData.description}
-            onChange={(event) =>
-              setListData({ ...listData, description: event.target.value })
-            }
-          />
-        </div>
+      {activeTab === 1 &&
+        <NewListPreview
+          setStep={setActiveTab}
+          listData={listData}
+          setListData={setListData}
+          error={error}
+          onSubmit={createList}
+          loading={loading}
+        />
+      }
 
-        <div className='mb-[20px] flex flex-col md:flex-row'>
-          <div className='flex flex-col'>
-            <label htmlFor='image'>Image</label>
-            <input
-              type='file'
-              id='image'
-              onChange={(event) => {
-                const image = event?.target?.files ? event.target.files[0] : ''
-                if (image) {
-                  const storageRef = ref(storage, `/${listData?.name + uuid()}/${image.name + uuid()}`)
-                  const uploadTask = uploadBytesResumable(storageRef, image);
-                  uploadTask.on(
-                    "state_changed",
-                    (snapshot) => {
-                      const percent = Math.round(
-                        (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-                      );
-                      //setImageUploadPercentage(percent)
-                    },
-                    (err) => console.log(err),
-                    () => {
-                      getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-                        setListData({ ...listData, image: url })
-                      });
-                    }
-                  );
-                }
-
-              }}
-            />
-          </div>
-
-          {/* <div>{imageUploadPercentage > 1 && imageUploadPercentage < 100 ? `Uploading ${imageUploadPercentage}%...` : ''}</div> */}
-          {listData.image && <img src={listData.image} className='w-auto h-[220px] object-cover' />}
-        </div>
-
-        <div className='mb-[20px] flex flex-col'>
-          <div className='flex justify-between'>
-            <div>
-              <p className='text-2xl'>Is Private?</p>
-              {/* <p className='text-body'>The users can resell their event tickets</p> */}
-            </div>
-            <div className='my-auto'>
-              <Toggle
-                name='isPending'
-                checked={listData.isPrivate}
-                onChange={(event) => {
-                  setListData({ ...listData, isPrivate: event.target.checked })
-                }}
-              />
-            </div>
-          </div>
-        </div>
-        <button
-          disabled={loading}
-          onClick={createList}
-          className='bg-blue-500 text-white font-semibold px-4 py-2 rounded-md mt-4'
-        >
-          {loading ? <Loading /> : 'Create List'}
-        </button>
-      </form>
+      {listCreated && <NewListCreated listData={listData} createdListInformation={createdListInformation} />}
     </div>
   );
 }

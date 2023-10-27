@@ -4,15 +4,17 @@ export default async function handler(req: any, res: any) {
   try {
     const name = req.body?.name
     const description = req.body?.description
-    const isPrivate = req.body?.isPrivate ? req.body?.isPrivate : false
+    const isPrivate = req.body?.isPrivate || false
+    const accessToken = req.body?.accessToken
+    const expireTime = req.body?.expireTime
+
+    if (Date.now() > expireTime) {
+      return res.status(401).json({ error: 'Access token expired' });
+    }
 
     if (name && description) {
-      const userClient = new TwitterApi({
-        appKey: process.env.NEXT_PUBLIC_TWITTER_KEY ?? '',
-        appSecret: process.env.NEXT_PUBLIC_TWITTER_KEY_SECRET ?? '',
-        accessToken: process.env.NEXT_PUBLIC_ACCESS_TOKEN ?? '',
-        accessSecret: process.env.NEXT_PUBLIC_ACCESS_TOKEN_SECRET ?? '',
-      });
+      const twitterClient = new TwitterApi(accessToken);
+      const userClient = twitterClient.readWrite;
 
       const myNewList = await userClient.v2.createList({ name: name, description: description, private: isPrivate });
       console.log('myNewList', myNewList);

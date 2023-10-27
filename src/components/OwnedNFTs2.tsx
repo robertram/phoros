@@ -14,7 +14,6 @@ export const OwnedNFTs2 = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [nfts, setNFTs] = useState<any[]>([])
   const tatum = useTatum()
-  console.log('chain', chain);
 
   const [lists, setLists] = useState<any[]>([])
   const [tokensWithLists, setTokensWithLists] = useState<any[]>([])
@@ -24,7 +23,6 @@ export const OwnedNFTs2 = () => {
     const getNFTs = async () => {
       setLoading(true)
       const balance = await tatum.nft.getBalance({ addresses: [address] })
-      console.log('balance', balance);
 
       setNFTs(balance.data)
       tatum.destroy()
@@ -45,22 +43,12 @@ export const OwnedNFTs2 = () => {
     })
   }, []);
 
-  console.log('nfts', nfts);
-  console.log('lists', lists);
-
-  console.log('tokens', tokensWithLists);
-
   const getNFTsWithList = () => {
     const listEventIds = new Set(lists.map((list) => list.contractAddress));
-    console.log('listEventIds', listEventIds);
-
     const filteredTokensURI = nfts.filter((tokenURI) => {
-      console.log('tokenURI', tokenURI);
-
       //const tokenEventId = tokenURI.uri.split('/')[4]
       return listEventIds.has(tokenURI.tokenAddress)
     });
-    console.log('filteredTokensURI', filteredTokensURI);
 
     const mergedItems = filteredTokensURI.map((tokenURI) => {
       // const tokenEventId = tokenURI.uri.split('/')[4]

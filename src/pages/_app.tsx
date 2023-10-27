@@ -6,6 +6,21 @@ import { AuthProvider } from '@/context/AuthContext';
 import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
 import { WagmiConfig } from 'wagmi'
 import { arbitrum, mainnet, polygonMumbai, gnosis, gnosisChiado, goerli } from 'wagmi/chains'
+import localFont from 'next/font/local'
+
+const satoshi = localFont({
+  src: [
+    {
+      path: '../../public/fonts/Satoshi-Regular.otf',
+      weight: '400'
+    },
+    {
+      path: '../../public/fonts/Satoshi-Bold.otf',
+      weight: '700'
+    }
+  ],
+  variable: '--font-satoshi'
+})
 
 function MyApp({ Component, pageProps }: any) {
   const router = useRouter()
@@ -30,8 +45,10 @@ function MyApp({ Component, pageProps }: any) {
     <WagmiConfig config={wagmiConfig}>
       <AuthProvider>
         {/* <Layout> */}
-        <Component {...pageProps} />
-        <Analytics />
+        <main className={`${satoshi.variable} font-satoshi`}>
+          <Component {...pageProps} />
+          <Analytics />
+        </main>
         {/* </Layout> */}
       </AuthProvider>
     </WagmiConfig>
