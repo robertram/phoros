@@ -28,9 +28,6 @@ export const FloatingButton = () => {
     }
   }, [address]);
 
-  console.log('user', user);
-  
-
   if (!user?.refreshToken || !user?.accessToken) {
     return (
       <>

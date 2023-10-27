@@ -1,9 +1,6 @@
-import Layout from "@/components/Layout";
-import { Loading } from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firestore/getData';
 import { useRouter } from 'next/router'
 
@@ -85,10 +82,6 @@ export const AuthorizeButton = () => {
     <div>
       {address ?
         <div>
-          {/* <div className="mb-[20px]">
-              <h2 className="text-3xl font-bold">Authorize your twitter account</h2>
-              <p className="text-base">Authorize and copy the pin from the twitter window</p>
-            </div> */}
           <a
             href={authTwitter.url ?? ''}
             className='bg-blue-500 text-white font-semibold px-4 py-2 rounded-md mt-4 my-[20px] cursor-pointer'
