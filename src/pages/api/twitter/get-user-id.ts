@@ -1,4 +1,3 @@
-//import TwitterApi from 'twitter-api-v2';
 import TwitterApi from 'twitter-api-v2';
 
 export default async function handler(req: any, res: any) {

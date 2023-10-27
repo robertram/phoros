@@ -46,7 +46,7 @@ export const CreateTwitterList = () => {
         return;
       }
 
-      let response = await fetch('/api/twitter/create-list-user-v2', {
+      let response = await fetch('/api/twitter/create-list-user', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -78,7 +78,7 @@ export const CreateTwitterList = () => {
         const newExpireTime = refreshData.expireIn;
 
         // Retry the original request with the new access token
-        response = await fetch('/api/twitter/create-list-user-v2', {
+        response = await fetch('/api/twitter/create-list-user', {
           method: 'POST',
           headers: {
             Accept: 'application/json',

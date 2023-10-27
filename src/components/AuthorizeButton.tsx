@@ -24,7 +24,7 @@ export const AuthorizeButton = () => {
 
   const getAuthLink = async () => {
     setLoading(true)
-    await fetch('/api/twitter/auth-v2',
+    await fetch('/api/twitter/auth',
       {
         method: 'POST',
         headers: {
