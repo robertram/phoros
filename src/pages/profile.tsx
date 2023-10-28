@@ -1,12 +1,4 @@
-import { ConnectButton } from "@/components/ConnectButton";
-import { FloatingButton } from "@/components/FloatingButton";
-import { GnosisNFTs } from "@/components/GnosisNFTs";
 import Layout from "@/components/Layout";
-import NavBar from "@/components/NavBar";
-import { OwnedNFTs } from "@/components/OwnedNFTs";
-import { OwnedNFTs2 } from "@/components/OwnedNFTs2";
-import { Poaps } from "@/components/Poaps";
-import { Tabs } from "@/components/Tabs";
 import { getShortAddress } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
@@ -41,9 +33,7 @@ export default function Index() {
   return (
     <Layout backButtonText="Home" backButtonLink="/">
       <div className='px-[16px] max-w-large flex items-center m-auto'>
-
         <div className="mx-auto">
-
           <div className="m-auto">
             <img src={user?.image} className="w-[100px] h-[100px] object-cover m-auto rounded-full bg-gray-500" />
           </div>
@@ -61,7 +51,6 @@ export default function Index() {
               icon={<Edit className="m-auto" />}
             />
             <CardButton
-              //onClick={() => onSubmit()}
               onClick={() => disconnect()}
               title="Logout"
               icon={<Rocket className="m-auto" />}

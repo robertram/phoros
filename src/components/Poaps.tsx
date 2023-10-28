@@ -3,15 +3,14 @@ import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection } from "firebase/firestore";
 import { Loading } from "./Loading";
 import { PoapInfo } from "./PoapInfo";
+import { useAuth } from "@/context/AuthContext";
 
 export const Poaps = () => {
   const [loading, setLoading] = useState(false)
   const [lists, setLists] = useState<any[]>([])
   const [nfts, setNFTs] = useState<any[]>([])
   const [tokensWithLists, setTokensWithLists] = useState<any[]>([])
-
-  console.log('tokensWithLists', tokensWithLists);
-
+  const { address } = useAuth()
 
   useEffect(() => {
     const getAllData = async () => {
@@ -31,12 +30,7 @@ export const Poaps = () => {
       return listEventIds.has(tokenEventId)
     });
 
-    console.log('filteredTokensURI!!', filteredTokensURI);
-
     const mergedItems = filteredTokensURI.map((tokenURI) => {
-
-      console.log('mergedItems tokenURI', tokenURI);
-
       const tokenEventId = tokenURI.event.id.toString()
       const matchingList = lists.find((list) => list.eventId === tokenEventId);
       if (matchingList) {
@@ -56,7 +50,7 @@ export const Poaps = () => {
 
   const getPoaps = async () => {
     setLoading(true)
-    await fetch('https://api.poap.tech/actions/scan/0xc1d457128dEcAE1CC092728262469Ee796F1Ac45',
+    await fetch(`https://api.poap.tech/actions/scan/${address}`,
       {
         method: 'GET',
         headers: {
@@ -64,7 +58,6 @@ export const Poaps = () => {
           'Content-Type': 'application/json',
           'x-api-key': `${process.env.NEXT_PUBLIC_POAP_API_KEY}`
         },
-        //body: JSON.stringify({})
       })
       .then(response => {
         if (!response.ok) {
@@ -81,8 +74,6 @@ export const Poaps = () => {
       })
       .catch((err) => {
         console.log('err', err);
-
-        //setError(err.message);
         setLoading(false)
       });
     setLoading(false)
@@ -92,10 +83,14 @@ export const Poaps = () => {
     getPoaps()
   }, [])
 
-  if (tokensWithLists.length === 0) return <Loading />
-
   return (
     <div>
+      {tokensWithLists.length === 0 &&
+        <div>
+          <h2 className="">There are no lists created for your poaps</h2>
+        </div>
+      }
+
       {tokensWithLists.map((item, index) => {
         return (
           <PoapInfo data={item} uri={item.uri} tokenId={item.tokenId} key={index} />

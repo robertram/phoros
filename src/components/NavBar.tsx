@@ -52,7 +52,6 @@ const NavBar = ({ backButtonText, backButtonLink }: NavBarProps) => {
     return (
       <div className='relative flex flex-wrap justify-between items-center mx-auto max-w-screen-xl'>
         {backButtonText ?
-
           <button className='flex' onClick={() => backButtonLink ? router.push(backButtonLink) : {}}>
             <ArrowLeft className="my-auto" />
             <p className='ml-[10px]'>{backButtonText}</p>
@@ -60,9 +59,8 @@ const NavBar = ({ backButtonText, backButtonLink }: NavBarProps) => {
           :
           <Link href='/' className='flex items-center '>
             <p className='text-3xl font-semibold'>Phoros</p>
-          </Link>}
-
-        {/* <w3m-button size='md' label='Log In' /> */}
+          </Link>
+        }
 
         {!address ? <ConnectButton /> : <AccountButton />}
       </div>

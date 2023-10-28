@@ -36,7 +36,6 @@ export const NewListCreated = ({ listData, createdListInformation }: NewListCrea
             icon={<Edit className="m-auto" />}
           />
           <CardButton
-            //onClick={() => onSubmit()}
             title="Share"
             icon={<Rocket className="m-auto" />}
           //loading={loading}
