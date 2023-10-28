@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import NavBar from "@/components/NavBar";
 import { OwnedNFTs } from "@/components/OwnedNFTs";
 import { OwnedNFTs2 } from "@/components/OwnedNFTs2";
+import { Poaps } from "@/components/Poaps";
 import { Tabs } from "@/components/Tabs";
 import { getShortAddress } from "@/lib/utils";
 import { useState } from "react";
@@ -43,9 +44,11 @@ export default function Index() {
             {activeTab === 0 &&
               <OwnedNFTs2 />
             }
-
-            {activeTab === 1 &&
+            {/* {activeTab === 1 &&
               <GnosisNFTs />
+            } */}
+            {activeTab === 1 &&
+              <Poaps />
             }
           </div>
         }

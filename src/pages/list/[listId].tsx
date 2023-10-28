@@ -202,7 +202,6 @@ export default function Community() {
     await Promise.all(
       listInfo?.requiredNFTs.map(async (item: number) => {
         if (!requiredPOAPs.some(existingItem => existingItem?.split('/')[5] === item)) {
-
           await nftContract?.methods?.tokenURI(item)
             .call()
             .then((tokenUri: any) => {
