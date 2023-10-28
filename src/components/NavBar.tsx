@@ -2,11 +2,24 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { NotificationItem, chainNameType } from '@pushprotocol/uiweb'
 import NotificationsModal from '../components/NotificationsModal'
+import { useWeb3Modal } from '@web3modal/wagmi/react'
+import { ConnectButton } from './ConnectButton'
+import { useAuth } from '@/context/AuthContext'
+import { AccountButton } from './AccountButton'
+import ArrowLeft from '@/icons/ArrowLeft'
+import { useRouter } from 'next/router'
 
-const NavBar = () => {
+interface NavBarProps {
+  backButtonText?: string
+  backButtonLink?: string
+}
+
+const NavBar = ({ backButtonText, backButtonLink }: NavBarProps) => {
   const [showChainAlert, setShowChainAlert] = useState(true)
   const [showNotifications, setShowNotifications] = useState(false)
   const [notifications, setNotifications] = useState([])
+  const { address } = useAuth()
+  const router = useRouter()
 
   const headerItems = [
     {
@@ -38,11 +51,18 @@ const NavBar = () => {
   const desktopMenu = () => {
     return (
       <div className='relative flex flex-wrap justify-between items-center mx-auto max-w-screen-xl'>
-        <Link href='/' className='flex items-center '>
-          <p className='text-3xl font-semibold'>Phoros</p>
-        </Link>
+        {backButtonText ?
+          <button className='flex' onClick={() => backButtonLink ? router.push(backButtonLink) : {}}>
+            <ArrowLeft className="my-auto" />
+            <p className='ml-[10px]'>{backButtonText}</p>
+          </button>
+          :
+          <Link href='/' className='flex items-center '>
+            <p className='text-3xl font-semibold'>Phoros</p>
+          </Link>
+        }
 
-        <w3m-button size='md' label='Log In' />
+        {!address ? <ConnectButton /> : <AccountButton />}
       </div>
     )
   }
@@ -51,7 +71,7 @@ const NavBar = () => {
     <header>
       <nav className={`border-gray-200 px-4 lg:px-6 py-2.5 ${showMobileMenu ? 'bg-white' : 'bg-transparent'}`}>
         {desktopMenu()}
-        
+
         <NotificationsModal
           show={showNotifications}
           setShow={() => {

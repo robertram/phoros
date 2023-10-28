@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { doc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firestore/getData';
 import { useRouter } from 'next/router'
+import { ConnectButton } from "./ConnectButton";
 
 interface AuthTwitterProps {
   url: string
@@ -41,7 +42,7 @@ export const AuthorizeButton = () => {
       })
       .then(response => {
         console.log('response auth twitter', response);
-        
+
         setAuthTwitter(response)
         setLoading(false)
         return response
@@ -89,7 +90,7 @@ export const AuthorizeButton = () => {
             Verify with X (twitter)
           </a>
         </div>
-        : <w3m-button size='md' label='Log In' />
+        : <ConnectButton />
       }
     </div>
   )

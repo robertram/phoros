@@ -8,6 +8,9 @@ import { FloatingButton } from './FloatingButton'
 interface Props extends HTMLAttributes<HTMLElement> {
   title?: string
   description?: string
+  hideNavbar?: boolean
+  backButtonText?: string
+  backButtonLink?: string
 }
 
 interface LayoutProps {
@@ -17,14 +20,12 @@ interface LayoutProps {
 
 export default function Layout({ ...props }: Props) {
   const router = useRouter()
-  const firstRoute = router.pathname.split('/')[1] //router.asPath.split('/')[1]
-
-  const { title, description } = props;
+  const { title, description, hideNavbar, backButtonText, backButtonLink } = props;
 
   return (
     <>
       <SEO title={title ? `${title} | Phoros` : 'Phoros'} description={description} />
-      {firstRoute === '' ? '' : <NavBar />}
+      {!hideNavbar && <NavBar backButtonText={backButtonText} backButtonLink={backButtonLink} />}
       <main className='min-h-[71vh]' {...props} />
 
       {/* <FloatingButton/> */}
