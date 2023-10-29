@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react"
 import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection } from "firebase/firestore";
-import { Loading } from "./Loading";
-import { PoapInfo } from "./PoapInfo";
 import { useAuth } from "@/context/AuthContext";
+import { PoapItemContainer } from "./PoapItemContainer";
 
 export const Poaps = () => {
   const [loading, setLoading] = useState(false)
   const [lists, setLists] = useState<any[]>([])
-  const [nfts, setNFTs] = useState<any[]>([])
-  const [tokensWithLists, setTokensWithLists] = useState<any[]>([])
+  const [poaps, setPoaps] = useState<any[]>([])
+  const [listsWithTokens, setListsWithTokens] = useState<any[]>([])
   const { address } = useAuth()
 
   useEffect(() => {
@@ -22,31 +21,24 @@ export const Poaps = () => {
     })
   }, []);
 
-  const getPoapsWithList = () => {
-    const listEventIds = new Set(lists.map((list) => list.eventId));
-    const filteredTokensURI = nfts.filter((tokenURI) => {
-      const tokenEventId = tokenURI.event.id.toString()
+  const filterListsByPoaps = (lists: any, poaps: any) => {
+    return lists?.filter((list: any) => {
+      return list?.requiredPoaps?.some((poapString: any) => {
+        const [eventId, tokenId] = poapString.split("-");
+        console.log(poaps, 'eventId, tokenId', eventId, tokenId);
 
-      return listEventIds.has(tokenEventId)
+        return poaps.some((poap: any) => poap.event.id.toString() === eventId && poap.tokenId === tokenId);
+      });
     });
-
-    const mergedItems = filteredTokensURI.map((tokenURI) => {
-      const tokenEventId = tokenURI.event.id.toString()
-      const matchingList = lists.find((list) => list.eventId === tokenEventId);
-      if (matchingList) {
-        return { ...tokenURI, ...matchingList };
-      }
-      return tokenURI;
-    });
-
-    setTokensWithLists(mergedItems)
   }
 
   useEffect(() => {
-    if (lists && nfts) {
-      getPoapsWithList()
+    if (lists && poaps) {
+      const filteredLists = filterListsByPoaps(lists, poaps);
+      console.log('filteredLists', filteredLists);
+      setListsWithTokens(filteredLists)
     }
-  }, [lists, nfts])
+  }, [lists, poaps])
 
   const getPoaps = async () => {
     setLoading(true)
@@ -67,7 +59,7 @@ export const Poaps = () => {
       })
       .then(response => {
         console.log('poaps', response);
-        setNFTs(response)
+        setPoaps(response)
         //setAuthTwitter(response)
         setLoading(false)
         return response
@@ -85,15 +77,19 @@ export const Poaps = () => {
 
   return (
     <div>
-      {tokensWithLists.length === 0 &&
+      {listsWithTokens.length === 0 &&
         <div>
           <h2 className="">There are no lists created for your poaps</h2>
         </div>
       }
 
-      {tokensWithLists.map((item, index) => {
+      {listsWithTokens.map((item, index) => {
         return (
-          <PoapInfo data={item} uri={item.uri} tokenId={item.tokenId} key={index} />
+          <PoapItemContainer
+            title={item.name}
+            image={item.image}
+            listId={item.listId}
+          />
         )
       })}
     </div>

@@ -11,13 +11,10 @@ interface PoapItemContainerProps {
   contractAddress?: string
   title: string
   image: string
-  eventId?: string
-  tokenId?: any
   listId?: any
 }
 
-export const PoapItemContainer = ({ title, image, eventId, tokenId, listId }: PoapItemContainerProps) => {
-  const [contractMetadata, setContractMetadata] = useState<any>()
+export const PoapItemContainer = ({ title, image, listId }: PoapItemContainerProps) => {
   const [loading, setLoading] = useState<boolean>(false)
 
   if (loading) return <Loading />
@@ -26,7 +23,7 @@ export const PoapItemContainer = ({ title, image, eventId, tokenId, listId }: Po
     <a
     href={`list/${listId}`}
       //href={eventId && tokenId ? `/community/${eventId}/${tokenId}` : '#'}
-      className={`flex p-[12px] bg-gray-100 mb-[12px] rounded-[8px] no-underline ${eventId && tokenId ? 'cursor-pointer' : ''}`}
+      className={`flex p-[12px] bg-gray-100 mb-[12px] rounded-[8px] no-underline`}
     >
       <div className="mr-[12px]">
         <img src={image} className="min-w-[64px] min-h-[64px] w-[64px] h-[64px] object-cover rounded-full"></img>

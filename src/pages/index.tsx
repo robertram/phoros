@@ -22,7 +22,7 @@ export default function Index() {
             <h2 className="text-3xl font-bold">Keep Engaging with your community</h2>
             <p className="text-lg mt-[10px]">Get all your followers in one place thanks to your digital collectibles and X (twitter)</p>
             <div className="m-auto flex justify-center mt-[20px]">
-              <ConnectButton text="Join Phoros Now"/>
+              <ConnectButton text="Join Phoros Now" />
             </div>
           </div>
           :
@@ -44,6 +44,7 @@ export default function Index() {
             {activeTab === 1 &&
               <Poaps />
             }
+
           </div>
         }
       </div>
