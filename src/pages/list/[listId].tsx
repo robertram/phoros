@@ -440,7 +440,7 @@ export default function Community() {
                 onClick={() => {
                   getUserId(twitterUsername)
                 }}
-                className={`mt-[0]  ${twitterUsername == '' ? 'bg-[#4BA3E3]' : 'bg-[#91D1F8]'}`}
+                className={`mt-[0] ${twitterUsername == '' ? 'bg-primary' : 'bg-[#91D1F8]'}`}
               >
                 Confirm
               </Button>
