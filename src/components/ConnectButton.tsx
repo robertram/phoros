@@ -12,7 +12,7 @@ export const ConnectButton = ({ text = 'Log In' }: ConnectButtonProps) => {
       onClick={() => {
         open({ view: 'Connect' })
       }}
-      className='!bg-[#4BA3E3] rounded-[50px] text-white p-[10px] px-[20px] cursor-pointer'
+      className='!bg-primary rounded-[50px] text-white p-[10px] px-[20px] cursor-pointer'
     >{text}</button>
   )
 }

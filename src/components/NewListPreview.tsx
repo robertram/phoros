@@ -1,14 +1,7 @@
-import storage from "../firebase/firebaseConfig"
-import { ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
-import { uuid } from 'uuidv4';
-import { Toggle } from "./Toggle";
 import { Loading } from "./Loading";
-import AddUser from "@/icons/AddUser";
-import Twitter from "@/icons/Twitter";
 import { CardButton } from "./CardButton";
 import Rocket from "@/icons/Rocket";
 import Edit from "@/icons/Edit";
-import { limitStringTo200Characters } from "@/utils/utils";
 
 interface NewListFormProps {
   listData: any
@@ -19,7 +12,7 @@ interface NewListFormProps {
   setStep: (step: number) => void
 }
 
-export const NewListPreview = ({ listData, setListData, error, onSubmit, loading, setStep }: NewListFormProps) => {
+export const NewListPreview = ({ listData, error, onSubmit, loading, setStep }: NewListFormProps) => {
 
   return (
     <div>
@@ -61,7 +54,6 @@ export const NewListPreview = ({ listData, setListData, error, onSubmit, loading
               />
             </div>
           }
-          {error && <p className='text-red-500'>{error}</p>}
         </div>
       </div>
 

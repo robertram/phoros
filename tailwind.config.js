@@ -16,11 +16,13 @@ module.exports = {
         'custom-pink': '#DADAFB',
         'custom-blue': '#1400FF',
         'custom-purple': '#5E17EB',
-      }, 
-      maxWidth:{
-        'normal':'1200px', 
-        'large':'2100px'
-      }, 
+        'gray-border': '#E5E5E5', 
+        'primary':'#4BA3E3'
+      },
+      maxWidth: {
+        'normal': '1200px',
+        'large': '2100px'
+      },
       fontFamily: {
         satoshi: ['var(--font-satoshi)']
       }
