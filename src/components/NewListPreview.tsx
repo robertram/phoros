@@ -54,7 +54,6 @@ export const NewListPreview = ({ listData, error, onSubmit, loading, setStep }: 
               />
             </div>
           }
-          {error && <p className='text-red-500'>{error}</p>}
         </div>
       </div>
 

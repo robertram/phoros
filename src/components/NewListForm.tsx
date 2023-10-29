@@ -24,8 +24,6 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep }: 
 
   return (
     <div>
-      {error && <p className='text-red-500'>{error}</p>}
-
       <form className="mt-[20px]">
         <div className='mb-[20px] flex flex-col md:flex-col'>
           <p className="text-base font-medium mb-[5px]">List Image</p>
