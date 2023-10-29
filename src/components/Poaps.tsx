@@ -25,8 +25,6 @@ export const Poaps = () => {
     return lists?.filter((list: any) => {
       return list?.requiredPoaps?.some((poapString: any) => {
         const [eventId, tokenId] = poapString.split("-");
-        console.log(poaps, 'eventId, tokenId', eventId, tokenId);
-
         return poaps.some((poap: any) => poap.event.id.toString() === eventId && poap.tokenId === tokenId);
       });
     });
@@ -35,7 +33,6 @@ export const Poaps = () => {
   useEffect(() => {
     if (lists && poaps) {
       const filteredLists = filterListsByPoaps(lists, poaps);
-      console.log('filteredLists', filteredLists);
       setListsWithTokens(filteredLists)
     }
   }, [lists, poaps])
@@ -58,9 +55,7 @@ export const Poaps = () => {
         return response.json()
       })
       .then(response => {
-        console.log('poaps', response);
         setPoaps(response)
-        //setAuthTwitter(response)
         setLoading(false)
         return response
       })
@@ -89,6 +84,7 @@ export const Poaps = () => {
             title={item.name}
             image={item.image}
             listId={item.listId}
+            key={index}
           />
         )
       })}

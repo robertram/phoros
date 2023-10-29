@@ -89,7 +89,7 @@ export const OwnedNFTs2 = () => {
 
       {tokensWithLists.map((item, index) => {
         return (
-          <PoapInfo data={item} uri={item.uri} tokenId={item.tokenId} key={index} />
+          <PoapInfo data={item} key={index} />
         )
       })}
     </div>
