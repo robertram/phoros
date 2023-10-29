@@ -2,12 +2,12 @@ import { useState } from "react"
 import Modal from "./Modal"
 import { PoapsSelection } from "./PoapsSelection"
 
-interface DigitalCollectionSelect {
+interface DigitalCollectionSelectProps {
   collectiblesSelection: any
   setCollectiblesSelection: (items: any) => void
 }
 
-export const DigitalCollectionSelect = ({ collectiblesSelection, setCollectiblesSelection }: DigitalCollectionSelect) => {
+export const DigitalCollectionSelect = ({ collectiblesSelection, setCollectiblesSelection }: DigitalCollectionSelectProps) => {
   const [showSelectionModal, setShowSelectionModal] = useState(false)
 
   return (
