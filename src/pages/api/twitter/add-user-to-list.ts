@@ -9,7 +9,7 @@ export default async function handler(req: any, res: any) {
     const accessToken = req.body?.accessToken
     const expireTime = req.body?.expireTime
 
-    if (Date.now() > expireTime) {
+    if (!expireTime || Date.now() > expireTime) {
       return res.status(401).json({ error: 'Access token expired' });
     }
 
@@ -22,6 +22,7 @@ export default async function handler(req: any, res: any) {
 
       res.status(200).json(addListMember);
     }
+    res.status(500).json({ error: 'Internal Server Error' });
   } catch (error) {
     console.error('Error making Twitter API request:', error);
     res.status(500).json({ error: 'Internal Server Error' });
