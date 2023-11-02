@@ -9,6 +9,9 @@ export default async function handler(req: any, res: any) {
     const accessToken = req.body?.accessToken
     const expireTime = req.body?.expireTime
 
+    console.log('req.body', req.body);
+    console.log(expireTime, 'Token expired', Date.now() > expireTime);
+
     if (!expireTime || Date.now() > expireTime) {
       return res.status(401).json({ error: 'Access token expired' });
     }
@@ -16,6 +19,9 @@ export default async function handler(req: any, res: any) {
     if (listId && userId && accessToken) {
       const twitterClient = new TwitterApi(accessToken);
       const userClient = twitterClient.readWrite;
+
+      console.log('userClient', userClient);
+      
 
       const addListMember = await userClient.v2.addListMember(listId, userId);
       console.log('addListMember', addListMember);

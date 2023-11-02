@@ -43,8 +43,9 @@
     "no-undef-init": "off",
     "react-hooks/rules-of-hooks": "off", //remove
     "no-throw-literal": "off",
-    "no-unused-expressions": "off", 
-    "camelcase":"off", 
-    "import/no-duplicates":"off"
+    "no-unused-expressions": "off",
+    "camelcase": "off",
+    "import/no-duplicates": "off",
+    "brace-style": "off"
   }
 }

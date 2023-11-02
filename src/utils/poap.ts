@@ -14,7 +14,6 @@ export const fetchPoapToken = async (tokenId:string) => {
     }
 
     const data = await response.json();
-    console.log('data', data);
     
     return { data, error: null };
   } catch (error) {

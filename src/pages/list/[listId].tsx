@@ -102,6 +102,18 @@ export default function Community() {
     return { result }
   }
 
+  const addUserToList = async () => {
+    const response = await fetch('/api/twitter/add-user-to-list', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, ...user })
+    });
+    return response
+  }
+
   const addUserToList2 = async () => {
     setLoading(true);
     try {
@@ -109,6 +121,9 @@ export default function Community() {
         console.log('cant add to list', 'userInfo?.id', userInfo?.id, 'listInfo?.listId', listInfo?.listId);
         return;
       }
+
+      console.log('userInfo', userInfo);
+      console.log('listInfo?.waitlist', listInfo?.waitlist);
 
       const isRepeated = listInfo?.waitlist?.includes(userInfo?.id);
 
@@ -118,16 +133,9 @@ export default function Community() {
         return;
       }
 
-      let response = await fetch('/api/twitter/add-user-to-list', {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, ...user })
-      });
-      console.log('response add user to list', response);
+      let response = await addUserToList()
 
+      console.log('response addUserToList', response);
 
       if (response.status === 401) {
         console.log('token might be expired');
