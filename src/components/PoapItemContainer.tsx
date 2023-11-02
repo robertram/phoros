@@ -1,4 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 import { useState } from "react";
 import { Loading } from "./Loading";
 
@@ -20,10 +21,10 @@ export const PoapItemContainer = ({ title, image, listId }: PoapItemContainerPro
   if (loading) return <Loading />
 
   return (
-    <a
-    href={`list/${listId}`}
+    <Link
+      href={listId ? `/list/${listId}` : '#'}
       //href={eventId && tokenId ? `/community/${eventId}/${tokenId}` : '#'}
-      className={`flex p-[12px] bg-gray-100 mb-[12px] rounded-[8px] no-underline`}
+      className={`flex p-[12px] bg-gray-100 mb-[12px] rounded-[8px] no-underline ${listId ? 'cursor-pointer' : 'cursor-default'}`}
     >
       <div className="mr-[12px]">
         <img src={image} className="min-w-[64px] min-h-[64px] w-[64px] h-[64px] object-cover rounded-full"></img>
@@ -42,6 +43,6 @@ export const PoapItemContainer = ({ title, image, listId }: PoapItemContainerPro
         {image && <img src={image} />}
       </div> */}
 
-    </a>
+    </Link>
   )
 }

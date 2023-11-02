@@ -18,6 +18,7 @@ import { Loading } from "@/components/Loading";
 import { ResponseDto, NftTokenDetail } from '@tatumio/tatum'
 import useTatum from "@/hooks/useTatum";
 import { doc, getDoc } from 'firebase/firestore';
+import { fetchPoapToken } from "@/utils/poap";
 
 export default function Community() {
   const tatum = useTatum()
@@ -25,7 +26,6 @@ export default function Community() {
   const tokenId = Array.isArray(router.query.tokenId) ? router.query.tokenId[1] : router.query.tokenId;
   const listId = Array.isArray(router.query.listId) ? router.query.listId[1] : router.query.listId;
   //const eventId = Array.isArray(router.query.eventId) ? router.query.eventId[1] : router.query.eventId;
-  const [tokenUri, setTokenUri] = useState<any>()
   const [loading, setLoading] = useState(false);
   const [userAddedToList, setUserAddedToList] = useState(false);
   const [userInfo, setUserInfo] = useState<any>({});
@@ -37,9 +37,7 @@ export default function Community() {
   const [tokenData, setTokenData] = useState<any>({});
   const [requiredNFTs, setRequiredNFTs] = useState<any[]>([]);
   const [requiredPOAPs, setRequiredPOAPs] = useState<any[]>([]);
-  const [requiredPOAPsURI, setRequiredPOAPsURI] = useState<any[]>([]);
   const [user, setUser] = useState<any>()
-  console.log('listInfo', listInfo);
 
   useEffect(() => {
     const getUserInfo = async () => {
@@ -128,22 +126,27 @@ export default function Community() {
         },
         body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, ...user })
       });
+      console.log('response add user to list', response);
+
 
       if (response.status === 401) {
+        console.log('token might be expired');
+
         // Access token might be expired, try to refresh it
 
         console.log(401, 'user', user);
-        
+
         const refreshResponse = await fetch('/api/twitter/refresh-token', {
           method: 'POST',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ ...user, refreshToken: user?.refreshToken  })
+          body: JSON.stringify({ ...user, refreshToken: user?.refreshToken })
         });
 
         if (!refreshResponse.ok) {
+          console.log('failed to refresh token');
           throw new Error('Failed to refresh token');
         }
 
@@ -163,6 +166,7 @@ export default function Community() {
       }
 
       if (!response.ok) {
+        console.log('response not ok', response);
         throw new Error('Network response was not ok');
       }
 
@@ -174,7 +178,8 @@ export default function Community() {
       setUserAddedToList(true);
       setLoading(false);
       setTwitterUsername('');
-    } catch (err) {
+    }
+    catch (err) {
       console.error('Error adding user to list:', err);
       const dataToUpdate = {
         waitlist: arrayUnion(userInfo?.id)
@@ -194,83 +199,7 @@ export default function Community() {
     setLoading(false);
   }
 
-  const getPOAPsTokensURI = async (tokenId: string) => {
-    const web3 = new Web3('https://rpc.gnosischain.com');
-    const nftContractAddress = '0x22c1f6050e56d2876009903609a2cc3fef83b415';
-    const nftContract: any = new web3.eth.Contract(POAP, nftContractAddress);
-
-    await Promise.all(
-      listInfo?.requiredNFTs.map(async (item: number) => {
-        if (!requiredPOAPs.some(existingItem => existingItem?.split('/')[5] === item)) {
-          await nftContract?.methods?.tokenURI(item)
-            .call()
-            .then((tokenUri: any) => {
-              setRequiredPOAPs(oldArray => [...oldArray, tokenUri]);
-            })
-            .catch((error: any) => {
-              console.error('Error fetching NFTs:', error);
-            });
-        }
-      })
-    )
-  }
-
-  useEffect(() => {
-    const fetchRequiredPoapsURI = async () => {
-      await Promise.all(
-        requiredPOAPs.map(async (item) => {
-          console.log('requiredPOAPs item', item);
-          await fetch(item)
-            .then(response => {
-              if (!response.ok) {
-                throw new Error('Couldnt get poaps');
-              }
-              //setLoading(false)
-              return response.json()
-            })
-            .then(response => {
-              setRequiredPOAPsURI(oldArray => [...oldArray, response]);
-              //setTokenData(response)
-            })
-            .catch((err) => {
-            });
-        })
-      )
-    }
-    if (requiredPOAPs.length > 0) {
-      fetchRequiredPoapsURI()
-        .catch(console.error);
-    }
-  }, [requiredPOAPs])
-
-  useEffect(() => {
-    if (listInfo?.isPoap && listInfo?.requiredNFTs > 0 && listInfo?.eventId) {
-      getPOAPsTokensURI(listInfo?.requiredNFTs)
-    }
-  }, [listInfo])
-
-  useEffect(() => {
-    const fetchData = async () => {
-      //setLoading(true)
-      await fetch(tokenUri.uri)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Couldnt get poaps');
-          }
-          //setLoading(false)
-          return response.json()
-        })
-        .then(response => {
-          setTokenData(response)
-        })
-        .catch((err) => {
-        });
-    }
-
-    fetchData()
-      .catch(console.error);
-  }, [tokenUri])
-
+  //Get Required NFTs
   useEffect(() => {
     const fetchRequiredNFTsData = async () => {
       await Promise.all(
@@ -286,9 +215,25 @@ export default function Community() {
       )
     }
 
-    if (!listInfo?.isPoap) {
+    if (!listInfo?.isPoap && listInfo?.requiredNFTs > 0) {
       fetchRequiredNFTsData()
         .catch(console.error);
+    }
+  }, [listInfo])
+
+  //Get Required Poaps
+  useEffect(() => {
+    const getPoapsInfo = async () => {
+      const results = await Promise.all(listInfo?.requiredPoaps.map((item: any) => {
+        const tokenId = item.split('-')
+        return fetchPoapToken(tokenId[1])
+      }));
+
+      setRequiredPOAPs(results)
+    }
+
+    if (listInfo?.requiredPoaps) {
+      getPoapsInfo()
     }
   }, [listInfo])
 
@@ -304,9 +249,6 @@ export default function Community() {
       })
     }
   }, [listId]);
-
-  console.log('tokenData', tokenData);
-
 
   return (
     <Layout>
@@ -362,10 +304,10 @@ export default function Community() {
             <h2 className="text-base font-medium">Collectibles Required</h2>
             {/* {listInfo?.isPoap && <PoapItemContainer title={tokenData.name} image={tokenData.image_url} />} */}
 
-            {listInfo?.isPoap && requiredPOAPsURI.length > 0 && requiredPOAPsURI.map((item: any, index: number) => {
+            {listInfo?.isPoap && requiredPOAPs.length > 0 && requiredPOAPs.map((item: any, index: number) => {
               return (
                 <div key={index}>
-                  <PoapItemContainer title={item?.name} image={item?.image_url} />
+                  <PoapItemContainer title={item?.data?.event?.name} image={item?.data?.event?.image_url} />
                 </div>
               )
             })}
