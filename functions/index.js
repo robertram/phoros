@@ -13,10 +13,21 @@
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+
+/*
+
+TODO:
+Create a firebase cloud function for every list in firebase
+Run the firebase cloud function every 15 minutes to add every user to the twitter list
+
+The cloud function needs to
+Get the list information
+Get the lists owner information 
+Run the twitter api
+Remove from a field in firebase
+Add to a field in firebase
+
+*/
 
 
 const functions = require("firebase-functions")
@@ -24,6 +35,8 @@ const firestore = require("@google-cloud/firestore")
 const firebase = require("firebase/app")
 
 exports.addToTwitterListEvery15Minutes = functions.pubsub.schedule('*/1 * * * *').onRun(async (context) => {
+
+  console.log('addToTwitterListEvery15Minutes test');
 
   const db = new firestore()
   //await db.collection('lists').doc('bd22e3c9-726a-486d-b846-fac5540ee003')
@@ -62,7 +75,7 @@ exports.addToTwitterListEvery15Minutes = functions.pubsub.schedule('*/1 * * * *'
   const stringToRemove = '123';
 
   console.log('stringToRemove', stringToRemove);
-  
+
 
   //pdate the document to remove the string from the array
   docRef.update({
