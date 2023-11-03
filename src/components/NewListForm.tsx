@@ -19,7 +19,7 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep }: 
   const [requiredPoaps, setRequiredPoaps] = useState<any[]>([])
 
   useEffect(() => {
-    setListData({ ...listData, requiredPoaps: requiredPoaps })
+    setListData({ ...listData, requiredPoaps: requiredPoaps, isPoap: true })
   }, [requiredPoaps])
 
   return (
