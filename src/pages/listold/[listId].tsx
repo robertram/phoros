@@ -28,8 +28,6 @@ export default function Community() {
   //const eventId = Array.isArray(router.query.eventId) ? router.query.eventId[1] : router.query.eventId;
   const [loading, setLoading] = useState(false);
   const [userAddedToList, setUserAddedToList] = useState(false);
-  const [userAddedToWaitlist, setUserAddedToWaitlist] = useState(false);
-
   const [userInfo, setUserInfo] = useState<any>({});
   const [listInfo, setListInfo] = useState<any>();
   const [showEnterUsername, setShowEnterUsername] = useState(false);
@@ -40,8 +38,6 @@ export default function Community() {
   const [requiredNFTs, setRequiredNFTs] = useState<any[]>([]);
   const [requiredPOAPs, setRequiredPOAPs] = useState<any[]>([]);
   const [user, setUser] = useState<any>()
-  const [newTokenInfo, setNewTokenInfo] = useState<any>({})
-  const [refreshTokenTriggered, setRefreshTokenTriggered] = useState<any>(false)
 
   useEffect(() => {
     const getUserInfo = async () => {
@@ -59,8 +55,6 @@ export default function Community() {
   }, [listInfo]);
 
   const getUserId = async (twitterUsername: string) => {
-    console.log('get userId');
-
     setLoading(true)
     await fetch('/api/twitter/get-user-id',
       {
@@ -73,8 +67,6 @@ export default function Community() {
       })
       .then(response => {
         if (!response.ok) {
-          console.log('response error', response);
-
           throw new Error('Network response was not ok');
         }
         return response.json()
@@ -95,13 +87,11 @@ export default function Community() {
 
   useEffect(() => {
     if (userInfo?.id && listInfo?.listId) {
-      addUserToList()
+      addUserToList2()
     }
   }, [userInfo])
 
   const addUserToFirebaseList = async (id: string, data: any) => {
-    console.log('addUserToFirebaseList', id);
-
     if (!id) return
 
     const { result, error } = await editData('lists', id, data)
@@ -112,190 +102,132 @@ export default function Community() {
     return { result }
   }
 
-  const checkIsUserInWaitlist = () => {
-    const isRepeated = listInfo?.waitlist?.includes(userInfo?.id);
-    if (isRepeated) {
-      setError('You are still on the waitlist');
-    }
-
-    setLoading(false);
-    return isRepeated
-  }
-
   const addUserToList = async () => {
-    setLoading(true)
-
-    if (!userInfo?.id || !listInfo?.listId) {
-      console.log('cant add to list', 'userInfo?.id', userInfo?.id, 'listInfo?.listId', listInfo?.listId);
-      setLoading(false)
-      return;
-    }
-    if (checkIsUserInWaitlist()) {
-      console.log('user is already on the waitlist');
-
-      setLoading(false)
-      return;
-    }
-
-    await fetch('/api/twitter/add-user-to-list',
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, ...user })
-      })
-      .then(response => {
-        console.log('response is ok?', response);
-
-        if (response.status === 401) {
-          console.log('token might be expired');
-          refreshToken()
-        }
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json()
-      })
-      .then(response => {
-        console.log('response add user to list', response);
-
-        const dataToUpdate = {
-          members: arrayUnion(userInfo?.id)
-        };
-        addUserToFirebaseList(listInfo.id, dataToUpdate);
-
-        setLoading(false)
-        setShowEnterUsername(false)
-        setTwitterUsername('')
-        setUserAddedToList(true);
-      })
-      .catch((err) => {
-        console.log('err add user to list', err);
-
-        const dataToUpdate = {
-          waitlist: arrayUnion(userInfo?.id)
-        };
-        addUserToFirebaseList(listInfo.id, dataToUpdate);
-
-        setLoading(false)
-        setShowEnterUsername(false)
-        setTwitterUsername('')
-        setUserAddedToWaitlist(true);
-      });
-    setLoading(false)
-  }
-
-  const refreshToken = async () => {
-    const refreshResponse = await fetch('/api/twitter/refresh-token', {
+    const response = await fetch('/api/twitter/add-user-to-list', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ ...user, refreshToken: user?.refreshToken })
+      body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, ...user })
     });
-
-    if (!refreshResponse.ok) {
-      console.log('failed to refresh token');
-      throw new Error('Failed to refresh token');
-    }
-
-    const refreshData = await refreshResponse.json();
-    const newAccessToken = refreshData.accessToken;
-    const newExpireTime = refreshData.expireIn;
-
-    setNewTokenInfo({ newAccessToken, newExpireTime })
-    setRefreshTokenTriggered(true)
+    return response
   }
 
-  useEffect(() => {
-    if (newTokenInfo && !refreshTokenTriggered) {
-      console.log('addUserToListWithRefreshedToken');
+  const addUserToList2 = async () => {
+    setLoading(true);
+    try {
+      if (!userInfo?.id || !listInfo?.listId) {
+        console.log('cant add to list', 'userInfo?.id', userInfo?.id, 'listInfo?.listId', listInfo?.listId);
+        return;
+      }
 
-      addUserToListWithRefreshedToken()
-    }
-  }, [newTokenInfo, refreshTokenTriggered])
+      console.log('userInfo', userInfo);
+      console.log('listInfo?.waitlist', listInfo?.waitlist);
 
-  const addUserToListWithRefreshedToken = async () => {
-    setLoading(true)
+      const isRepeated = listInfo?.waitlist?.includes(userInfo?.id);
 
-    if (!userInfo?.id || !listInfo?.listId) {
-      console.log('cant add to list', 'userInfo?.id', userInfo?.id, 'listInfo?.listId', listInfo?.listId);
-      setLoading(false)
-      return;
-    }
+      if (isRepeated) {
+        setError('You are still on the waitlist');
+        setLoading(false);
+        return;
+      }
 
-    await fetch('/api/twitter/add-user-to-list',
-      {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, accessToken: newTokenInfo?.newAccessToken, expireTime: newTokenInfo?.newExpireTime })
-      })
-      .then(response => {
-        console.log('response with refreshed token is ok?', response);
+      let response = await addUserToList()
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+      console.log('response addUserToList', response);
+
+      if (response.status === 401) {
+        console.log('token might be expired');
+
+        // Access token might be expired, try to refresh it
+
+        console.log(401, 'user', user);
+
+        const refreshResponse = await fetch('/api/twitter/refresh-token', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ ...user, refreshToken: user?.refreshToken })
+        });
+
+        if (!refreshResponse.ok) {
+          console.log('failed to refresh token');
+          throw new Error('Failed to refresh token');
         }
 
-        return response.json()
-      })
-      .then(response => {
-        console.log('response add user to list with refreshed token', response);
+        const refreshData = await refreshResponse.json();
+        const newAccessToken = refreshData.accessToken;
+        const newExpireTime = refreshData.expireIn;
 
-        const dataToUpdate = {
-          members: arrayUnion(userInfo?.id)
-        };
-        addUserToFirebaseList(listInfo.id, dataToUpdate);
+        // Retry the original request with the new access token
+        response = await fetch('/api/twitter/add-user-to-list', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId: userInfo?.id, listId: listInfo?.listId, accessToken: newAccessToken, expireTime: newExpireTime })
+        });
+      }
 
-        setLoading(false)
-        setShowEnterUsername(false)
-        setTwitterUsername('')
-        setUserAddedToList(true);
-      })
-      .catch((err) => {
-        console.log('err add user to list with refreshed token', err);
+      if (!response.ok) {
+        console.log('response not ok', response);
+        throw new Error('Network response was not ok');
+      }
 
-        const dataToUpdate = {
-          waitlist: arrayUnion(userInfo?.id)
-        };
-        addUserToFirebaseList(listInfo.id, dataToUpdate);
+      const data = await response.json();
+      const dataToUpdate = {
+        members: arrayUnion(userInfo?.id)
+      };
+      addUserToFirebaseList(listInfo.id, dataToUpdate);
+      setUserAddedToList(true);
+      setLoading(false);
+      setTwitterUsername('');
+    }
+    catch (err) {
+      console.error('Error adding user to list:', err);
+      const dataToUpdate = {
+        waitlist: arrayUnion(userInfo?.id)
+      };
+      addUserToFirebaseList(listInfo.id, dataToUpdate);
+      setError('Failed to add user to list');
+      setUserAddedToList(false);
+      setLoading(false);
+      setTwitterUsername('');
+    }
 
-        setLoading(false)
-        setShowEnterUsername(false)
-        setTwitterUsername('')
-        setUserAddedToWaitlist(true);
+    if (listId) {
+      getAllData().then((result) => {
+        setListInfo(result.result[0]);
       });
-    setLoading(false)
+    }
+    setLoading(false);
   }
 
-  //Get Required NFTs  DO NOT DELETE
-  // useEffect(() => {
-  //   const fetchRequiredNFTsData = async () => {
-  //     await Promise.all(
-  //       listInfo?.requiredNFTs.map(async (item: number) => {
-  //         if (!requiredNFTs.some(existingItem => existingItem?.tokenId === item)) {
-  //           const metadata: ResponseDto<NftTokenDetail | null> = await tatum.nft.getNftMetadata({
-  //             tokenAddress: listInfo?.contractAddress,
-  //             tokenId: item
-  //           })
-  //           setRequiredNFTs(oldArray => [...oldArray, metadata.data]);
-  //         }
-  //       })
-  //     )
-  //   }
+  //Get Required NFTs
+  useEffect(() => {
+    const fetchRequiredNFTsData = async () => {
+      await Promise.all(
+        listInfo?.requiredNFTs.map(async (item: number) => {
+          if (!requiredNFTs.some(existingItem => existingItem?.tokenId === item)) {
+            const metadata: ResponseDto<NftTokenDetail | null> = await tatum.nft.getNftMetadata({
+              tokenAddress: listInfo?.contractAddress,
+              tokenId: item
+            })
+            setRequiredNFTs(oldArray => [...oldArray, metadata.data]);
+          }
+        })
+      )
+    }
 
-  //   if (!listInfo?.isPoap && listInfo?.requiredNFTs > 0) {
-  //     fetchRequiredNFTsData()
-  //       .catch(console.error);
-  //   }
-  // }, [listInfo])
+    if (!listInfo?.isPoap && listInfo?.requiredNFTs > 0) {
+      fetchRequiredNFTsData()
+        .catch(console.error);
+    }
+  }, [listInfo])
 
   //Get Required Poaps
   useEffect(() => {
@@ -370,10 +302,6 @@ export default function Community() {
 
           {userAddedToList &&
             <p className="text-xl text-green-400">You were added to the list</p>
-          }
-
-          {userAddedToWaitlist &&
-            <p className="text-xl text-green-400">You were added to the waitlist</p>
           }
 
           {!listInfo &&

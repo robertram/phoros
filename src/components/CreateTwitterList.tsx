@@ -100,7 +100,7 @@ export const CreateTwitterList = () => {
       setLoading(false)
 
     } catch (err) {
-      console.error('Error adding user to list:', err);
+      console.error('Error creating list:', err);
       setError(err);
       setListCreated(false)
       setLoading(false)
