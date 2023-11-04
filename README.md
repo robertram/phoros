@@ -72,3 +72,7 @@ functions
 ngrok http --domain=phoros.ngrok.dev 3000
 
 http://127.0.0.1:4000/Phoros/us-central1/addToTwitterListEvery15Minutes
+
+
+
+https://addusertolist-ef52xoumsq-uc.a.run.app 
