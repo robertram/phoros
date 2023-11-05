@@ -11,27 +11,8 @@ const functions = require("firebase-functions")
 
 initializeApp();
 
-/*
-
-TODO:
-Create a firebase cloud function for every list in firebase
-Run the firebase cloud function every 15 minutes to add every user to the twitter list
-
-The cloud function needs to
-Get the list information
-Get the lists owner information 
-Run the twitter api
-Remove from a field in firebase
-Add to a field in firebase
-
-*/
-
-// Take the text parameter passed to this HTTP endpoint and insert it into
-// Firestore under the path /messages/:documentId/original
 exports.addmessage = onRequest(async (req: any, res: any) => {
-
   console.log('addMessage function!!!');
-
   // Grab the text parameter.
   const original = req.query.text;
   // Push the new message into Firestore using the Firebase Admin SDK.
@@ -61,7 +42,7 @@ exports.makeuppercase = onDocumentCreated("/messages/{documentId}", (event: any)
   return event.data.ref.set({ uppercase }, { merge: true });
 });
 
-exports.addToTwitterListEvery15Minutes = functions.pubsub.schedule('*/1 * * * *').onRun(async (context: any) => {
+exports.addToTwitterListEvery15Minutes = functions.pubsub.schedule('*/3 * * * *').onRun(async (context: any) => {
   //exports.moveWaitlistToMember = onRequest(async (req: any, res: any) => {
   try {
     const firestore = await getFirestore()
@@ -73,14 +54,10 @@ exports.addToTwitterListEvery15Minutes = functions.pubsub.schedule('*/1 * * * *'
 
     if (!docSnapshot.exists) {
       console.log('No such document!');
-      //res.status(404).send('Document not found');
       return;
     }
-
-    // Get the document data
     const docData = docSnapshot.data();
     if (!docData || !Array.isArray(docData.waitlist) || docData.waitlist.length === 0) {
-      //res.status(200).send('Waitlist is empty or not found.');
       return;
     }
 
@@ -88,80 +65,100 @@ exports.addToTwitterListEvery15Minutes = functions.pubsub.schedule('*/1 * * * *'
     const ownerId = docData?.owner
     const ownerRef = firestore.collection("users").doc(ownerId);
     const ownerSnapshot = await ownerRef.get();
-
     if (!ownerSnapshot.exists) {
       console.log('Owner not found');
-      //res.status(404).send('Owner not found');
       return;
     }
-
-    // Get the document data
     const ownerData = ownerSnapshot.data();
     if (!ownerData || !ownerData.accessToken) {
       console.log('Owner doesnt have accessToken.');
-      
-      //res.status(200).send('Owner doesnt have accessToken.');
       return;
     }
 
-    // Retrieve the first item from the waitlist
+    let accessToken = ownerData.accessToken
+    let expireTime = ownerData.expireTime
+
+    if (!ownerData?.expireTime || Date.now() > ownerData?.expireTime) {
+      console.log('refreshToken!')
+      const refreshQueryParams = new URLSearchParams({
+        id: ownerId,
+        refreshToken: ownerData.refreshToken
+      });
+
+      console.log('refreshQueryParams', refreshQueryParams);
+
+      const refreshFunctionUrl = `https://refreshtoken-ef52xoumsq-uc.a.run.app?${refreshQueryParams}`;
+      const refreshResponse = await fetch(refreshFunctionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!refreshResponse.ok) {
+        console.log('Error refresh token', refreshResponse);
+
+        throw new Error(`Error: ${refreshResponse.status}`);
+      }
+      const refreshResponseData = await refreshResponse.json();
+
+      console.log('refreshResponseData', refreshResponseData);
+      accessToken = refreshResponseData.accessToken
+      expireTime = refreshResponseData.expireTime
+    }
+
     const [firstWaitlistItem, ...remainingWaitlist] = docData.waitlist;
 
-    const queryParams = new URLSearchParams({
-      listId: docData?.listId,
-      userId: firstWaitlistItem,
-      accessToken: ownerData.accessToken,
-      expireTime: ownerData.expireTime
+    const waitlistUserId = firstWaitlistItem.split('/');
+
+    const isAlreadyOnWaitlist = docData?.waitlist?.some((item: any) => {
+      const parts = item.split('/');
+      return parts[1] === waitlistUserId;
     });
 
+    if (isAlreadyOnWaitlist) {
+      return;
+    }
+
+    const isAlreadyOnMembersList = docData?.members?.some((item: any) => {
+      const parts = item.split('/');
+      return parts[1] === waitlistUserId;
+    });
+
+    if (isAlreadyOnMembersList) {
+      return;
+    }
+
+    //RUN add user to twitter list
+    const queryParams = new URLSearchParams({
+      listId: docData?.listId,
+      userId: waitlistUserId[1],
+      accessToken: accessToken,
+      expireTime: expireTime,
+    });
     console.log('queryParams', queryParams);
-
-    // Define the URL of the cloud function you want to call
     const functionUrl = `https://addusertolist-ef52xoumsq-uc.a.run.app?${queryParams}`;
-
-    ///////
-
     const response = await fetch(functionUrl, {
-      method: 'POST', // or 'GET' if that's what the other function expects
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       }
-      // If you need to include a body, uncomment the following line
-      // body: JSON.stringify({ /* your body data here */ })
     });
 
-    // Check if the call was successful
     if (!response.ok) {
+      console.log('Error addind user to list', response);
       throw new Error(`Error: ${response.status}`);
     }
-
-    // Parse the response as JSON
     const responseData = await response.json();
-
-
     console.log('responseData', responseData);
-
-
-    ////
-
-
-
-    // Retrieve or initialize the 'members' array
     const members = Array.isArray(docData.members) ? docData.members : [];
-
-    // Add the first waitlist item to the members array
     const newMembers = [...members, firstWaitlistItem];
-
-    // Update the document with the new members array and the remaining waitlist
     await documentRef.update({
       members: newMembers,
       waitlist: remainingWaitlist,
     });
-
-    //res.json({ result: `list info` });
   } catch (error) {
     console.error('Error making Twitter API request:', error);
-    //res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
@@ -183,8 +180,6 @@ exports.addUserToList = onRequest(async (req: any, res: any) => {
       const twitterClient = new TwitterApi(accessToken);
       const userClient = twitterClient.readWrite;
 
-      console.log('userClient', userClient);
-
       const addListMember = await userClient.v2.addListMember(listId, userId);
       console.log('addListMember', addListMember);
 
@@ -193,6 +188,63 @@ exports.addUserToList = onRequest(async (req: any, res: any) => {
     res.status(500).json({ error: 'Internal Server Error' });
   } catch (error) {
     console.error('Error making Twitter API request:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+exports.refreshToken = onRequest(async (req: any, res: any) => {
+  try {
+
+    const id = req.query?.id
+    const refreshToken = req.query?.refreshToken
+
+    const firestore = await getFirestore()
+    const ownerRef = firestore.collection("users").doc(id);
+    const ownerSnapshot = await ownerRef.get();
+    if (!ownerSnapshot.exists) {
+      console.log('Owner not found');
+      return;
+    }
+    const ownerData = ownerSnapshot.data();
+    if (!ownerData || !ownerData.accessToken) {
+      console.log('Owner doesnt have accessToken.');
+      return;
+    }
+
+    console.log(id, 'refreshToken', refreshToken);
+
+    if (refreshToken) {
+      const client = new TwitterApi({
+        clientId: process.env.NEXT_PUBLIC_CLIENT_ID ?? '',
+        clientSecret: process.env.NEXT_PUBLIC_CLIENT_SECRET ?? ''
+      });
+
+      console.log('client', client);
+
+      const { client: refreshedClient, accessToken, refreshToken: newRefreshToken, expiresIn } =
+        await client.refreshOAuth2Token(refreshToken);
+
+      const expireTime = Date.now() + (expiresIn * 1000);
+
+      console.log('refreshedClient', refreshedClient);
+
+      console.log('refreshTokenData', {
+        accessToken,
+        newRefreshToken,
+        expireTime
+      });
+
+      await ownerRef.update({
+        accessToken: accessToken,
+        expireTime: expireTime,
+        refreshToken: newRefreshToken
+      });
+
+      res.status(200).json({ accessToken, id, newRefreshToken, expireTime });
+    }
+    res.status(500).json({ error: 'Internal Server Error' });
+  } catch (error) {
+    console.error('Refresh Token Error making Twitter API request:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

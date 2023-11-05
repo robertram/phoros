@@ -35,5 +35,7 @@ module.exports = {
     "spaced-comment": "off",
     "@typescript-eslint/no-var-requires": "off",
     "padded-blocks": "off",
+    "comma-dangle": "off",
+    "eol-last": "off"
   },
 };

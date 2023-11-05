@@ -135,6 +135,16 @@ export default function Community() {
     return isRepeated
   }
 
+  const checkIsUserInMemberList = () => {
+    const isRepeated = hasUsername(listInfo?.members, userInfo?.id)
+    if (isRepeated) {
+      setError('You are already on the members list');
+    }
+
+    setLoading(false);
+    return isRepeated
+  }
+
   useEffect(() => {
     if (newTokenInfo && !refreshTokenTriggered) {
       addUserToWaitlist()
@@ -149,6 +159,13 @@ export default function Community() {
     }
     if (checkIsUserInWaitlist()) {
       console.log('user is already on the waitlist');
+
+      setLoading(false)
+      return;
+    }
+
+    if (checkIsUserInMemberList()) {
+      console.log('user is already on the members list');
 
       setLoading(false)
       return;

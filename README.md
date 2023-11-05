@@ -80,4 +80,4 @@ https://addusertolist-ef52xoumsq-uc.a.run.app
 # Simulate addToTwitterEvery3Minutes
 
 firebase functions:shell
-setInterval(() => addToTwitterListEvery15Minutes(), 60000)
+setInterval(() => addToTwitterListEvery15Minutes(), 30000)
