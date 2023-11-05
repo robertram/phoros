@@ -9,7 +9,7 @@ const AddUser = (props: any) => (
     {...props}
   >
     <path
-      stroke="#171717"
+      stroke={props?.color ? props?.color : "#171717"}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={1.5}

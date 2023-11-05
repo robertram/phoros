@@ -76,3 +76,8 @@ http://127.0.0.1:4000/Phoros/us-central1/addToTwitterListEvery15Minutes
 
 
 https://addusertolist-ef52xoumsq-uc.a.run.app 
+
+# Simulate addToTwitterEvery3Minutes
+
+firebase functions:shell
+setInterval(() => addToTwitterListEvery15Minutes(), 60000)

@@ -19,13 +19,19 @@ import { ResponseDto, NftTokenDetail } from '@tatumio/tatum'
 import useTatum from "@/hooks/useTatum";
 import { doc, getDoc } from 'firebase/firestore';
 import { fetchPoapToken } from "@/utils/poap";
+import usePoaps from "@/hooks/usePoaps";
+import { useAuth } from "@/context/AuthContext";
+import { useWeb3Modal } from "@web3modal/wagmi/react";
 
 export default function Community() {
+  const { address } = useAuth()
+  const { poaps, loading: poapsLoading, error: poapsError } = usePoaps(address ?? '');
+  const { open, close } = useWeb3Modal()
+
   const tatum = useTatum()
   const router = useRouter();
   const tokenId = Array.isArray(router.query.tokenId) ? router.query.tokenId[1] : router.query.tokenId;
   const listId = Array.isArray(router.query.listId) ? router.query.listId[1] : router.query.listId;
-  //const eventId = Array.isArray(router.query.eventId) ? router.query.eventId[1] : router.query.eventId;
   const [loading, setLoading] = useState(false);
   const [userAddedToList, setUserAddedToList] = useState(false);
   const [userAddedToWaitlist, setUserAddedToWaitlist] = useState(false);
@@ -39,9 +45,12 @@ export default function Community() {
   const [tokenData, setTokenData] = useState<any>({});
   const [requiredNFTs, setRequiredNFTs] = useState<any[]>([]);
   const [requiredPOAPs, setRequiredPOAPs] = useState<any[]>([]);
+  const [choosenCollectibleToAssign, setChoosenCollectibleToAssign] = useState<any>({});
+
   const [user, setUser] = useState<any>()
   const [newTokenInfo, setNewTokenInfo] = useState<any>({})
   const [refreshTokenTriggered, setRefreshTokenTriggered] = useState<any>(false)
+  const [hasRequiredPoap, setHasRequiredPoap] = useState<boolean>(false)
 
   useEffect(() => {
     const getUserInfo = async () => {
@@ -60,6 +69,7 @@ export default function Community() {
 
   const getUserId = async (twitterUsername: string) => {
     console.log('get userId');
+    const formattedUsername = removeAtSymbol(twitterUsername)
 
     setLoading(true)
     await fetch('/api/twitter/get-user-id',
@@ -69,7 +79,7 @@ export default function Community() {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ username: twitterUsername })
+        body: JSON.stringify({ username: formattedUsername })
       })
       .then(response => {
         if (!response.ok) {
@@ -163,7 +173,7 @@ export default function Community() {
         console.log('response add user to list', response);
 
         const dataToUpdate = {
-          members: arrayUnion(userInfo?.id)
+          members: arrayUnion(`${choosenCollectibleToAssign?.data?.event?.id}-${choosenCollectibleToAssign?.data?.tokenId}/${userInfo?.id}`)
         };
         addUserToFirebaseList(listInfo.id, dataToUpdate);
 
@@ -175,8 +185,9 @@ export default function Community() {
       .catch((err) => {
         console.log('err add user to list', err);
 
+        //waitlist: arrayUnion(userInfo?.id)
         const dataToUpdate = {
-          waitlist: arrayUnion(userInfo?.id)
+          waitlist: arrayUnion(`${choosenCollectibleToAssign?.data?.event?.id}-${choosenCollectibleToAssign?.data?.tokenId}/${userInfo?.id}`)
         };
         addUserToFirebaseList(listInfo.id, dataToUpdate);
 
@@ -187,6 +198,10 @@ export default function Community() {
       });
     setLoading(false)
   }
+
+  console.log('requre', requiredPOAPs);
+  console.log('choosenCollectibleToAssign', choosenCollectibleToAssign);
+
 
   const refreshToken = async () => {
     const refreshResponse = await fetch('/api/twitter/refresh-token', {
@@ -249,8 +264,9 @@ export default function Community() {
       .then(response => {
         console.log('response add user to list with refreshed token', response);
 
+        //members: arrayUnion(userInfo?.id)
         const dataToUpdate = {
-          members: arrayUnion(userInfo?.id)
+          members: arrayUnion(`${choosenCollectibleToAssign?.data?.event?.id}-${choosenCollectibleToAssign?.data?.tokenId}/${userInfo?.id}`)
         };
         addUserToFirebaseList(listInfo.id, dataToUpdate);
 
@@ -262,8 +278,9 @@ export default function Community() {
       .catch((err) => {
         console.log('err add user to list with refreshed token', err);
 
+        //waitlist: arrayUnion(userInfo?.id)
         const dataToUpdate = {
-          waitlist: arrayUnion(userInfo?.id)
+          waitlist: arrayUnion(`${choosenCollectibleToAssign?.data?.event?.id}-${choosenCollectibleToAssign?.data?.tokenId}/${userInfo?.id}`)
         };
         addUserToFirebaseList(listInfo.id, dataToUpdate);
 
@@ -306,6 +323,7 @@ export default function Community() {
       }));
 
       setRequiredPOAPs(results)
+      setChoosenCollectibleToAssign(results[0])
     }
 
     if (listInfo?.requiredPoaps) {
@@ -325,6 +343,18 @@ export default function Community() {
       })
     }
   }, [listId]);
+
+  const checkIfOwnRequiredPoap = (ownedPoaps: any[], requiredPoaps: any[]) => {
+    const ownedTokenIds = ownedPoaps.map(poap => poap.tokenId);
+    return requiredPoaps.some(requiredPoap => ownedTokenIds.includes(requiredPoap.data.tokenId));
+  };
+
+  useEffect(() => {
+    if (poaps && requiredPOAPs) {
+      const hasRequiredPoapCheck = checkIfOwnRequiredPoap(poaps, requiredPOAPs);
+      setHasRequiredPoap(hasRequiredPoapCheck)
+    }
+  }, [poaps, requiredPOAPs])
 
   return (
     <Layout>
@@ -357,10 +387,21 @@ export default function Community() {
                 />
                 <CardButton
                   disabled={loading}
-                  onClick={() => setShowEnterUsername(true)}
-                  title="Join List"
-                  icon={<AddUser className="m-auto" />}
+                  onClick={() => {
+                    if (address) {
+                      if (hasRequiredPoap) {
+                        setShowEnterUsername(true)
+                      } else {
+
+                      }
+                    } else {
+                      open({ view: 'Connect' })
+                    }
+                  }}
+                  title={!address ? 'Log In' : hasRequiredPoap ? "Join List" : "You don't have the required collectible"}
+                  icon={<AddUser className={`m-auto  ${hasRequiredPoap ? 'text-white' : ''}`} color={hasRequiredPoap ? "white" : "black"} />}
                   loading={loading}
+                  className={`${hasRequiredPoap ? 'bg-[#22C55E] text-white' : 'bg-white text-black cursor-auto'}`}
                 />
               </div>
             }
@@ -369,11 +410,11 @@ export default function Community() {
           {error && <p className="text-red-500">{error}</p>}
 
           {userAddedToList &&
-            <p className="text-xl text-green-400">You were added to the list</p>
+            <p className="text-xl text-[#22C55E]">You were added to the list</p>
           }
 
           {userAddedToWaitlist &&
-            <p className="text-xl text-green-400">You were added to the waitlist</p>
+            <p className="text-xl text-[#22C55E] mt-[15px]">You were added to the waitlist</p>
           }
 
           {!listInfo &&
@@ -451,7 +492,6 @@ export default function Community() {
                   placeholder='Enter your X handle'
                   value={twitterUsername}
                   onChange={(event) => {
-                    const userHandle = removeAtSymbol(event.target.value)
                     setTwitterUsername(event.target.value)
                   }}
                 />
