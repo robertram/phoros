@@ -52,7 +52,9 @@ export default function Authorize() {
 
   useEffect(() => {
     if (authorizationSuccess) {
-      router.push('create-list')
+      setTimeout(() => {
+        router.push('create-list')
+      }, 2000);
     }
   }, [authorizationSuccess])
 
