@@ -25,7 +25,7 @@ export const Poaps = () => {
     return lists?.filter((list: any) => {
       return list?.requiredPoaps?.some((poapString: any) => {
         const [eventId, tokenId] = poapString.split("-");
-        return poaps.some((poap: any) => poap.event.id.toString() === eventId && poap.tokenId === tokenId);
+        return poaps.some((poap: any) => poap.event.id.toString() === eventId);
       });
     });
   }
