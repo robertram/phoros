@@ -233,8 +233,8 @@ export default function Community() {
   }, [listId]);
 
   const checkIfOwnRequiredPoap = (ownedPoaps: any[], requiredPoaps: any[]) => {
-    const ownedTokenIds = ownedPoaps.map(poap => poap.tokenId);
-    return requiredPoaps.some(requiredPoap => ownedTokenIds.includes(requiredPoap.data.tokenId));
+    const ownedTokenIds = ownedPoaps.map(poap => poap?.event?.id);
+    return requiredPoaps.some(requiredPoap => ownedTokenIds.includes(requiredPoap?.data?.event?.id));
   };
 
   useEffect(() => {
