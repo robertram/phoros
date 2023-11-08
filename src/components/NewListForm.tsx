@@ -97,7 +97,7 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep }: 
 
         <div className='mb-[20px] flex justify-between'>
           <div>
-            <p className="text-base font-medium mb-[5px]">List Image</p>
+            <p className="text-base font-medium mb-[5px]">Digital Collection</p>
             <p>Select at least one digital collection that members will need to join this list</p>
           </div>
 

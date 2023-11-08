@@ -50,9 +50,9 @@ export const PoapsSelection = ({ poapsSelection, setPoapsSelection }: PoapsSelec
 
   return (
     <div>
-      <div className="flex flex-wrap gap-3 overflow-y-scroll h-[600px]">
+      <div className="flex flex-wrap gap-3 overflow-y-scroll max-h-[78vh]">
         {nfts.map((item, index) => {
-          const isSelected = poapsSelection.some((poap: any) => poap ===  `${item?.event?.id}-${item?.tokenId}`);
+          const isSelected = poapsSelection.some((poap: any) => poap === `${item?.event?.id}-${item?.tokenId}`);
           const eventString = `${item?.event?.id}-${item?.tokenId}`
 
           return (
@@ -64,7 +64,7 @@ export const PoapsSelection = ({ poapsSelection, setPoapsSelection }: PoapsSelec
                 if (!isSelected) {
                   setPoapsSelection((oldArray: any) => [...oldArray, eventString]);
                 } else {
-                  setPoapsSelection((oldArray: any) => oldArray.filter((poap: any) => poap.tokenId !== item.tokenId));
+                  setPoapsSelection((oldArray: any) => oldArray.filter((poap: any) => poap !== `${item.event.id}-${item.tokenId}`));
                 }
               }}
               key={index}

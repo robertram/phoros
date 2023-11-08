@@ -21,6 +21,8 @@ import { fetchPoapToken } from "@/utils/poap";
 import usePoaps from "@/hooks/usePoaps";
 import { useAuth } from "@/context/AuthContext";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
+import { Success } from "@/components/Success";
+import Share from "@/icons/Share";
 
 export default function Community() {
   const { address } = useAuth()
@@ -48,6 +50,7 @@ export default function Community() {
   const [newTokenInfo, setNewTokenInfo] = useState<any>({})
   const [refreshTokenTriggered, setRefreshTokenTriggered] = useState<any>(false)
   const [hasRequiredPoap, setHasRequiredPoap] = useState<boolean>(false)
+  const [shareLinkCopied, setShareLinkCopied] = useState<boolean>(false)
 
   useEffect(() => {
     const getUserInfo = async () => {
@@ -244,6 +247,31 @@ export default function Community() {
     }
   }, [poaps, requiredPOAPs])
 
+  if (userAddedToWaitlist) {
+    return (
+      <Layout>
+        <div className='px-[16px] max-w-large flex items-center m-auto'>
+          <Success
+            title="You are in the waitlist now!"
+            description={`Congratulations, now you can follow the list to stay updated about ${listInfo?.name} in twitter and engage with their members in an easy ways`}
+            firstButtonText="Open in X"
+            firstButtonLink={`https://twitter.com/i/lists/${listInfo?.listId}`}
+            firstButtonIcon={<Twitter className="m-auto" />}
+            secondButtonText={shareLinkCopied ? "Link copied" : "Share"}
+            //secondButtonLink={`https://twitter.com/i/lists/${listInfo?.listId}`}
+            secondButtonOnClick={() => {
+              navigator.clipboard.writeText(`https://app.phoros.io/list/${listInfo?.listId}`)
+              setShareLinkCopied(true)
+            }}
+            secondButtonIcon={<Share className="m-auto" />}
+          />
+        </div>
+      </Layout>
+    )
+  }
+
+
+
   return (
     <Layout>
       <div className='px-[16px] max-w-large flex items-center m-auto'>
@@ -304,6 +332,8 @@ export default function Community() {
           {userAddedToWaitlist &&
             <p className="text-xl text-[#22C55E] mt-[15px]">You were added to the waitlist</p>
           }
+
+
 
           {!listInfo &&
             <p className="text-xl mt-[20px]">There are no lists for this event</p>
