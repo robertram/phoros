@@ -18,6 +18,7 @@ export const LinkCard = ({ title, value, link, icon, onClick, disabled, loading,
     <a
       href={link ?? '#'}
       target="_blank"
+      rel="noreferrer"
       className={`w-full rounded-[8px] py-[8px] px-[15px] bg-[#F5F5F5] ${className}`}
     >
       {value && <p className="font-bold text-xl text-center">{value}</p>}
