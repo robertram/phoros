@@ -28,7 +28,6 @@ export default function Community() {
   const { address } = useAuth()
   const { poaps, loading: poapsLoading, error: poapsError } = usePoaps(address ?? '');
   const { open, close } = useWeb3Modal()
-  const tatum = useTatum()
   const router = useRouter();
   const listId = Array.isArray(router.query.listId) ? router.query.listId[1] : router.query.listId;
   const [loading, setLoading] = useState(false);
@@ -208,7 +207,7 @@ export default function Community() {
   //Get Required Poaps
   useEffect(() => {
     const getPoapsInfo = async () => {
-      const results = await Promise.all(listInfo?.requiredPoaps.map((item: any) => {
+      const results = await Promise.all(listInfo?.requiredPoaps?.map((item: any) => {
         const tokenId = item.split('-')
         return fetchPoapToken(tokenId[1])
       }));
@@ -237,7 +236,7 @@ export default function Community() {
 
   const checkIfOwnRequiredPoap = (ownedPoaps: any[], requiredPoaps: any[]) => {
     const ownedTokenIds = ownedPoaps.map(poap => poap?.event?.id);
-    return requiredPoaps.some(requiredPoap => ownedTokenIds.includes(requiredPoap?.data?.event?.id));
+    return requiredPoaps?.some(requiredPoap => ownedTokenIds?.includes(requiredPoap?.data?.event?.id));
   };
 
   useEffect(() => {
@@ -258,7 +257,6 @@ export default function Community() {
             firstButtonLink={`https://twitter.com/i/lists/${listInfo?.listId}`}
             firstButtonIcon={<Twitter className="m-auto" />}
             secondButtonText={shareLinkCopied ? "Link copied" : "Share"}
-            //secondButtonLink={`https://twitter.com/i/lists/${listInfo?.listId}`}
             secondButtonOnClick={() => {
               navigator.clipboard.writeText(`https://app.phoros.io/list/${listInfo?.listId}`)
               setShareLinkCopied(true)
@@ -269,8 +267,6 @@ export default function Community() {
       </Layout>
     )
   }
-
-
 
   return (
     <Layout>
