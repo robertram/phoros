@@ -31,13 +31,13 @@ export default function Index() {
             <h2 className="mt-[10px] text-base font-semibold mb-[16px]">Recommended lists you can join</h2>
             {/* <OwnedNFTs /> */}
 
-            <Tabs
+            {/* <Tabs
               tabs={tabsList}
               activeTab={activeTab}
               setActiveTab={(tabIndex: number) => {
                 setActiveTab(tabIndex)
               }}
-            />
+            /> */}
             {activeTab === 0 &&
               <OwnedNFTs2 />
             }
