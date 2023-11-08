@@ -80,13 +80,13 @@ export interface EventType {
 
 
 export interface UserData {
-  name: string
+  bio: string
   profilePicture: string
-  lastName: string
-  address: string
-  city: string
-  country: string
-  phoneNumber: string
+  twitter: string
+  linkedin: string
+  discord: string
+  instagram: string
+  telegram: string
 }
 
 export enum ContractType {

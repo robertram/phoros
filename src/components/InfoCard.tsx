@@ -6,7 +6,7 @@ interface CardButtonProps {
   title: string,
   value?: string
   link?: string
-  icon: any
+  icon?: any
   onClick?: () => void
   disabled?: boolean
   loading?: boolean

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
 const usePoaps = (address: string) => {
-  const [poaps, setPoaps] = useState(null);
+  const [poaps, setPoaps] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 

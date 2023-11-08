@@ -37,7 +37,7 @@ export default function Index() {
       <div className='px-[16px] max-w-large flex items-center m-auto'>
         <div className="w-full">
 
-          {/* <EditProfile /> */}
+          <EditProfile address={address} />
         </div>
       </div>
     </Layout>
