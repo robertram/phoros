@@ -130,7 +130,7 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep }: 
             e.preventDefault()
             setStep && setStep(1)
           }}
-          className='bg-blue-500 text-white font-semibold px-4 py-2 rounded-md mt-4 w-full'
+          className='mt-[10px] !bg-primary rounded-[50px] text-white p-[10px] px-[20px] cursor-pointer w-full mb-[10px]'
         >
           Continue
         </button>
