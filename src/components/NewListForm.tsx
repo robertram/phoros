@@ -35,7 +35,7 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep }: 
             </label>
             <input
               placeholder="Add Image"
-              className="absolute top-0 left-0 opacity-0 cursor-pointer"
+              className="absolute top-0 left-0 opacity-0 cursor-pointer w-[20px]"
               //className="border-solid border-red-500 border-2 w-full"
               type='file'
               id='image'
