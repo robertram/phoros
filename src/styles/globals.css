@@ -2,7 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-
+@layer base {
+  html {
+    @apply font-body;
+  }
+}
 
 :root{
   --bg-color: black;

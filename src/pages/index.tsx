@@ -19,8 +19,8 @@ export default function Index() {
       <div className='px-[16px] max-w-large flex items-center m-auto'>
         {!address ?
           <div className="text-center w-full pt-[32px]">
-            <h2 className="text-3xl font-bold">Keep Engaging with your community</h2>
-            <p className="text-lg mt-[10px]">Get all your followers in one place thanks to your digital collectibles and X (twitter)</p>
+            <h2 className="text-4xl font-title">Keep Engaging with your community</h2>
+            <p className="text-lg max-w-[450px] m-auto mt-[25px]">Get all your followers in one place thanks to your digital collectibles and X (twitter)</p>
             <div className="m-auto flex justify-center mt-[20px]">
               <ConnectButton text="Join Phoros Now" />
             </div>
@@ -48,7 +48,9 @@ export default function Index() {
           </div>
         }
       </div>
-      <FloatingButton />
+      {address &&
+        <FloatingButton />
+      }
     </Layout >
   )
 }

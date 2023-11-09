@@ -130,7 +130,7 @@ export default function Community() {
   const checkIsUserInWaitlist = () => {
     const isRepeated = hasUsername(listInfo?.waitlist, userInfo?.id)
     if (isRepeated) {
-      setError('You are still on the waitlist');
+      setError('You are on the waitlist. Please be patient');
     }
 
     setLoading(false);
@@ -251,8 +251,8 @@ export default function Community() {
       <Layout>
         <div className='px-[16px] max-w-large flex items-center m-auto'>
           <Success
-            title="You are in the waitlist now!"
-            description={`Congratulations, now you can follow the list to stay updated about ${listInfo?.name} in twitter and engage with their members in an easy ways`}
+            title="You have been added to the list!"
+            description={`Dont fomo, it can take a minute or two while you are added to the list`}
             firstButtonText="Open in X"
             firstButtonLink={`https://twitter.com/i/lists/${listInfo?.listId}`}
             firstButtonIcon={<Twitter className="m-auto" />}
@@ -336,7 +336,7 @@ export default function Community() {
           }
 
           <div className="mt-[20px]">
-            <h2 className="text-base font-medium">Collectibles Required</h2>
+            <h2 className="text-base font-bold mb-[5px]">Collectibles Required</h2>
             {/* {listInfo?.isPoap && <PoapItemContainer title={tokenData.name} image={tokenData.image_url} />} */}
 
             {listInfo?.isPoap && requiredPOAPs.length > 0 && requiredPOAPs.map((item: any, index: number) => {
@@ -388,7 +388,7 @@ export default function Community() {
           >
             <div className="">
               <div className="flex justify-between">
-                <h2 className="text-xl mb-[10px]">Please enter your twitter handle to continue</h2>
+                <h2 className="text-xl mb-[10px]">Enter your X (Twitter) handle to continue</h2>
 
                 <button
                   className="ml-[10px]"
@@ -397,13 +397,13 @@ export default function Community() {
                   Close
                 </button>
               </div>
-              <div className='mb-[20px]'>
-                <label htmlFor='username'>X handle</label>
+              <div className=''>
+                
                 <input
                   type='text'
                   id='username'
                   className='border border-gray-300 rounded-md p-2 w-full text-black'
-                  placeholder='Enter your X handle'
+                  placeholder='@elonmusk'
                   value={twitterUsername}
                   onChange={(event) => {
                     setTwitterUsername(event.target.value)

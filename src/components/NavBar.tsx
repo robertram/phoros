@@ -58,7 +58,7 @@ const NavBar = ({ backButtonText, backButtonLink }: NavBarProps) => {
           </button>
           :
           <Link href='/' className='flex items-center '>
-            <p className='text-3xl font-semibold'>Phoros</p>
+            <p className='text-3xl font-title'>PHOROS</p>
           </Link>
         }
 

@@ -16,15 +16,17 @@ module.exports = {
         'custom-pink': '#DADAFB',
         'custom-blue': '#1400FF',
         'custom-purple': '#5E17EB',
-        'gray-border': '#E5E5E5', 
-        'primary':'#4BA3E3'
+        'gray-border': '#E5E5E5',
+        'primary': '#D80032'
       },
       maxWidth: {
         'normal': '1200px',
         'large': '2100px'
       },
       fontFamily: {
-        satoshi: ['var(--font-satoshi)']
+        satoshi: ['var(--font-satoshi)'],
+        'title': ['League Gothic', 'sans-serif'],
+        'body': ['Space Mono', 'monospace']
       }
     },
     screens: {

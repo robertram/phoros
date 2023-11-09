@@ -23,7 +23,7 @@ export const CardButton = ({ title, link, icon, onClick, disabled, loading, clas
         <Loading /> :
         <>
           <div className="m-auto">{icon}</div>
-          <p>{title}</p>
+          <p className="">{title}</p>
         </>
       }
     </button>
