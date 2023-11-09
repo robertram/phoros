@@ -329,8 +329,6 @@ export default function Community() {
             <p className="text-xl text-[#22C55E] mt-[15px]">You were added to the waitlist</p>
           }
 
-
-
           {!listInfo &&
             <p className="text-xl mt-[20px]">There are no lists for this event</p>
           }
@@ -398,7 +396,7 @@ export default function Community() {
                 </button>
               </div>
               <div className=''>
-                
+
                 <input
                   type='text'
                   id='username'

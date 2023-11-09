@@ -8,6 +8,7 @@ import Twitter from "@/icons/Twitter";
 import { CardButton } from "./CardButton";
 import Rocket from "@/icons/Rocket";
 import Edit from "@/icons/Edit";
+import { CheckAnimation } from "./CheckAnimation";
 
 interface NewListCreatedProps {
   title?: string
@@ -35,7 +36,8 @@ export const Success = ({
 
   return (
     <div className="mt-[20px]">
-      <img src="https://firebasestorage.googleapis.com/v0/b/phoros-a6fb0.appspot.com/o/Success.png?alt=media&token=46b69227-16b5-46a6-97b9-0434623397e9" className="w-full" />
+      <CheckAnimation />
+      {/* <img src="https://firebasestorage.googleapis.com/v0/b/phoros-a6fb0.appspot.com/o/Success.png?alt=media&token=46b69227-16b5-46a6-97b9-0434623397e9" className="w-full" /> */}
       <h1 className="text-2xl mt-[20px]">{title}</h1>
       <p className='text-base'>{description}</p>
 

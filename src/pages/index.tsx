@@ -48,9 +48,9 @@ export default function Index() {
           </div>
         }
       </div>
-      {address &&
+      {/* {address &&
         <FloatingButton />
-      }
+      } */}
     </Layout >
   )
 }
