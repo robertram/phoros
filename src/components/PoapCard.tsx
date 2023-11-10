@@ -12,7 +12,7 @@ export const PoapCard = ({ name, image, selected, onClick }: PoapCardProps) => {
         e.preventDefault()
         onClick()
       } : () => { }}
-      className={`h-min w-[175px] rounded-[8px] drop-shadow-xl mb-[10px] ${selected ? 'bg-primary !text-white' : ''}`}>
+      className={`h-min w-[48%] max-w-[300px] rounded-[8px] drop-shadow-xl mb-[10px] ${selected ? 'bg-primary !text-white' : ''}`}>
       <div className="m-[3px]">
         <img src={image} alt={name ?? ''} className=" mx-auto rounded-t-[8px] h-[170px] object-cover bg-white" />
       </div>
