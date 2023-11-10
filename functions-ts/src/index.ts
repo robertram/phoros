@@ -42,13 +42,13 @@ exports.makeuppercase = onDocumentCreated("/messages/{documentId}", (event: any)
   return event.data.ref.set({ uppercase }, { merge: true });
 });
 
-exports.addToTwitterListEvery15Minutes = functions.pubsub.schedule('*/3 * * * *').onRun(async (context: any) => {
+exports.addToTwitterListEvery3Minutes = functions.pubsub.schedule('*/3 * * * *').onRun(async (context: any) => {
   //exports.moveWaitlistToMember = onRequest(async (req: any, res: any) => {
   try {
     const firestore = await getFirestore()
 
     //GET list information
-    const docId = '4311054b-68d0-43e3-a87e-e5a82c9a42f4';
+    const docId = 'c2636af0-1ef1-4d3d-aee4-089ed5feb7a9';
     const documentRef = firestore.collection("lists").doc(docId);
     const docSnapshot = await documentRef.get();
 

@@ -121,8 +121,8 @@ export default function Community() {
   }
 
   const hasUsername = (array: any[], username: string) => {
-    return array.some(item => {
-      const parts = item.split('/');
+    return array?.some(item => {
+      const parts = item?.split('/');
       return parts[1] === username;
     });
   };
