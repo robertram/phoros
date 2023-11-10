@@ -42,7 +42,7 @@ export const DigitalCollectionSelect = ({ collectiblesSelection, setCollectibles
             e.preventDefault()
             setShowSelectionModal(false)
           }}
-          className='mt-[10px] !bg-primary rounded-[50px] text-white p-[10px] px-[20px] cursor-pointer w-full'
+          className='mt-[10px] !bg-primary rounded-[8px] text-white p-[10px] px-[20px] cursor-pointer w-full'
         >
           Confirm
         </button>
