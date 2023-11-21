@@ -25,7 +25,6 @@ export default async function handler(req: any, res: any) {
 
       res.status(200).json(myNewList);
     }
-    res.status(500).json({ error: 'Internal Server Error' });
   } catch (error) {
     console.error('Error making Twitter API request:', error);
     res.status(500).json({ error: 'Internal Server Error' });

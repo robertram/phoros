@@ -103,6 +103,9 @@ export default function Community() {
   }
 
   useEffect(() => {
+    console.log('userInfo', userInfo);
+    console.log('listInfo', listInfo);
+    
     if (userInfo?.id && listInfo?.listId) {
       addUserToWaitlist()
     }

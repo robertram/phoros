@@ -21,8 +21,7 @@ export const NewListCreated = ({ listData, createdListInformation }: NewListCrea
 
   return (
     <div className="mt-[20px]">
-
-      <img src="success.png" className="w-full"/>
+      <img src="https://firebasestorage.googleapis.com/v0/b/phoros-a6fb0.appspot.com/o/Success.png?alt=media&token=c9edff44-209b-4eae-99ba-b22820a116f1" className="w-full"/>
       <h1 className="text-2xl mt-[20px]">Your list is ready!</h1>
       <p className='text-base'>Congratulations, now you can share your list to add members and/or followers to it</p>
 

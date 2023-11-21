@@ -38,6 +38,11 @@ export const CreateTwitterList = () => {
   })
   const [activeTab, setActiveTab] = useState(0);
 
+  const domain = window.location.hostname
+  const createListUrl = `https://${domain}/api/twitter/create-list-user`
+
+  console.log('createListUrl', createListUrl);
+
   const createList = async () => {
     setLoading(true);
     try {
@@ -46,7 +51,7 @@ export const CreateTwitterList = () => {
         return;
       }
 
-      let response = await fetch('/api/twitter/create-list-user', {
+      let response = await fetch(createListUrl, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
