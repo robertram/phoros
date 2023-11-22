@@ -16,6 +16,7 @@ export default async function handler(req: any, res: any) {
   try {
     const id = req.body?.id
     const refreshToken = req.body?.refreshToken
+    console.log('req.body?', req.body);
 
     if (refreshToken) {
       const client = new TwitterApi({
@@ -31,6 +32,7 @@ export default async function handler(req: any, res: any) {
       updateUserInfo(accessToken, newRefreshToken ?? '', expireTime, id)
 
       res.status(200).json({ accessToken });
+      return;
     }
     res.status(500).json({ error: 'Internal Server Error' });
   } catch (error) {

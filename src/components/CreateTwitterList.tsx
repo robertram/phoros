@@ -12,6 +12,7 @@ import { db } from '@/firebase/firestore/getData';
 import { NewListForm } from './NewListForm';
 import { NewListPreview } from './NewListPreview';
 import { NewListCreated } from './NewListCreated';
+import { lchown } from 'fs';
 
 interface ListType {
   name: string
@@ -38,10 +39,9 @@ export const CreateTwitterList = () => {
   })
   const [activeTab, setActiveTab] = useState(0);
 
-  const domain = window.location.hostname
-  const createListUrl = `https://${domain}/api/twitter/create-list-user`
+  const domain = window.location.host
 
-  console.log('createListUrl', createListUrl);
+  const createListUrl = domain === 'localhost:3000' ? '/api/twitter/create-list-user' : `https://${domain}/api/twitter/create-list-user`
 
   const createList = async () => {
     setLoading(true);
@@ -51,18 +51,11 @@ export const CreateTwitterList = () => {
         return;
       }
 
-      let response = await fetch(createListUrl, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ ...listData, ...user })
-      });
+      let response: any = '';
+      let accessToken = user.accessToken
+      let expireTime = user?.expireTime
 
-      if (response.status === 401) {
-        // Access token might be expired, try to refresh it
-
+      if (!expireTime || Date.now() > expireTime) {
         console.log(401, 'user', user);
 
         const refreshResponse = await fetch('/api/twitter/refresh-token', {
@@ -71,7 +64,7 @@ export const CreateTwitterList = () => {
             Accept: 'application/json',
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ ...user, refreshToken: user?.refreshToken })
+          body: JSON.stringify({ id: user.id, refreshToken: user?.refreshToken })
         });
 
         if (!refreshResponse.ok) {
@@ -79,19 +72,24 @@ export const CreateTwitterList = () => {
         }
 
         const refreshData = await refreshResponse.json();
-        const newAccessToken = refreshData.accessToken;
-        const newExpireTime = refreshData.expireIn;
-
-        // Retry the original request with the new access token
-        response = await fetch('/api/twitter/create-list-user', {
-          method: 'POST',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ ...listData, accessToken: newAccessToken, expireTime: newExpireTime })
-        });
+        accessToken = refreshData.accessToken;
+        expireTime = refreshData.expireIn;
       }
+
+      response = await fetch(createListUrl, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: listData?.name,
+          description: listData?.description,
+          isPrivate: listData?.isPrivate,
+          accessToken: accessToken,
+          expireTime: expireTime,
+        })
+      });
 
       if (!response.ok) {
         throw new Error('Network response was not ok');
