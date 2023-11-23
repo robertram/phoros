@@ -13,11 +13,11 @@ export const OwnedNFTs2 = () => {
   const { address } = useAuth()
   const [loading, setLoading] = useState<boolean>(false)
   const [nfts, setNFTs] = useState<any[]>([])
-  const tatum = useTatum()
-
   const [lists, setLists] = useState<any[]>([])
   //const [tokensWithLists, setTokensWithLists] = useState<any[]>([])
   const [listsWithTokens, setListsWithTokens] = useState<any[]>([])
+
+  const tatum = useTatum()
 
   useEffect(() => {
     const getNFTs = async () => {

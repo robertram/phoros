@@ -23,15 +23,15 @@ import { useAuth } from "@/context/AuthContext";
 import { useWeb3Modal } from "@web3modal/wagmi/react";
 import { Success } from "@/components/Success";
 import Share from "@/icons/Share";
+import { RequiredNFTs } from "@/components/RequiredNFTs";
+import useFetchNFTBalance from "@/hooks/useFetchNFTBalance";
 
 export default function Community() {
   const { address } = useAuth()
-  const { poaps, loading: poapsLoading, error: poapsError } = usePoaps(address ?? '');
   const { open, close } = useWeb3Modal()
   const router = useRouter();
   const listId = Array.isArray(router.query.listId) ? router.query.listId[1] : router.query.listId;
   const [loading, setLoading] = useState(false);
-  const [userAddedToList, setUserAddedToList] = useState(false);
   const [userAddedToWaitlist, setUserAddedToWaitlist] = useState(false);
 
   const [userInfo, setUserInfo] = useState<any>({});
@@ -40,31 +40,14 @@ export default function Community() {
   const [twitterUsername, setTwitterUsername] = useState('');
   const [addToListError, setAddToListError] = useState(false)
   const [error, setError] = useState('')
-  const [tokenData, setTokenData] = useState<any>({});
-  const [requiredNFTs, setRequiredNFTs] = useState<any[]>([]);
   const [requiredPOAPs, setRequiredPOAPs] = useState<any[]>([]);
   const [choosenCollectibleToAssign, setChoosenCollectibleToAssign] = useState<any>({});
 
-  const [user, setUser] = useState<any>()
-  const [newTokenInfo, setNewTokenInfo] = useState<any>({})
-  const [refreshTokenTriggered, setRefreshTokenTriggered] = useState<any>(false)
   const [hasRequiredPoap, setHasRequiredPoap] = useState<boolean>(false)
+  const [hasRequiredNFTs, setHasRequiredNFTs] = useState<boolean>(false)
   const [shareLinkCopied, setShareLinkCopied] = useState<boolean>(false)
-
-  useEffect(() => {
-    const getUserInfo = async () => {
-      const usersRef = doc(db, 'users', listInfo?.owner ?? '')
-      const docSnap = await getDoc(usersRef)
-
-      return { ...docSnap.data(), id: docSnap.id };
-    }
-
-    if (listInfo?.owner) {
-      getUserInfo().then((result: any) => {
-        setUser(result)
-      })
-    }
-  }, [listInfo]);
+  const { poaps, loading: poapsLoading, error: poapsError } = usePoaps(address ?? '');
+  const { nfts, loading: nftsLoading } = useFetchNFTBalance(address ?? '');
 
   const getUserId = async (twitterUsername: string) => {
     console.log('get userId');
@@ -103,9 +86,6 @@ export default function Community() {
   }
 
   useEffect(() => {
-    console.log('userInfo', userInfo);
-    console.log('listInfo', listInfo);
-    
     if (userInfo?.id && listInfo?.listId) {
       addUserToWaitlist()
     }
@@ -149,12 +129,6 @@ export default function Community() {
     setLoading(false);
     return isRepeated
   }
-
-  useEffect(() => {
-    if (newTokenInfo && !refreshTokenTriggered) {
-      addUserToWaitlist()
-    }
-  }, [newTokenInfo])
 
   const addUserToWaitlist = () => {
     if (!userInfo?.id || !listInfo?.listId) {
@@ -249,6 +223,22 @@ export default function Community() {
     }
   }, [poaps, requiredPOAPs])
 
+  const checkIfOwnRequiredNFT = (ownedNFTs: any[], requiredNFTs: any[]) => {
+    const ownedTokenIds = ownedNFTs.map(nft => nft?.tokenAddress);
+    return requiredNFTs?.some(requiredNFT => {
+      const splittedString = requiredNFT.split('-')
+      const tokenAddress = splittedString[0]
+      return ownedTokenIds?.includes(tokenAddress)
+    });
+  };
+
+  useEffect(() => {
+    if (nfts && listInfo?.requiredNFTs) {
+      const hasRequiredNFTsCheck = checkIfOwnRequiredNFT(nfts, listInfo?.requiredNFTs);
+      setHasRequiredNFTs(hasRequiredNFTsCheck)
+    }
+  }, [nfts, listInfo?.requiredNFTs])
+
   if (userAddedToWaitlist) {
     return (
       <Layout>
@@ -304,7 +294,7 @@ export default function Community() {
                   disabled={loading}
                   onClick={() => {
                     if (address) {
-                      if (hasRequiredPoap) {
+                      if (hasRequiredPoap || hasRequiredNFTs) {
                         setShowEnterUsername(true)
                       } else {
 
@@ -313,20 +303,16 @@ export default function Community() {
                       open({ view: 'Connect' })
                     }
                   }}
-                  title={!address ? 'Log In' : hasRequiredPoap ? "Join List" : "You don't have the required collectible"}
-                  icon={<AddUser className={`m-auto  ${hasRequiredPoap ? 'text-white' : ''}`} color={hasRequiredPoap ? "white" : "black"} />}
+                  title={!address ? 'Log In' : hasRequiredPoap || hasRequiredNFTs ? "Join List" : "You don't have the required collectible"}
+                  icon={<AddUser className={`m-auto  ${hasRequiredPoap || hasRequiredNFTs ? 'text-white' : ''}`} color={hasRequiredPoap || hasRequiredNFTs ? "white" : "black"} />}
                   loading={loading}
-                  className={`${hasRequiredPoap ? 'bg-[#22C55E] text-white' : 'bg-white text-black cursor-auto'}`}
+                  className={`${hasRequiredPoap || hasRequiredNFTs ? 'bg-[#22C55E] text-white' : 'bg-white text-black cursor-auto'}`}
                 />
               </div>
             }
           </div>
 
           {error && <p className="text-xl text-red-500 mt-[15px]">{error}</p>}
-
-          {userAddedToList &&
-            <p className="text-xl text-[#22C55E]">You were added to the list</p>
-          }
 
           {userAddedToWaitlist &&
             <p className="text-xl text-[#22C55E] mt-[15px]">You were added to the waitlist</p>
@@ -348,12 +334,15 @@ export default function Community() {
               )
             })}
 
-            {requiredNFTs.length > 0 && requiredNFTs.map((item: any, index: number) => {
-              const image = item?.metadata?.image?.replace("ipfs://", "https://ipfs.io/ipfs/");
+            {listInfo?.requiredNFTs.length > 0 && listInfo?.requiredNFTs.map((item: any, index: number) => {
+              const splittedString = item.split('-')
+              const tokenAddress = splittedString[0]
+              const tokenId = splittedString[1]
 
               return (
                 <div key={index}>
-                  <TokenItemContainer title={item?.metadata?.name} image={image} />
+                  <RequiredNFTs tokenAddress={tokenAddress} tokenId={tokenId} />
+                  {/* <TokenItemContainer title={item?.metadata?.name} image={image} /> */}
                 </div>
               )
             })}
@@ -399,7 +388,6 @@ export default function Community() {
                 </button>
               </div>
               <div className=''>
-
                 <input
                   type='text'
                   id='username'
