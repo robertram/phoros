@@ -8,14 +8,14 @@ interface ContractMetadata {
   image?: string
 }
 
-interface PoapItemContainerProps {
+interface TokenItemContainerProps {
   contractAddress?: string
   title: string
   image: string
   listId?: any
 }
 
-export const PoapItemContainer = ({ title, image, listId }: PoapItemContainerProps) => {
+export const TokenItemContainer = ({ title, image, listId }: TokenItemContainerProps) => {
   const [loading, setLoading] = useState<boolean>(false)
 
   if (loading) return <Loading />

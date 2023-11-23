@@ -17,10 +17,15 @@ interface NewListFormProps {
 
 export const NewListForm = ({ listData, setListData, error, loading, setStep }: NewListFormProps) => {
   const [requiredPoaps, setRequiredPoaps] = useState<any[]>([])
+  const [requiredNFTs, setRequiredNFTs] = useState<any[]>([])
 
   useEffect(() => {
-    setListData({ ...listData, requiredPoaps: requiredPoaps, isPoap: true })
+    setListData({ ...listData, requiredPoaps: requiredPoaps, requiredNFTs: requiredNFTs})
   }, [requiredPoaps])
+
+  console.log('requiredNFTs', requiredNFTs);
+  console.log('requiredPoaps', requiredPoaps);
+  
 
   return (
     <div>
@@ -102,8 +107,10 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep }: 
           </div>
 
           <DigitalCollectionSelect
-            collectiblesSelection={requiredPoaps}
-            setCollectiblesSelection={setRequiredPoaps}
+            requiredPoaps={requiredPoaps}
+            setRequiredPoaps={setRequiredPoaps}
+            requiredNFTs={requiredNFTs}
+            setRequiredNFTs={setRequiredNFTs}
           />
         </div>
 

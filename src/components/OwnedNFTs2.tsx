@@ -6,7 +6,7 @@ import { useNetwork } from 'wagmi'
 import useTatum from "@/hooks/useTatum";
 import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection } from "firebase/firestore";
-import { PoapInfo } from "./PoapInfo";
+import { TokenInfo } from "./TokenInfo";
 
 export const OwnedNFTs2 = () => {
   const { chain } = useNetwork()
@@ -16,14 +16,13 @@ export const OwnedNFTs2 = () => {
   const tatum = useTatum()
 
   const [lists, setLists] = useState<any[]>([])
-  const [tokensWithLists, setTokensWithLists] = useState<any[]>([])
+  //const [tokensWithLists, setTokensWithLists] = useState<any[]>([])
+  const [listsWithTokens, setListsWithTokens] = useState<any[]>([])
 
   useEffect(() => {
-    // declare the data fetching function
     const getNFTs = async () => {
       setLoading(true)
       const balance = await tatum.nft.getBalance({ addresses: [address] })
-
       setNFTs(balance.data)
       tatum.destroy()
       setLoading(false)
@@ -43,30 +42,53 @@ export const OwnedNFTs2 = () => {
     })
   }, []);
 
-  const getNFTsWithList = () => {
-    const listEventIds = new Set(lists.map((list) => list.contractAddress));
-    const filteredTokensURI = nfts.filter((tokenURI) => {
-      //const tokenEventId = tokenURI.uri.split('/')[4]
-      return listEventIds.has(tokenURI.tokenAddress)
-    });
+  console.log('lists', lists);
 
-    const mergedItems = filteredTokensURI.map((tokenURI) => {
-      // const tokenEventId = tokenURI.uri.split('/')[4]
-      const matchingList = lists.find((list) => list.contractAddress === tokenURI.tokenAddress);
-      if (matchingList) {
-        return { ...tokenURI, ...matchingList };
-      }
-      return tokenURI;
+  const filterListsByNFTs = (lists: any, nfts: any) => {
+    return lists?.filter((list: any) => {
+      return list?.requiredNFTs?.some((nftString: any) => {
+        console.log('nftString', nftString);
+        
+        const [tokenAddress, tokenId] = nftString.split("-");
+        return nfts.some((nft: any) => nft.tokenAddress.toString() === tokenAddress);
+      });
     });
-
-    setTokensWithLists(mergedItems)
   }
 
   useEffect(() => {
-    if (lists?.length > 0 && nfts?.length > 0) {
-      getNFTsWithList()
+    if (lists && nfts) {
+      const filteredLists = filterListsByNFTs(lists, nfts);
+      setListsWithTokens(filteredLists)
     }
   }, [lists, nfts])
+
+  console.log('listsWithTokens', listsWithTokens);
+  
+
+  // const getNFTsWithList = () => {
+  //   const listEventIds = new Set(lists.map((list) => list.contractAddress));
+  //   const filteredTokensURI = nfts.filter((tokenURI) => {
+  //     //const tokenEventId = tokenURI.uri.split('/')[4]
+  //     return listEventIds.has(tokenURI.tokenAddress)
+  //   });
+
+  //   const mergedItems = filteredTokensURI.map((tokenURI) => {
+  //     // const tokenEventId = tokenURI.uri.split('/')[4]
+  //     const matchingList = lists.find((list) => list.contractAddress === tokenURI.tokenAddress);
+  //     if (matchingList) {
+  //       return { ...tokenURI, ...matchingList };
+  //     }
+  //     return tokenURI;
+  //   });
+
+  //   setTokensWithLists(mergedItems)
+  // }
+
+  // useEffect(() => {
+  //   if (lists?.length > 0 && nfts?.length > 0) {
+  //     getNFTsWithList()
+  //   }
+  // }, [lists, nfts])
 
   //alchemy.nft.getContractMetadata
   //if (tokensWithLists.length === 0) return <Loading />
@@ -81,15 +103,15 @@ export const OwnedNFTs2 = () => {
         </div>
       } */}
 
-      {tokensWithLists.length === 0 &&
+      {listsWithTokens.length === 0 &&
         <div>
           <h2 className="">There are no lists created for your nfts</h2>
         </div>
       }
 
-      {tokensWithLists.map((item, index) => {
+      {listsWithTokens.map((item, index) => {
         return (
-          <PoapInfo data={item} key={index} />
+          <TokenInfo data={item} key={index} />
         )
       })}
     </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import POAP from '../abis/POAP.json'
 import Web3 from 'web3'
-import { PoapInfo } from "./PoapInfo";
+import { TokenInfo } from "./TokenInfo";
 import { useAccount } from "wagmi";
 import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection } from "firebase/firestore";
@@ -135,7 +135,7 @@ export const GnosisNFTs = () => {
     <div>
       {tokensWithLists.map((item, index) => {
         return (
-          <PoapInfo data={item} key={index} />
+          <TokenInfo data={item} key={index} />
         )
       })}
     </div>

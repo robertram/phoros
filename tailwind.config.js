@@ -27,6 +27,9 @@ module.exports = {
         satoshi: ['var(--font-satoshi)'],
         'title': ['League Gothic', 'sans-serif'],
         'body': ['Space Mono', 'monospace']
+      },
+      boxShadow: {
+        'box': '0px 2px 6px 0px rgba(16, 24, 40, 0.06)',
       }
     },
     screens: {

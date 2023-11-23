@@ -12,8 +12,7 @@ import { limitStringTo200Characters, removeAtSymbol } from "@/utils/utils";
 import { CardButton } from "@/components/CardButton";
 import AddUser from "@/icons/AddUser";
 import Twitter from "@/icons/Twitter";
-import { PoapInfo } from "@/components/PoapInfo";
-import { PoapItemContainer } from "@/components/PoapItemContainer";
+import { TokenItemContainer } from "@/components/TokenItemContainer";
 import { Loading } from "@/components/Loading";
 import { ResponseDto, NftTokenDetail } from '@tatumio/tatum'
 import useTatum from "@/hooks/useTatum";
@@ -315,7 +314,7 @@ export default function Community() {
             {listInfo?.isPoap && requiredPOAPs.length > 0 && requiredPOAPs.map((item: any, index: number) => {
               return (
                 <div key={index}>
-                  <PoapItemContainer title={item?.data?.event?.name} image={item?.data?.event?.image_url} />
+                  <TokenItemContainer title={item?.data?.event?.name} image={item?.data?.event?.image_url} />
                 </div>
               )
             })}
@@ -325,7 +324,7 @@ export default function Community() {
 
               return (
                 <div key={index}>
-                  <PoapItemContainer title={item?.metadata?.name} image={image} />
+                  <TokenItemContainer title={item?.metadata?.name} image={image} />
                 </div>
               )
             })}

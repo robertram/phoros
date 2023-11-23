@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection } from "firebase/firestore";
 import { useAuth } from "@/context/AuthContext";
-import { PoapItemContainer } from "./PoapItemContainer";
+import { TokenItemContainer } from "./TokenItemContainer";
 
 export const Poaps = () => {
   const [loading, setLoading] = useState(false)
@@ -80,7 +80,7 @@ export const Poaps = () => {
 
       {listsWithTokens.map((item, index) => {
         return (
-          <PoapItemContainer
+          <TokenItemContainer
             title={item.name}
             image={item.image}
             listId={item.listId}

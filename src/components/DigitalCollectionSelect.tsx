@@ -1,14 +1,21 @@
 import { useState } from "react"
+import { DigitalCollectionTabs } from "./DigitalCollectionTabs"
 import Modal from "./Modal"
+import { NFTsSelection } from "./NFTsSelection"
 import { PoapsSelection } from "./PoapsSelection"
 
 interface DigitalCollectionSelectProps {
-  collectiblesSelection: any
-  setCollectiblesSelection: (items: any) => void
+  requiredPoaps: any
+  setRequiredPoaps: (items: any) => void
+  requiredNFTs: any
+  setRequiredNFTs: (items: any) => void
 }
 
-export const DigitalCollectionSelect = ({ collectiblesSelection, setCollectiblesSelection }: DigitalCollectionSelectProps) => {
+export const DigitalCollectionSelect = ({ setRequiredNFTs, setRequiredPoaps, requiredNFTs, requiredPoaps }: DigitalCollectionSelectProps) => {
   const [showSelectionModal, setShowSelectionModal] = useState(false)
+  const [activeTab, setActiveTab] = useState(0);
+
+  const tabsList = ["POAPs", "NFTs"]
 
   return (
     <div className="my-auto">
@@ -35,7 +42,21 @@ export const DigitalCollectionSelect = ({ collectiblesSelection, setCollectibles
           >Close</button>
         </div>
 
-        <PoapsSelection poapsSelection={collectiblesSelection} setPoapsSelection={setCollectiblesSelection} />
+        <DigitalCollectionTabs
+          tabs={tabsList}
+          activeTab={activeTab}
+          setActiveTab={(tabIndex: number) => {
+            setActiveTab(tabIndex)
+          }}
+        />
+
+        {activeTab === 0 &&
+          <PoapsSelection poapsSelection={requiredPoaps} setPoapsSelection={setRequiredPoaps} />
+        }
+
+        {activeTab === 1 &&
+          <NFTsSelection nftsSelection={requiredNFTs} setNFTSSelection={setRequiredNFTs} />
+        }
 
         <button
           onClick={(e) => {
