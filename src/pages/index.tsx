@@ -1,7 +1,7 @@
 import { ConnectButton } from "@/components/ConnectButton";
 import { FloatingButton } from "@/components/FloatingButton";
 import Layout from "@/components/Layout";
-import { OwnedNFTs2 } from "@/components/OwnedNFTs2";
+import { OwnedNFTs } from "@/components/OwnedNFTs";
 import { Poaps } from "@/components/Poaps";
 import { Tabs } from "@/components/Tabs";
 import { getShortAddress } from "@/lib/utils";
@@ -39,7 +39,7 @@ export default function Index() {
               }}
             />
             {activeTab === 0 &&
-              <OwnedNFTs2 />
+              <OwnedNFTs />
             }
             {activeTab === 1 &&
               <Poaps />

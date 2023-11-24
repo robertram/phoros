@@ -8,7 +8,7 @@ import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection } from "firebase/firestore";
 import { TokenInfo } from "./TokenInfo";
 
-export const OwnedNFTs2 = () => {
+export const OwnedNFTs = () => {
   const { chain } = useNetwork()
   const { address } = useAuth()
   const [loading, setLoading] = useState<boolean>(false)
