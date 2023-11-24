@@ -8,7 +8,6 @@ import { ethers } from "ethers";
 import { signInWithCustomToken, signOut } from "firebase/auth";
 import { getDoc, doc, serverTimestamp, setDoc } from "firebase/firestore";
 import initializeFirebaseClient from "@/firebase/initFirebaseAuth";
-import { Network, Alchemy } from 'alchemy-sdk'
 import { useAccount } from 'wagmi';
 
 type AuthContextType = {

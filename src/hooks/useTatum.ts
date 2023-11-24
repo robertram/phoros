@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-//import { Network, Alchemy } from 'alchemy-sdk';
 import { TatumSDK, Network, Ethereum, ApiVersion } from '@tatumio/tatum'
 import { chainIdMapping, getChainName } from '@/utils/tatum';
 import { useNetwork } from 'wagmi';
@@ -11,7 +10,7 @@ const useTatum = () => {
   const chainName = getChainName(chain?.id ?? 1)
 
   useEffect(() => {
-    const initializeAlchemy = async () => {
+    const initializeTatum = async () => {
       const tatum = await TatumSDK.init<Ethereum>({
         network: chainName,
         version: ApiVersion.V4,
@@ -23,7 +22,7 @@ const useTatum = () => {
       setTatumInstance(tatum);
     };
 
-    initializeAlchemy();
+    initializeTatum();
   }, []);
 
   return tatum;

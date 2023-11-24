@@ -18,9 +18,9 @@ export const NFTsSelection = ({ nftsSelection, setNFTSSelection }: NFTsSelection
   useEffect(() => {
     const getNFTs = async () => {
       setLoading(true)
-      const balance = await tatum.nft.getBalance({ addresses: [address] })
+      const balance = await tatum?.nft.getBalance({ addresses: [address] })
       setNFTs(balance.data)
-      tatum.destroy()
+      tatum?.destroy()
       setLoading(false)
     }
 

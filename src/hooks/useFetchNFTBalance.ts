@@ -11,14 +11,14 @@ const useFetchNFTBalance = (address: string) => {
     const getNFTs = async () => {
       try {
         setLoading(true);
-        const balance = await tatum.nft.getBalance({ addresses: [address] });
+        const balance = await tatum?.nft?.getBalance({ addresses: [address] });
         setNFTs(balance.data);
       } catch (err) {
         console.error(err);
         setError(err);
       } finally {
         setLoading(false);
-        tatum.destroy(); // Assuming this is necessary for cleanup
+        tatum?.destroy(); // Assuming this is necessary for cleanup
       }
     };
 

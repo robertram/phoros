@@ -22,9 +22,9 @@ export const OwnedNFTs2 = () => {
   useEffect(() => {
     const getNFTs = async () => {
       setLoading(true)
-      const balance = await tatum.nft.getBalance({ addresses: [address] })
+      const balance = await tatum?.nft.getBalance({ addresses: [address] })
       setNFTs(balance.data)
-      tatum.destroy()
+      tatum?.destroy()
       setLoading(false)
     }
 
@@ -90,7 +90,6 @@ export const OwnedNFTs2 = () => {
   //   }
   // }, [lists, nfts])
 
-  //alchemy.nft.getContractMetadata
   //if (tokensWithLists.length === 0) return <Loading />
 
   //if (loading) return <Loading />

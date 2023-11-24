@@ -334,7 +334,7 @@ export default function Community() {
               )
             })}
 
-            {listInfo?.requiredNFTs.length > 0 && listInfo?.requiredNFTs.map((item: any, index: number) => {
+            {listInfo?.requiredNFTs?.length > 0 && listInfo?.requiredNFTs.map((item: any, index: number) => {
               const splittedString = item.split('-')
               const tokenAddress = splittedString[0]
               const tokenId = splittedString[1]

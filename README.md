@@ -32,8 +32,8 @@ Before you begin, ensure you have met the following requirements:
 
 ## Tech Stack
 
+- @tatumio/tatum
 - web3modal
-- alchemy-sdk
 - wagmi
 - twitter-api-v2
 - nextjs
