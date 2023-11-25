@@ -9,8 +9,10 @@ import { signInWithCustomToken, signOut } from "firebase/auth";
 import { getDoc, doc, serverTimestamp, setDoc } from "firebase/firestore";
 import initializeFirebaseClient from "@/firebase/initFirebaseAuth";
 import { useAccount } from 'wagmi';
+import { useEnsName } from 'wagmi'
 
 type AuthContextType = {
+  ens?: string | null
   address?: string
   user: any
   login: () => void
@@ -21,6 +23,7 @@ type AuthContextType = {
 };
 
 export const AuthContext = createContext<AuthContextType>({
+  ens: '',
   address: '',
   user: null,
   login: () => { },
@@ -41,6 +44,10 @@ export const AuthProvider = ({ children }: any) => {
   const { auth, db } = initializeFirebaseClient();
 
   const { address } = useAccount()
+
+  const { data: ens, isError, isLoading } = useEnsName({
+    address: address
+  })
 
   useEffect(() => {
     if (typeof localStorage !== 'undefined') {
@@ -137,7 +144,7 @@ export const AuthProvider = ({ children }: any) => {
   // }, [])
 
   return (
-    <AuthContext.Provider value={{ address, user, login, logout, name, profileImage, activeChain }}>
+    <AuthContext.Provider value={{ ens, address, user, login, logout, name, profileImage, activeChain }}>
       {children}
     </AuthContext.Provider>
   );
