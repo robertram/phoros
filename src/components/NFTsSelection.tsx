@@ -18,21 +18,24 @@ export const NFTsSelection = ({ nftsSelection, setNFTSSelection }: NFTsSelection
   useEffect(() => {
     const getNFTs = async () => {
       setLoading(true)
-      const balance = await tatum?.nft.getBalance({ addresses: [address] })
+      const balance = await tatum?.nft_.getBalance({ addresses: [address] })
       setNFTs(balance.data)
       tatum?.destroy()
       setLoading(false)
     }
 
-    getNFTs()
-      .catch(console.error);
+    if (address) {
+      getNFTs()
+        .catch(console.error);
+    }
   }, [tatum])
 
   console.log('nfts', nfts);
 
   return (
     <div className="flex flex-wrap gap-3 overflow-y-scroll max-h-[78vh]">
-      {nfts.map((item, index) => {
+      {nfts.length == 0 && <p className="text-base">You dont have NFTs in your wallet</p>}
+      {nfts.length > 0 && nfts.map((item, index) => {
         const isSelected = nftsSelection.some((nft: any) => nft === `${item?.tokenAddress}-${item?.tokenId}`);
         const eventString = `${item?.tokenAddress}-${item?.tokenId}`
 
