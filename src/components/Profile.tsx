@@ -7,12 +7,11 @@ import Edit from "@/icons/Edit";
 import Rocket from "@/icons/Rocket";
 import { InfoCard } from "@/components/InfoCard";
 import { useRouter } from "next/router";
-import Twitter from "@/icons/Twitter";
-import Telegram from "@/icons/Telegram";
-import { LinkCard } from "@/components/LinkCard";
 import usePoaps from "@/hooks/usePoaps";
-//import Discord from "@/icons/Discord";
-import Linkedin from "@/icons/Linkedin";
+import { SocialsButtons } from "./SocialsButtons";
+import { useEffect, useState } from "react";
+import { generateSocialLinks } from "@/utils/utils";
+import { UsernameModal } from "./UsernameModal";
 
 interface ProfileProps {
   user: any
@@ -26,6 +25,27 @@ export const Profile = ({ user, loggedIn }: ProfileProps) => {
   const { data: ens, isError, isLoading } = useEnsName({
     address: user?.id
   })
+  const [socialLinks, setSocialLinks] = useState<any[]>([]);
+  const [openUsernameModal, setOpenUsernameModal] = useState<boolean>(false);
+  const [addedToClipboard, setAddedToClipboard] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (addedToClipboard) {
+      setTimeout(() => {
+        setAddedToClipboard(false)
+      }, 2000);
+    }
+  }, [addedToClipboard])
+
+  useEffect(() => {
+    if (user) {
+      const newSocialLinks = generateSocialLinks(user, socialLinks);
+
+      if (newSocialLinks.length > 0) {
+        setSocialLinks((prevLinks: any) => [...prevLinks, ...newSocialLinks]);
+      }
+    }
+  }, [user, socialLinks]);
 
   return (
     <div className='px-[16px] max-w-large flex items-center m-auto'>
@@ -36,6 +56,7 @@ export const Profile = ({ user, loggedIn }: ProfileProps) => {
 
         <div className="mt-[20px]">
           <p className="text-base font-bold text-center">{ens ? ens : getShortAddress(user?.id)}</p>
+          {user?.username && <p className="text-base font-bold text-center">{user?.username}</p>}
           <p>{user?.bio}</p>
         </div>
 
@@ -51,61 +72,55 @@ export const Profile = ({ user, loggedIn }: ProfileProps) => {
         </div>
 
         <div className="mt-[30px]">
-          <div className="flex justify-between gap-4 ">
-            {user?.twitter &&
-              <LinkCard
-                title="X (Twitter)"
-                icon={<Twitter className="m-auto" />}
-                link={user?.twitter}
-                className="h-min"
-              />
-            }
-            {user?.telegram &&
-              <LinkCard
-                title="Telegram"
-                icon={<Telegram className="m-auto" />}
-                link={user?.telegram}
-                className="h-min"
-              />
-            }
-          </div>
-
-          <div className="flex justify-between gap-4 mt-[15px]">
-            {/* {user?.discord &&
-              <LinkCard
-                title="Discord"
-                icon={<Discord className="m-auto" />}
-                link={user?.discord}
-                className="h-min"
-              />
-            } */}
-            {user?.linkedin &&
-              <LinkCard
-                title="Linkedin"
-                icon={<Linkedin className="m-auto" />}
-                link={user?.linkedin}
-                className="h-min"
-              />
-            }
-          </div>
+          <SocialsButtons socialLinks={socialLinks} />
         </div>
 
+        {loggedIn &&
+          <div>
+            <div className="flex justify-between gap-4 mt-[50px]">
+              <CardButton
+                onClick={() => {
+                  router.push('/edit-profile')
+                }}
+                title="Edit"
+                icon={<Edit className="m-auto" />}
+              />
+              <CardButton
+                onClick={() => {
+                  if (user?.username) {
+                    if (navigator.share) {
+                      navigator.share({
+                        url: `https://app.phoros.io/user/${user?.username}`,
+                      })
+                        .then(() => console.log('Successful share'))
+                        .catch((error) => console.log('Error sharing:', error));
+                    } else {
+                      navigator.clipboard.writeText(`https://app.phoros.io/user/${user?.username}`)
+                      setAddedToClipboard(true)
+                      console.log('Web Share API is not supported in your browser.');
+                    }
+                  } else {
+                    setOpenUsernameModal(true)
+                  }
+                }}
+                title={addedToClipboard ? "Link copied to your Clipboard" : "Share"}
+                icon={<Rocket className="m-auto" />}
+              //loading={loading}
+              />
+            </div>
+            <CardButton
+              onClick={() => disconnect()}
+              title="Logout"
+              icon={<Rocket className="m-auto" />}
+              className="mt-[20px]"
+            //loading={loading}
+            />
+          </div>
+        }
 
-        {loggedIn && <div className="flex justify-between gap-4 mt-[50px]">
-          <CardButton
-            onClick={() => {
-              router.push('/edit-profile')
-            }}
-            title="Edit"
-            icon={<Edit className="m-auto" />}
-          />
-          <CardButton
-            onClick={() => disconnect()}
-            title="Logout"
-            icon={<Rocket className="m-auto" />}
-          //loading={loading}
-          />
-        </div>}
+        <UsernameModal open={openUsernameModal} setOpen={setOpenUsernameModal} />
+
+
       </div>
     </div>
 

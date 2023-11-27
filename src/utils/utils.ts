@@ -17,3 +17,17 @@ export const removeAtSymbol = (inputString: string) => {
     return inputString;
   }
 }
+
+export const generateSocialLinks = (listInfo: any, existingLinks: any) => {
+  const platforms = ['facebook', 'instagram', 'twitter', 'discord', 'youtube', 'telegram'];
+
+  const linkExists = (platform: any, url: any) => existingLinks.some((link: any) => link?.platform === platform && link?.url === url);
+
+  return platforms.reduce((accumulatedLinks: any, platform) => {
+    const url = listInfo[platform];
+    if (url && !linkExists(platform, url)) {
+      accumulatedLinks.push({ platform, url });
+    }
+    return accumulatedLinks;
+  }, []);
+};

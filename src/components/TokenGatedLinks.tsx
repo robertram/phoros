@@ -1,14 +1,15 @@
 import Trash from '@/icons/Trash';
 import { getSocialLogo } from '@/icons/utils';
+import { generateSocialLinks } from '@/utils/utils';
 import React, { useEffect, useState } from 'react';
 import Button from './Button';
 
 interface TokenGatedLinksProps {
-  setListData: (listData: any) => void
-  listData: any
+  setData: (data: any) => void
+  data: any
 }
 
-export const TokenGatedLinks = ({ setListData, listData }: TokenGatedLinksProps) => {
+export const TokenGatedLinks = ({ setData, data }: TokenGatedLinksProps) => {
   const [socialLinks, setSocialLinks] = useState<any[]>([]);
   const [socialPlatform, setSocialPlatform] = useState<string>('twitter');
 
@@ -17,7 +18,7 @@ export const TokenGatedLinks = ({ setListData, listData }: TokenGatedLinksProps)
     updatedLinks[index][key] = value;
     const platform = updatedLinks[index].platform
     setSocialLinks(updatedLinks);
-    setListData({ ...listData, [platform]: value })
+    setData({ ...data, [platform]: value })
   };
 
   const removeSocialLink = (index: number) => {
@@ -25,32 +26,19 @@ export const TokenGatedLinks = ({ setListData, listData }: TokenGatedLinksProps)
     setSocialLinks(filteredLinks);
 
     // Optionally, update listData if needed
-    const updatedListData = { ...listData };
+    const updatedListData = { ...data };
     delete updatedListData[socialLinks[index].platform];
-    setListData(updatedListData);
+    setData(updatedListData);
   };
 
   useEffect(() => {
-    const platforms = ['facebook', 'instagram', 'twitter', 'discord', 'youtube', 'telegram'];
-
-    const linkExists = (platform: string, url: string) => {
-      return socialLinks.some(link => link.platform === platform && link.url === url);
-    };
-
-    const newSocialLinks = platforms.reduce((acc: any, platform) => {
-      const url = listData[platform];
-      if (url && !linkExists(platform, url)) {
-        acc.push({ platform: platform, url: url });
+    if (data) {
+      const newSocialLinks = generateSocialLinks(data, socialLinks);
+      if (newSocialLinks.length > 0) {
+        setSocialLinks(prevLinks => [...prevLinks, ...newSocialLinks]);
       }
-      return acc;
-    }, []);
-
-    if (newSocialLinks.length > 0) {
-      setSocialLinks(prevLinks => [...prevLinks, ...newSocialLinks]);
     }
-  }, [listData, socialLinks]);
-
-  console.log('socialLinks', socialLinks);
+  }, [data, socialLinks]);
 
   return (
     <div>
@@ -67,6 +55,7 @@ export const TokenGatedLinks = ({ setListData, listData }: TokenGatedLinksProps)
           <option value="discord">Discord</option>
           <option value="youtube">Youtube</option>
           <option value="telegram">Telegram</option>
+          <option value="linkedin">LinkedIn</option>
         </select>
 
         <Button
@@ -82,7 +71,7 @@ export const TokenGatedLinks = ({ setListData, listData }: TokenGatedLinksProps)
       <div className='mt-[15px]'>
         {socialLinks.map((social, index) => (
           <div key={index} className="flex">
-            <div className='mb-[20px] w-full max-w-[400px] flex'>
+            <div className='mb-[20px] w-full flex'>
               <div className='my-auto mr-[5px] w-[40px]'>
                 {getSocialLogo(social.platform)}
               </div>

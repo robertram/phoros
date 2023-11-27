@@ -7,7 +7,7 @@ import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection, where, arrayUnion } from "firebase/firestore";
 import Modal from "@/components/Modal";
 import editData from "@/firebase/firestore/editData";
-import { limitStringTo200Characters, removeAtSymbol } from "@/utils/utils";
+import { generateSocialLinks, limitStringTo200Characters, removeAtSymbol } from "@/utils/utils";
 import { CardButton } from "@/components/CardButton";
 import AddUser from "@/icons/AddUser";
 import Twitter from "@/icons/Twitter";
@@ -245,23 +245,9 @@ export default function Community() {
 
   useEffect(() => {
     if (listInfo) {
-      const platforms = ['facebook', 'instagram', 'twitter', 'discord', 'youtube', 'telegram'];
-
-      const linkExists = (platform: string, url: string) => {
-        return socialLinks.some(link => link?.platform === platform && link?.url === url);
-      };
-
       console.log('listInfo', listInfo);
-
-
-      const newSocialLinks = platforms.reduce((acc: any, platform) => {
-        const url = listInfo[platform];
-        if (url && !linkExists(platform, url)) {
-          acc.push({ platform: platform, url: url });
-        }
-        return acc;
-      }, []);
-
+      const newSocialLinks = generateSocialLinks(listInfo, socialLinks);
+  
       if (newSocialLinks.length > 0) {
         setSocialLinks(prevLinks => [...prevLinks, ...newSocialLinks]);
       }

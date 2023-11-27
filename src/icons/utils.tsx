@@ -1,6 +1,7 @@
 import Discord from "./Discord";
 import Facebook from "./Facebook";
 import Instagram from "./Instagram";
+import Linkedin from "./Linkedin";
 import Telegram from "./Telegram";
 import Twitter from "./Twitter";
 import Youtube from "./Youtube";
@@ -19,6 +20,8 @@ export const getSocialLogo = (platform: string) => {
       return <Youtube className="m-auto" />;
     case 'telegram':
       return <Telegram className="m-auto" />;
+    case 'linkedin':
+      return <Linkedin className="m-auto" />;
     default:
       return <Twitter className="m-auto" />;
   }

@@ -145,7 +145,7 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep, is
           </div>
         </div>
 
-        <TokenGatedLinks setListData={setListData} listData={listData} />
+        <TokenGatedLinks setData={setListData} data={listData} />
 
         <button
           disabled={loading}

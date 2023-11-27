@@ -9,6 +9,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firestore/getData';
 import Edit from '@/icons/Edit';
 import Button from './Button';
+import { TokenGatedLinks } from './TokenGatedLinks';
 
 export const EditProfile = ({ address }: any) => {
   const [data, setData] = useState<UserData>()
@@ -99,75 +100,7 @@ export const EditProfile = ({ address }: any) => {
         </textarea>
       </div>
 
-      <div className='mb-[20px]'>
-        <label htmlFor='twitter'>X (Twitter)</label>
-        <input
-          type='text'
-          id='twitter'
-          className='border border-gray-300 rounded-md p-2 w-full text-black'
-          placeholder={userInfo?.twitter ?? 'https://twitter.com/yourusername'}
-          value={data?.twitter}
-          onChange={(event) =>
-            setData({ ...data!, twitter: event.target.value })
-          }
-        />
-      </div>
-
-      <div className='mb-[20px]'>
-        <label htmlFor='linkedin'>Linkedin</label>
-        <input
-          type='text'
-          id='linkedin'
-          className='border border-gray-300 rounded-md p-2 w-full text-black'
-          placeholder={userInfo?.linkedin ?? 'https://www.linkedin.com/yourname'}
-          value={data?.linkedin}
-          onChange={(event) =>
-            setData({ ...data!, linkedin: event.target.value })
-          }
-        />
-      </div>
-
-      <div className='mb-[20px]'>
-        <label htmlFor='discord'>Discord</label>
-        <input
-          type='text'
-          id='discord'
-          className='border border-gray-300 rounded-md p-2 w-full text-black'
-          placeholder={userInfo?.discord ?? '@yourusername'}
-          value={data?.discord}
-          onChange={(event) =>
-            setData({ ...data!, discord: event.target.value })
-          }
-        />
-      </div>
-
-      <div className='mb-[20px]'>
-        <label htmlFor='instagram'>Instagram</label>
-        <input
-          type='text'
-          id='instagram'
-          className='border border-gray-300 rounded-md p-2 w-full text-black'
-          placeholder={userInfo?.instagram ?? 'https://www.instagram.com/yourhandle'}
-          value={data?.instagram}
-          onChange={(event) =>
-            setData({ ...data!, instagram: event.target.value })
-          }
-        />
-      </div>
-
-      <div className='mb-[20px]'>
-        <label htmlFor='telegram'>Telegram</label>
-        <input
-          type='text'
-          id='telegram'
-          className='border border-gray-300 rounded-md p-2 w-full text-black'
-          placeholder={userInfo?.telegram ?? 'https://t.me/username'}
-          value={data?.telegram}
-          onChange={(event) =>
-            setData({ ...data!, telegram: event.target.value })
-          }
-        />
-      </div>
+      <TokenGatedLinks setData={setData} data={data} />
 
       <div className='flex justify-end mt-[20px]'>
         <Button
