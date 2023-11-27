@@ -11,6 +11,7 @@ import { limitStringTo200Characters, removeAtSymbol } from "@/utils/utils";
 import { CardButton } from "@/components/CardButton";
 import AddUser from "@/icons/AddUser";
 import Twitter from "@/icons/Twitter";
+import Edit from '@/icons/Edit';
 import { TokenInfo } from "@/components/TokenInfo";
 import { TokenItemContainer } from "@/components/TokenItemContainer";
 import { Loading } from "@/components/Loading";
@@ -270,9 +271,16 @@ export default function Community() {
               <div>
                 <div className="m-auto">
                   <img src={listInfo?.image} className="w-[100px] h-[100px] object-cover m-auto rounded-full" />
-                  <a href={`/list/${listInfo.listId}/edit`}>Edit</a>
                 </div>
-                <h1 className="text-3xl text-center mt-[10px]">{listInfo?.name}</h1>
+                <div className="flex w-full m-auto justify-center pt-[10px]">
+
+                  <h1 className="text-3xl text-center ">{listInfo?.name}</h1>
+                  {listInfo.owner === address &&
+                    <a href={`/list/${listInfo.listId}/edit`} className="my-auto ml-[5px]">
+                      <Edit className="" color="" />
+                    </a>
+                  }
+                </div>
                 <p className="text-base mt-[10px]">{limitStringTo200Characters(listInfo?.description)}</p>
               </div>
               :
@@ -326,7 +334,7 @@ export default function Community() {
             <h2 className="text-base font-bold mb-[5px]">Collectibles Required</h2>
             {/* {listInfo?.isPoap && <PoapItemContainer title={tokenData.name} image={tokenData.image_url} />} */}
 
-            {listInfo?.isPoap && requiredPOAPs.length > 0 && requiredPOAPs.map((item: any, index: number) => {
+            {requiredPOAPs.length > 0 && requiredPOAPs.map((item: any, index: number) => {
               return (
                 <div key={index}>
                   <TokenItemContainer title={item?.data?.event?.name} image={item?.data?.event?.image_url} />

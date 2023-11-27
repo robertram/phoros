@@ -30,8 +30,6 @@ export const NFTsSelection = ({ nftsSelection, setNFTSSelection }: NFTsSelection
     }
   }, [tatum])
 
-  console.log('nfts', nfts);
-
   return (
     <div className="flex flex-wrap gap-3 overflow-y-scroll max-h-[78vh]">
       {nfts?.length == 0 && <p className="text-base">You dont have NFTs in your wallet</p>}

@@ -12,17 +12,17 @@ const useNFTMetadata = (tokenAddress: string, tokenId: string) => {
     const getNFTs = async () => {
       try {
         setLoading(true);
-        const metadata: ResponseDto<NftTokenDetail | null> = await tatum.nft.getNftMetadata({
+        const metadata: ResponseDto<NftTokenDetail | null> = await tatum?.nft?.getNftMetadata({
           tokenAddress: tokenAddress, // replace with your collection
           tokenId: tokenId
         })
 
-        setNFT(metadata.data);
+        setNFT(metadata?.data);
       } catch (err: any) {
         console.error(err);
         setError(err);
       } finally {
-        tatum.destroy();
+        tatum?.destroy();
         setLoading(false);
       }
     };

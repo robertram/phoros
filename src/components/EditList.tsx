@@ -15,6 +15,7 @@ import { lchown } from 'fs';
 import { useRouter } from 'next/router';
 import { query, collection, where } from "firebase/firestore";
 import { db, getDocuments } from '@/firebase/firestore/getData';
+import OnlyOwnerPageAccess from './OnlyOwnerPageAccess';
 
 interface ListType {
   name: string
@@ -37,7 +38,7 @@ export const EditList = ({ listId }: EditListProps) => {
   const [loading, setLoading] = useState(false);
   const [listCreated, setListCreated] = useState(false);
   const [createdListInformation, setCreatedListInformation] = useState<any>({});
-  const [listData, setListData] = useState<ListType>({
+  const [listData, setListData] = useState<ListType | any>({
     name: '',
     description: '',
     isPrivate: false,
@@ -61,7 +62,7 @@ export const EditList = ({ listId }: EditListProps) => {
 
   const updateList = async () => {
     setLoading(true)
-    const usersRef = doc(db, 'lists', listId)
+    const usersRef = doc(db, 'lists', listData?.id)
     try {
       await setDoc(usersRef, { ...listData }, { merge: true })
     } catch (err) {
@@ -112,42 +113,44 @@ export const EditList = ({ listId }: EditListProps) => {
   console.log('listData', listData);
 
   return (
-    <div className='px-4 max-w-large flex items-center m-auto w-full'>
-      <div className='w-full'>
-        {activeTab != 2 &&
-          <div>
-            <h1 className='text-3xl'>Create List</h1>
-            {activeTab === 0 && <p className='text-base'>Please complete the following details</p>}
-            {activeTab === 1 && <p className='text-base'>Please complete the list details and launch it</p>}
-          </div>
-        }
+    <OnlyOwnerPageAccess ownerAddress={listData?.owner ?? ''}>
+      <div className='px-4 max-w-large flex items-center m-auto w-full'>
+        <div className='w-full'>
+          {activeTab != 2 &&
+            <div>
+              <h1 className='text-3xl'>Edit List</h1>
+              {activeTab === 0 && <p className='text-base'>Please complete the following details</p>}
+              {activeTab === 1 && <p className='text-base'>Please check the list details and post the changes</p>}
+            </div>
+          }
 
-        {activeTab === 0 &&
-          <NewListForm
-            setStep={setActiveTab}
-            listData={listData}
-            setListData={setListData}
-            error={error}
-            loading={loading}
-            isEdit
-          />
-        }
+          {activeTab === 0 &&
+            <NewListForm
+              setStep={setActiveTab}
+              listData={listData}
+              setListData={setListData}
+              error={error}
+              loading={loading}
+              isEdit
+            />
+          }
 
-        {activeTab === 1 &&
-          <NewListPreview
-            setStep={setActiveTab}
-            listData={listData}
-            setListData={setListData}
-            error={error}
-            onSubmit={updateList}
-            loading={loading}
-            isEdit
-          />
-        }
+          {activeTab === 1 &&
+            <NewListPreview
+              setStep={setActiveTab}
+              listData={listData}
+              setListData={setListData}
+              error={error}
+              onSubmit={updateList}
+              loading={loading}
+              isEdit
+            />
+          }
 
-        {listCreated && <NewListCreated listData={listData} createdListInformation={createdListInformation} />}
+          {listCreated && <NewListCreated listData={listData} createdListInformation={createdListInformation} />}
+        </div>
       </div>
-    </div>
+    </OnlyOwnerPageAccess>
   );
 }
 

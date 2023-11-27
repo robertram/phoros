@@ -22,11 +22,16 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep, is
 
   useEffect(() => {
     setListData({ ...listData, requiredPoaps: requiredPoaps, requiredNFTs: requiredNFTs })
-  }, [requiredPoaps])
+  }, [requiredPoaps, requiredNFTs])
 
-  console.log('requiredNFTs', requiredNFTs);
-  console.log('requiredPoaps', requiredPoaps);
-
+  useEffect(() => {
+    if (listData.requiredNFTs) {
+      setRequiredNFTs(listData.requiredNFTs)
+    }
+    if (listData.requiredPoaps) {
+      setRequiredPoaps(listData.requiredPoaps)
+    }
+  }, [listData])
 
   return (
     <div>

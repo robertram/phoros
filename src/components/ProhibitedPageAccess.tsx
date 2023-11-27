@@ -1,12 +1,9 @@
 import { useAuth } from "@/context/AuthContext";
-import Link from "next/link";
 import { useEffect, useState } from "react";
-import Button from "./Button";
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/firebase/firestore/getData';
 import { AuthorizeButton } from "./AuthorizeButton";
 import { ConnectButton } from "./ConnectButton";
-//import { Login } from "./Login";
 
 interface ProhibitedPageAccessProps {
   children: any
@@ -64,21 +61,4 @@ export default function ProhibitedPageAccess({ children, checkAuthorization, che
   }
 
   return children
-
-  // return (
-  //   <div className="w-full mt-[100px]">
-  //     <div className="text-center">
-  //       <h1 className="text-2xl">{getText()}</h1>
-  //     </div>
-
-  //     <div className="m-auto flex">
-  //       {/* <Login className="!w-[300px] m-auto" /> */}
-  //       {checkAuthorization && (!user?.refreshToken || !user?.accessToken) ?
-  //         <AuthorizeButton />
-  //         :
-  //         <></>
-  //       }
-  //     </div>
-  //   </div>
-  // )
 }
