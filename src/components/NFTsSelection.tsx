@@ -18,7 +18,7 @@ export const NFTsSelection = ({ nftsSelection, setNFTSSelection }: NFTsSelection
   useEffect(() => {
     const getNFTs = async () => {
       setLoading(true)
-      const balance = await tatum?.nft_.getBalance({ addresses: [address] })
+      const balance = await tatum?.nft?.getBalance({ addresses: [address] })
       setNFTs(balance.data)
       tatum?.destroy()
       setLoading(false)
@@ -34,19 +34,19 @@ export const NFTsSelection = ({ nftsSelection, setNFTSSelection }: NFTsSelection
 
   return (
     <div className="flex flex-wrap gap-3 overflow-y-scroll max-h-[78vh]">
-      {nfts.length == 0 && <p className="text-base">You dont have NFTs in your wallet</p>}
-      {nfts.length > 0 && nfts.map((item, index) => {
-        const isSelected = nftsSelection.some((nft: any) => nft === `${item?.tokenAddress}-${item?.tokenId}`);
+      {nfts?.length == 0 && <p className="text-base">You dont have NFTs in your wallet</p>}
+      {nfts?.length > 0 && nfts?.map((item, index) => {
+        const isSelected = nftsSelection?.some((nft: any) => nft === `${item?.tokenAddress}-${item?.tokenId}`);
         const eventString = `${item?.tokenAddress}-${item?.tokenId}`
 
-        if (Object.keys(item?.metadata).length === 0 && item?.metadata.constructor === Object) {
+        if (Object.keys(item?.metadata).length === 0 && item?.metadata?.constructor === Object) {
           return null
         }
 
         return (
           <PoapCard
             name={item?.metadata?.name}
-            image={item?.metadata.image}
+            image={item?.metadata?.image}
             selected={isSelected}
             onClick={() => {
               if (!isSelected) {

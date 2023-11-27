@@ -265,12 +265,12 @@ export default function Community() {
     <Layout>
       <div className='px-[16px] max-w-large flex items-center m-auto'>
         <div className="w-full">
-
           <div className="w-full">
             {listInfo ?
               <div>
                 <div className="m-auto">
                   <img src={listInfo?.image} className="w-[100px] h-[100px] object-cover m-auto rounded-full" />
+                  <a href={`/list/${listInfo.listId}/edit`}>Edit</a>
                 </div>
                 <h1 className="text-3xl text-center mt-[10px]">{listInfo?.name}</h1>
                 <p className="text-base mt-[10px]">{limitStringTo200Characters(listInfo?.description)}</p>

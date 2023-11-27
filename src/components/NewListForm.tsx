@@ -13,19 +13,20 @@ interface NewListFormProps {
   error: any
   loading: boolean
   setStep: (step: number) => void
+  isEdit?: boolean
 }
 
-export const NewListForm = ({ listData, setListData, error, loading, setStep }: NewListFormProps) => {
+export const NewListForm = ({ listData, setListData, error, loading, setStep, isEdit }: NewListFormProps) => {
   const [requiredPoaps, setRequiredPoaps] = useState<any[]>([])
   const [requiredNFTs, setRequiredNFTs] = useState<any[]>([])
 
   useEffect(() => {
-    setListData({ ...listData, requiredPoaps: requiredPoaps, requiredNFTs: requiredNFTs})
+    setListData({ ...listData, requiredPoaps: requiredPoaps, requiredNFTs: requiredNFTs })
   }, [requiredPoaps])
 
   console.log('requiredNFTs', requiredNFTs);
   console.log('requiredPoaps', requiredPoaps);
-  
+
 
   return (
     <div>
@@ -71,16 +72,17 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep }: 
           </div>
 
           {/* <div>{imageUploadPercentage > 1 && imageUploadPercentage < 100 ? `Uploading ${imageUploadPercentage}%...` : ''}</div> */}
-          {listData.image && <img src={listData.image} className="mt-[10px] w-[100px] h-[100px] object-cover m-auto rounded-full" />}
+          {listData?.image && <img src={listData?.image} className="mt-[10px] w-[100px] h-[100px] object-cover m-auto rounded-full" />}
         </div>
         <div className='mb-[20px]'>
           <label htmlFor='name'>List Name</label>
           <input
             type='text'
             id='name'
-            className='border border-gray-border p-2 w-full text-black rounded-[50px]'
+            className={`border border-gray-border p-2 w-full text-black rounded-[50px] ${isEdit ? 'text-gray-400' : ''}`}
             placeholder='Insert a name for your list'
-            value={listData.name}
+            value={listData?.name}
+            disabled={isEdit}
             onChange={(event) =>
               setListData({ ...listData, name: event.target.value })
             }
@@ -91,9 +93,10 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep }: 
           <input
             type='text'
             id='description'
-            className='min-h-[90px] border border-gray-border rounded-md p-2 w-full text-black placeholder-top'
+            className={`min-h-[90px] border border-gray-border rounded-md p-2 w-full text-black placeholder-top ${isEdit ? 'text-gray-400' : ''}`}
             placeholder='Enter the List Description'
-            value={listData.description}
+            value={listData?.description}
+            disabled={isEdit}
             onChange={(event) =>
               setListData({ ...listData, description: event.target.value })
             }
@@ -123,7 +126,8 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep }: 
             <div className='ml-[10px] my-auto'>
               <Toggle
                 name='isPending'
-                checked={listData.isPrivate}
+                checked={listData?.isPrivate}
+                disabled={isEdit}
                 onChange={(event) => {
                   setListData({ ...listData, isPrivate: event.target.checked })
                 }}

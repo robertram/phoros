@@ -11,9 +11,10 @@ interface NewListFormProps {
   onSubmit: (event?: any) => Promise<void>
   loading: boolean
   setStep: (step: number) => void
+  isEdit?: boolean
 }
 
-export const NewListPreview = ({ listData, error, onSubmit, loading, setStep }: NewListFormProps) => {
+export const NewListPreview = ({ listData, error, onSubmit, loading, setStep, isEdit }: NewListFormProps) => {
   const [requiredCollectible, setRequiredCollectible] = useState<any>()
 
   const getPoap = async () => {
@@ -93,13 +94,20 @@ export const NewListPreview = ({ listData, error, onSubmit, loading, setStep }: 
                 title="Edit details"
                 icon={<Edit className="m-auto" />}
               />
-              <CardButton
+              {!isEdit&&<CardButton
                 disabled={loading}
                 onClick={() => onSubmit()}
                 title="Launch List"
                 icon={<Rocket className="m-auto" />}
                 loading={loading}
-              />
+              />}
+              {isEdit&&<CardButton
+                disabled={loading}
+                onClick={() => onSubmit()}
+                title="Post Changes"
+                icon={<Rocket className="m-auto" />}
+                loading={loading}
+              />}
             </div>
           }
         </div>
