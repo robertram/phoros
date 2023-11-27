@@ -1,11 +1,11 @@
 import storage from "../firebase/firebaseConfig"
-import { ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { uuid } from 'uuidv4';
 import { Toggle } from "./Toggle";
-import { Loading } from "./Loading";
-import Instagram from "@/icons/Instagram";
+import Picture from "@/icons/Picture";
 import { DigitalCollectionSelect } from "./DigitalCollectionSelect";
 import { useEffect, useState } from "react";
+import { TokenGatedLinks } from "./TokenGatedLinks";
 
 interface NewListFormProps {
   listData: any
@@ -19,18 +19,22 @@ interface NewListFormProps {
 export const NewListForm = ({ listData, setListData, error, loading, setStep, isEdit }: NewListFormProps) => {
   const [requiredPoaps, setRequiredPoaps] = useState<any[]>([])
   const [requiredNFTs, setRequiredNFTs] = useState<any[]>([])
+  const [firstLoad, setFirstLoad] = useState<boolean>(false)
 
   useEffect(() => {
     setListData({ ...listData, requiredPoaps: requiredPoaps, requiredNFTs: requiredNFTs })
   }, [requiredPoaps, requiredNFTs])
 
   useEffect(() => {
-    if (listData.requiredNFTs) {
-      setRequiredNFTs(listData.requiredNFTs)
+    if (!firstLoad) {
+      if (listData.requiredNFTs) {
+        setRequiredNFTs(listData.requiredNFTs)
+      }
+      if (listData.requiredPoaps) {
+        setRequiredPoaps(listData.requiredPoaps)
+      }
     }
-    if (listData.requiredPoaps) {
-      setRequiredPoaps(listData.requiredPoaps)
-    }
+    setFirstLoad(true)
   }, [listData])
 
   return (
@@ -41,7 +45,7 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep, is
           <div className="file-upload w-full relative border rounded-[16px] shadow-sm h-min">
 
             <label htmlFor='image' className="w-full rounded-[16px] file-upload-label flex justify-center items-center py-[15px] px-4 bg-white cursor-pointer text-gray-700 hover:bg-gray-300">
-              <Instagram className="mr-[5px]" />
+              <Picture className="mr-[5px]" />
               Add Image
             </label>
             <input
@@ -140,6 +144,9 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep, is
             </div>
           </div>
         </div>
+
+        <TokenGatedLinks setListData={setListData} listData={listData} />
+
         <button
           disabled={loading}
           onClick={(e) => {
