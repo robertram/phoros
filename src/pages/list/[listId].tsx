@@ -26,6 +26,7 @@ import { Success } from "@/components/Success";
 import Share from "@/icons/Share";
 import { RequiredNFTs } from "@/components/RequiredNFTs";
 import useFetchNFTBalance from "@/hooks/useFetchNFTBalance";
+import { SocialsButtons } from "@/components/SocialsButtons";
 
 export default function Community() {
   const { address } = useAuth()
@@ -47,8 +48,10 @@ export default function Community() {
   const [hasRequiredPoap, setHasRequiredPoap] = useState<boolean>(false)
   const [hasRequiredNFTs, setHasRequiredNFTs] = useState<boolean>(false)
   const [shareLinkCopied, setShareLinkCopied] = useState<boolean>(false)
+  const [socialLinks, setSocialLinks] = useState<any[]>([]);
   const { poaps, loading: poapsLoading, error: poapsError } = usePoaps(address ?? '');
   const { nfts, loading: nftsLoading } = useFetchNFTBalance(address ?? '');
+
 
   const getUserId = async (twitterUsername: string) => {
     console.log('get userId');
@@ -240,6 +243,33 @@ export default function Community() {
     }
   }, [nfts, listInfo?.requiredNFTs])
 
+  useEffect(() => {
+    if (listInfo) {
+      const platforms = ['facebook', 'instagram', 'twitter', 'discord', 'youtube', 'telegram'];
+
+      const linkExists = (platform: string, url: string) => {
+        return socialLinks.some(link => link?.platform === platform && link?.url === url);
+      };
+
+      console.log('listInfo', listInfo);
+
+
+      const newSocialLinks = platforms.reduce((acc: any, platform) => {
+        const url = listInfo[platform];
+        if (url && !linkExists(platform, url)) {
+          acc.push({ platform: platform, url: url });
+        }
+        return acc;
+      }, []);
+
+      if (newSocialLinks.length > 0) {
+        setSocialLinks(prevLinks => [...prevLinks, ...newSocialLinks]);
+      }
+    }
+  }, [listInfo, socialLinks]);
+
+  console.log('socialLinks', socialLinks);
+
   if (userAddedToWaitlist) {
     return (
       <Layout>
@@ -287,6 +317,10 @@ export default function Community() {
               <div className="w-full flex justify-center">
                 <Loading />
               </div>
+            }
+
+            {(hasRequiredPoap || hasRequiredNFTs) &&
+              <SocialsButtons socialLinks={socialLinks} />
             }
 
             {listInfo &&

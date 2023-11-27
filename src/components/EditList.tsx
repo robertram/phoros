@@ -63,14 +63,17 @@ export const EditList = ({ listId }: EditListProps) => {
   const updateList = async () => {
     setLoading(true)
     const usersRef = doc(db, 'lists', listData?.id)
+
+    console.log('listData to edit!', listData);
+    
     try {
-      await setDoc(usersRef, { ...listData }, { merge: true })
+      await setDoc(usersRef, { ...listData })
     } catch (err) {
       console.error('You dont have permission')
     }
 
     setLoading(false)
-    router.push('/')
+    router.push(`/list/${listData.listId}`)
   }
 
   const addListToFirebase = async (data: any) => {

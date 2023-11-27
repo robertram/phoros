@@ -6,7 +6,7 @@ import Twitter from "./Twitter";
 import Youtube from "./Youtube";
 
 export const getSocialLogo = (platform: string) => {
-  switch (platform.toLowerCase()) {
+  switch (platform?.toLowerCase()) {
     case 'facebook':
       return <Facebook className="m-auto" />;
     case 'instagram':
