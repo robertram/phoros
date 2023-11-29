@@ -43,6 +43,8 @@ export const AuthProvider = ({ children }: any) => {
   const [activeChain, setActiveChain] = useState<any>(1);
   const { auth, db } = initializeFirebaseClient();
 
+  console.log('activeChain', activeChain);
+
   const { address } = useAccount()
 
   const { data: ens, isError, isLoading } = useEnsName({
@@ -119,6 +121,8 @@ export const AuthProvider = ({ children }: any) => {
       const provider = new ethers.providers.Web3Provider(
         (window as any).ethereum
       );
+      console.log('provider', provider);
+
       const addresses = await provider.listAccounts();
       if (addresses.length) {
         //setAddress(addresses[0])
