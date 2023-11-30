@@ -3,9 +3,10 @@ import Button from "./Button";
 import Modal from "./Modal"
 import { doc, setDoc } from 'firebase/firestore';
 import { useRouter } from "next/router";
-import { db } from '@/firebase/firestore/getData';
 import { useAuth } from "@/context/AuthContext";
 import { Loading } from "./Loading";
+import { query, collection, where } from "firebase/firestore";
+import { db, getDocuments } from '@/firebase/firestore/getData';
 
 interface UsernameModalProps {
   open: boolean
@@ -17,6 +18,7 @@ export const UsernameModal = ({ open, setOpen }: UsernameModalProps) => {
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false)
   const router = useRouter();
+  const [usernameError, setUsernameError] = useState('');
 
   const updateUserUsername = async () => {
     setLoading(true)
@@ -32,13 +34,39 @@ export const UsernameModal = ({ open, setOpen }: UsernameModalProps) => {
 
     setLoading(false)
     setOpen(false)
+    setUsername('')
+  }
+
+  const getAllData = async () => {
+    const customQuery = query(collection(db, "users"), where("username", "==", username));
+    return await getDocuments({ customQuery })
+  }
+
+  const registerUser = async () => {
+    setLoading(true)
+    getAllData().then((result: any) => {
+      console.log('result', result.result);
+      if (result.result.length > 0) {
+        console.log('Username is already taken. Please choose a different one.');
+        setUsernameError('Username is already taken. Please choose a different one.');
+      } else {
+        updateUserUsername()
+      }
+    })
+    setLoading(false)
+  }
+
+  const closeModal = () => {
+    setUsername('')
+    setUsernameError('')
+    setOpen(false)
   }
 
   return (
     <div>
       <Modal
         show={open}
-        setShow={() => setOpen(false)}
+        setShow={() => closeModal()}
       >
         <div className="">
           <div className="flex justify-between">
@@ -49,7 +77,7 @@ export const UsernameModal = ({ open, setOpen }: UsernameModalProps) => {
 
             <button
               className="ml-[10px]"
-              onClick={() => setOpen(false)}
+              onClick={() => closeModal()}
             >
               Close
             </button>
@@ -66,16 +94,17 @@ export const UsernameModal = ({ open, setOpen }: UsernameModalProps) => {
               }}
             />
           </div>
+          <p className="text-base text-red-400">{usernameError}</p>
 
           <Button
             disabled={username == '' || loading}
             onClick={() => {
-              updateUserUsername()
+              registerUser()
             }}
             className={`flex justify-center mt-[10px] ${username == '' ? 'bg-primary' : 'bg-[#91D1F8]'}`}
           >
             {loading ?
-              <Loading className="mx-auto flex justify-center"/> :
+              <Loading className="mx-auto flex justify-center" /> :
               'Confirm'
             }
           </Button>

@@ -24,7 +24,7 @@ export const TokenItemContainer = ({ title, image, listId }: TokenItemContainerP
     <Link
       href={listId ? `/list/${listId}` : '#'}
       //href={eventId && tokenId ? `/community/${eventId}/${tokenId}` : '#'}
-      className={`flex p-[12px] bg-gray-100 mb-[12px] rounded-[8px] no-underline ${listId ? 'cursor-pointer' : 'cursor-default'}`}
+      className={`flex p-[12px] bg-white border-solid border-[1px] border-[#D4D4D4] mb-[12px] rounded-[8px] no-underline ${listId ? 'cursor-pointer' : 'cursor-default'}`}
     >
       <div className="mr-[12px]">
         <img src={image} className="min-w-[64px] min-h-[64px] w-[64px] h-[64px] object-cover rounded-full"></img>

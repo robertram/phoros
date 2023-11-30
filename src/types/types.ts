@@ -80,6 +80,7 @@ export interface EventType {
 
 
 export interface UserData {
+  username: string
   bio: string
   profilePicture: string
   twitter: string

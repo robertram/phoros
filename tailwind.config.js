@@ -17,7 +17,8 @@ module.exports = {
         'custom-blue': '#1400FF',
         'custom-purple': '#5E17EB',
         'gray-border': '#E5E5E5',
-        'primary': '#D80032'
+        'primary': '#D80032',
+        'grayed': '#525252'
       },
       maxWidth: {
         'normal': '1200px',

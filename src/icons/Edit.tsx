@@ -8,7 +8,7 @@ const Edit = (props: any) => (
     {...props}
   >
     <path
-      stroke={props?.color ? props?.color : "#000"}
+      stroke={props?.color ? props?.color : "#525252"}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={1.5}

@@ -52,7 +52,7 @@ const NavBar = ({ backButtonText, backButtonLink }: NavBarProps) => {
     return (
       <div className='relative flex flex-wrap justify-between items-center mx-auto max-w-screen-xl'>
         {backButtonText ?
-          <button className='flex' onClick={() => backButtonLink ? router.push(backButtonLink) : {}}>
+          <button className='flex' onClick={() => backButtonLink ? router.push(backButtonLink) : router.back()}>
             <ArrowLeft className="my-auto" />
             <p className='ml-[10px]'>{backButtonText}</p>
           </button>

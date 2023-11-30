@@ -12,6 +12,11 @@ import { SocialsButtons } from "./SocialsButtons";
 import { useEffect, useState } from "react";
 import { generateSocialLinks } from "@/utils/utils";
 import { UsernameModal } from "./UsernameModal";
+import Logout from "@/icons/Logout";
+import useFetchNFTBalance from "@/hooks/useFetchNFTBalance";
+import { getDocuments, db } from "@/firebase/firestore/getData";
+import { query, collection, where, arrayUnion } from "firebase/firestore";
+import { Loading } from "./Loading";
 
 interface ProfileProps {
   user: any
@@ -22,12 +27,29 @@ export const Profile = ({ user, loggedIn }: ProfileProps) => {
   const { disconnect } = useDisconnect()
   const router = useRouter()
   const { poaps, loading: poapsLoading, error: poapsError } = usePoaps(user?.id ?? '');
+  const { nfts, loading: nftsLoading } = useFetchNFTBalance(user?.id ?? '');
   const { data: ens, isError, isLoading } = useEnsName({
     address: user?.id
   })
   const [socialLinks, setSocialLinks] = useState<any[]>([]);
   const [openUsernameModal, setOpenUsernameModal] = useState<boolean>(false);
   const [addedToClipboard, setAddedToClipboard] = useState<boolean>(false);
+  const [lists, setLists] = useState<any[]>([]);
+
+  console.log('lists', lists);
+
+  const getAllData = async () => {
+    const customQuery = query(collection(db, "lists"), where("owner", "==", user?.id));
+    return await getDocuments({ customQuery })
+  }
+
+  useEffect(() => {
+    if (user?.id) {
+      getAllData().then((result: any) => {
+        setLists(result.result)
+      })
+    }
+  }, [user]);
 
   useEffect(() => {
     if (addedToClipboard) {
@@ -48,81 +70,91 @@ export const Profile = ({ user, loggedIn }: ProfileProps) => {
   }, [user, socialLinks]);
 
   return (
-    <div className='px-[16px] max-w-large flex items-center m-auto'>
+    <div className='max-w-large flex items-center m-auto'>
       <div className="w-full">
-        <div className="m-auto">
-          <img src={user?.profilePicture} className="w-[100px] h-[100px] object-cover m-auto rounded-full bg-gray-500" />
+        <div className="relative">
+          <div className="banner w-full h-[124px] md:h-[200px] bg-gradient-to-b from-[#5CFF63] to-[#009657]">
+            {/* <div className="absolute md:bottom-[20px] md:right-[50px] bottom-[10px] right-[20px]">
+               <Button secondary onClick={() => { router.push('/account/edit') }}>Edit Profile</Button> 
+            </div> */}
+          </div>
+
+          <div className="absolute left-[20px] md:left-[30px] bottom-[-30px] md:bottom-[-50px] rounded-full w-[100px] h-[100px] bg-slate-800 md:w-[150px] md:h-[150px]">
+            <img
+              className="rounded-full object-cover h-full"
+              src={user?.profilePicture}
+            />
+          </div>
         </div>
 
-        <div className="mt-[20px]">
-          <p className="text-base font-bold text-center">{ens ? ens : getShortAddress(user?.id)}</p>
-          {user?.username && <p className="text-base font-bold text-center">{user?.username}</p>}
-          <p>{user?.bio}</p>
-        </div>
+        <div className="px-[16px]">
+          <div className="mt-[40px] md:mt-[70px]">
+            <p className="text-base font-bold text-grayed">{ens ? ens : getShortAddress(user?.id)}</p>
+            {user?.username && <p className="text-base font-bold text-grayed">{user?.username}</p>}
+            <p className="mt-[10px] text-grayed">{user?.bio}</p>
+          </div>
 
-        <div className="flex justify-between gap-4 mt-[50px]">
-          <InfoCard
-            title="Poaps"
-            value={poaps?.length}
-          />
-          <InfoCard
-            title="Lists"
-            value="0"
-          />
-        </div>
+          <div className="flex justify-between gap-4 mt-[30px]">
+            <InfoCard
+              title="Collectibles"
+              value={poapsLoading || nftsLoading ? '-' : poaps?.length + nfts?.length}
+            />
+            <InfoCard
+              title="Lists"
+              value={`${lists?.length ?? '0'}`}
+            />
+          </div>
 
-        <div className="mt-[30px]">
-          <SocialsButtons socialLinks={socialLinks} />
-        </div>
+          <div className="mt-[30px]">
+            <SocialsButtons socialLinks={socialLinks} />
+          </div>
 
-        {loggedIn &&
-          <div>
-            <div className="flex justify-between gap-4 mt-[50px]">
-              <CardButton
-                onClick={() => {
-                  router.push('/edit-profile')
-                }}
-                title="Edit"
-                icon={<Edit className="m-auto" />}
-              />
-              <CardButton
-                onClick={() => {
-                  if (user?.username) {
-                    if (navigator.share) {
-                      navigator.share({
-                        url: `https://app.phoros.io/user/${user?.username}`,
-                      })
-                        .then(() => console.log('Successful share'))
-                        .catch((error) => console.log('Error sharing:', error));
+          {loggedIn &&
+            <div>
+              <div className="flex justify-between gap-4 mt-[50px]">
+                <CardButton
+                  onClick={() => {
+                    router.push('/edit-profile')
+                  }}
+                  title="Edit"
+                  icon={<Edit className="m-auto" />}
+                />
+                <CardButton
+                  onClick={() => {
+                    if (user?.username) {
+                      if (navigator.share) {
+                        navigator.share({
+                          url: `https://app.phoros.io/user/${user?.username}`,
+                        })
+                          .then(() => console.log('Successful share'))
+                          .catch((error) => console.log('Error sharing:', error));
+                      } else {
+                        navigator.clipboard.writeText(`https://app.phoros.io/user/${user?.username}`)
+                        setAddedToClipboard(true)
+                        console.log('Web Share API is not supported in your browser.');
+                      }
                     } else {
-                      navigator.clipboard.writeText(`https://app.phoros.io/user/${user?.username}`)
-                      setAddedToClipboard(true)
-                      console.log('Web Share API is not supported in your browser.');
+                      setOpenUsernameModal(true)
                     }
-                  } else {
-                    setOpenUsernameModal(true)
-                  }
-                }}
-                title={addedToClipboard ? "Link copied to your Clipboard" : "Share"}
-                icon={<Rocket className="m-auto" />}
+                  }}
+                  title={addedToClipboard ? "Link copied to your Clipboard" : "Share"}
+                  icon={<Rocket className="m-auto" />}
+                //loading={loading}
+                />
+              </div>
+              <CardButton
+                onClick={() => disconnect()}
+                title="Logout"
+                icon={<Logout className="m-auto" />}
+                className="mt-[20px]"
               //loading={loading}
               />
             </div>
-            <CardButton
-              onClick={() => disconnect()}
-              title="Logout"
-              icon={<Rocket className="m-auto" />}
-              className="mt-[20px]"
-            //loading={loading}
-            />
-          </div>
-        }
+          }
 
-        <UsernameModal open={openUsernameModal} setOpen={setOpenUsernameModal} />
-
-
+          <UsernameModal open={openUsernameModal} setOpen={setOpenUsernameModal} />
+        </div>
       </div>
     </div>
-
   )
 }

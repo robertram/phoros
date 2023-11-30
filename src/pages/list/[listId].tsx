@@ -52,7 +52,6 @@ export default function Community() {
   const { poaps, loading: poapsLoading, error: poapsError } = usePoaps(address ?? '');
   const { nfts, loading: nftsLoading } = useFetchNFTBalance(address ?? '');
 
-
   const getUserId = async (twitterUsername: string) => {
     console.log('get userId');
     const formattedUsername = removeAtSymbol(twitterUsername)

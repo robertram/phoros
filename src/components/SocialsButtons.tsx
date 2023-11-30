@@ -15,7 +15,7 @@ export const SocialsButtons = ({ socialLinks }: SocialsButtonsProps) => {
               <LinkCard
                 title={item.platform}
                 icon={getSocialLogo(item.platform)}
-                link={item?.url}
+                link={item?.url ?? '#'}
                 className="h-min !w-[49%]"
                 key={index}
               />

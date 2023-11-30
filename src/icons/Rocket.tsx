@@ -8,7 +8,7 @@ const Rocket = (props: any) => (
     {...props}
   >
     <path
-      stroke="#000"
+      stroke="#525252"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={1.5}

@@ -88,6 +88,22 @@ export const EditProfile = ({ address }: any) => {
       </div>
 
       <div className='mb-[20px]'>
+        <label htmlFor='username'>Username</label>
+        <input
+          type='text'
+          id='username'
+          className={`border border-gray-border p-2 w-full text-black rounded-[50px]`}
+          //placeholder='Insert a name for your list'
+          placeholder={userInfo?.username??'Insert a username'}
+          value={data?.username}
+          //disabled={isEdit}
+          onChange={(event) =>
+            setData({ ...data!, username: event.target.value })
+          }
+        />
+      </div>
+
+      <div className='mb-[20px]'>
         <label htmlFor='bio'>Bio</label>
         <textarea
           id='bio'

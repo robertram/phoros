@@ -7,7 +7,7 @@ const updateUserInfo = async (accessToken: string, refreshToken: string, expireT
   const usersRef = doc(db, 'users', address ?? '')
 
   try {
-    await setDoc(usersRef, { accessToken, refreshToken, expireTime }, { merge: true })
+    await setDoc(usersRef, { accessToken, refreshToken, expireTime, isCreator: true }, { merge: true })
   } catch (err) {
     console.error('You dont have permission')
   }

@@ -33,7 +33,7 @@ export default function Index() {
   }, [address]);
 
   return (
-    <Layout backButtonText="Home" backButtonLink="/">
+    <Layout backButtonText="Back">
       <div className='px-[16px] max-w-large flex items-center m-auto'>
         <div className="w-full">
 
