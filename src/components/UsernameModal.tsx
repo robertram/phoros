@@ -11,11 +11,12 @@ import { db, getDocuments } from '@/firebase/firestore/getData';
 interface UsernameModalProps {
   open: boolean
   setOpen: (open: boolean) => void
+  setRefreshUser: (refreshUser: any) => void
 }
 
-export const UsernameModal = ({ open, setOpen }: UsernameModalProps) => {
-  const { address } = useAuth()
-  const [username, setUsername] = useState('');
+export const UsernameModal = ({ open, setOpen, setRefreshUser }: UsernameModalProps) => {
+  const { address, ens } = useAuth()
+  const [username, setUsername] = useState(ens ?? '');
   const [loading, setLoading] = useState(false)
   const router = useRouter();
   const [usernameError, setUsernameError] = useState('');
@@ -51,6 +52,7 @@ export const UsernameModal = ({ open, setOpen }: UsernameModalProps) => {
         setUsernameError('Username is already taken. Please choose a different one.');
       } else {
         updateUserUsername()
+        setRefreshUser((prevRefreshUser: boolean) => !prevRefreshUser);
       }
     })
     setLoading(false)
@@ -83,12 +85,13 @@ export const UsernameModal = ({ open, setOpen }: UsernameModalProps) => {
             </button>
           </div>
           <div className=''>
+            {ens && <p>ENS detected</p>}
             <input
               type='text'
               id='username'
               className='border border-gray-300 rounded-md p-2 w-full text-black'
               placeholder='elonmusk'
-              value={username}
+              value={ens ? ens : username}
               onChange={(event) => {
                 setUsername(event.target.value)
               }}

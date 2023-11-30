@@ -29,10 +29,10 @@ export const AccountButton = () => {
   return (
     <button
       onClick={() => {
-        router.push('/profile')
+        router.push(`/u/${user?.ens ? user?.ens : address}`)
       }}
-      className="rounded-[50px] p-[10px] shadow-md flex">
-      <img src={user?.profilePicture} className="rounded-full w-[25px] h-[25px] my-auto mr-[5px]" />
+      className="rounded-[50px] p-[10px] shadow-md flex ">
+      <img src={user?.profilePicture} className="rounded-full w-[25px] h-[25px] my-auto mr-[5px] bg-slate-800 " />
       {ens ? ens : getShortAddress(address)}
       <ArrowDown />
     </button>

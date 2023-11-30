@@ -21,9 +21,10 @@ import { Loading } from "./Loading";
 interface ProfileProps {
   user: any
   loggedIn: boolean
+  setRefreshUser: (refresh: boolean) => void
 }
 
-export const Profile = ({ user, loggedIn }: ProfileProps) => {
+export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
   const { disconnect } = useDisconnect()
   const router = useRouter()
   const { poaps, loading: poapsLoading, error: poapsError } = usePoaps(user?.id ?? '');
@@ -152,7 +153,7 @@ export const Profile = ({ user, loggedIn }: ProfileProps) => {
             </div>
           }
 
-          <UsernameModal open={openUsernameModal} setOpen={setOpenUsernameModal} />
+          <UsernameModal open={openUsernameModal} setOpen={setOpenUsernameModal} setRefreshUser={setRefreshUser} />
         </div>
       </div>
     </div>

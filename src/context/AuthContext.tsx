@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: any) => {
     localStorage.removeItem('user');
   };
 
-  const createUser = async (address?: string) => {
+  const createUser = async (address?: string, ens?: string) => {
     if (!address) return null
 
     try {
@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }: any) => {
 
       if (!userDoc.exists()) {
         // User now has permission to update their own document outlined in the Firestore rules.
-        setDoc(usersRef, { createdAt: serverTimestamp() }, { merge: true });
+        setDoc(usersRef, { createdAt: serverTimestamp(), ens: ens }, { merge: true });
       }
     } catch (error) {
       console.error(error);
@@ -113,8 +113,8 @@ export const AuthProvider = ({ children }: any) => {
   };
 
   useEffect(() => {
-    createUser(address)
-  }, [address])
+    createUser(address, ens ?? '')
+  }, [address, ens])
 
   useEffect(() => {
     const getUserWallet = async () => {
