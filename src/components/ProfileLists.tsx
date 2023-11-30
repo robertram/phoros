@@ -1,4 +1,3 @@
-
 import { getShortAddress } from "@/lib/utils";
 import { useEnsName } from "wagmi";
 import { useEffect, useState } from "react";

@@ -27,6 +27,7 @@ import Share from "@/icons/Share";
 import { RequiredNFTs } from "@/components/RequiredNFTs";
 import useFetchNFTBalance from "@/hooks/useFetchNFTBalance";
 import { SocialsButtons } from "@/components/SocialsButtons";
+import { ListCreator } from "@/components/ListCreator";
 
 export default function Community() {
   const { address } = useAuth()
@@ -38,6 +39,7 @@ export default function Community() {
 
   const [userInfo, setUserInfo] = useState<any>({});
   const [listInfo, setListInfo] = useState<any>();
+  
   const [showEnterUsername, setShowEnterUsername] = useState(false);
   const [twitterUsername, setTwitterUsername] = useState('');
   const [addToListError, setAddToListError] = useState(false)
@@ -183,7 +185,7 @@ export default function Community() {
   //       .catch(console.error);
   //   }
   // }, [listInfo])
-
+ 
   //Get Required Poaps
   useEffect(() => {
     const getPoapsInfo = async () => {
@@ -246,7 +248,7 @@ export default function Community() {
     if (listInfo) {
       console.log('listInfo', listInfo);
       const newSocialLinks = generateSocialLinks(listInfo, socialLinks);
-  
+
       if (newSocialLinks.length > 0) {
         setSocialLinks(prevLinks => [...prevLinks, ...newSocialLinks]);
       }
@@ -288,7 +290,6 @@ export default function Community() {
                   <img src={listInfo?.image} className="w-[100px] h-[100px] object-cover m-auto rounded-full" />
                 </div>
                 <div className="flex w-full m-auto justify-center pt-[10px]">
-
                   <h1 className="text-3xl text-center ">{listInfo?.name}</h1>
                   {listInfo.owner === address &&
                     <a href={`/list/${listInfo.listId}/edit`} className="my-auto ml-[5px]">
@@ -297,6 +298,7 @@ export default function Community() {
                   }
                 </div>
                 <p className="text-base mt-[10px]">{limitStringTo200Characters(listInfo?.description)}</p>
+                <ListCreator id={listInfo?.owner} />
               </div>
               :
               <div className="w-full flex justify-center">
@@ -309,7 +311,7 @@ export default function Community() {
             }
 
             {listInfo &&
-              <div className="flex justify-between gap-4 mt-[50px]">
+              <div className="flex justify-between gap-4">
                 <CardButton
                   onClick={() => {
                     window.open(`https://twitter.com/i/lists/${listInfo?.listId}`, '_blank');

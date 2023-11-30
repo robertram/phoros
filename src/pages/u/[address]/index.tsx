@@ -45,9 +45,6 @@ export default function Index() {
     }
   }, [addressParam, refreshUser]);
 
-  console.log('user', user);
-
-
   return (
     <Layout backButtonText="Home" backButtonLink="/">
       <Profile user={user} loggedIn={address ? true : false} setRefreshUser={setRefreshUser} />
