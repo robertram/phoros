@@ -17,6 +17,7 @@ import useFetchNFTBalance from "@/hooks/useFetchNFTBalance";
 import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection, where, arrayUnion } from "firebase/firestore";
 import { Loading } from "./Loading";
+import { useAuth } from "@/context/AuthContext";
 
 interface ProfileProps {
   user: any
@@ -27,17 +28,15 @@ interface ProfileProps {
 export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
   const { disconnect } = useDisconnect()
   const router = useRouter()
+  const { address } = useAuth()
   const { poaps, loading: poapsLoading, error: poapsError } = usePoaps(user?.id ?? '');
   const { nfts, loading: nftsLoading } = useFetchNFTBalance(user?.id ?? '');
   const { data: ens, isError, isLoading } = useEnsName({
     address: user?.id
   })
   const [socialLinks, setSocialLinks] = useState<any[]>([]);
-  const [openUsernameModal, setOpenUsernameModal] = useState<boolean>(false);
   const [addedToClipboard, setAddedToClipboard] = useState<boolean>(false);
   const [lists, setLists] = useState<any[]>([]);
-
-  console.log('lists', lists);
 
   const getAllData = async () => {
     const customQuery = query(collection(db, "lists"), where("owner", "==", user?.id));
@@ -82,7 +81,7 @@ export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
 
           <div className="absolute left-[20px] md:left-[30px] bottom-[-30px] md:bottom-[-50px] rounded-full w-[100px] h-[100px] bg-slate-800 md:w-[150px] md:h-[150px]">
             <img
-              className="rounded-full object-cover h-full"
+              className="rounded-full object-cover h-full w-full"
               src={user?.profilePicture}
             />
           </div>
@@ -103,6 +102,10 @@ export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
             <InfoCard
               title="Lists"
               value={`${lists?.length ?? '0'}`}
+              className="cursor-pointer"
+              onClick={() => {
+                router.push(`/u/${user?.username ? user?.username : user?.id}/lists`)
+              }}
             />
           </div>
 
@@ -110,7 +113,7 @@ export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
             <SocialsButtons socialLinks={socialLinks} />
           </div>
 
-          {loggedIn &&
+          {loggedIn && user?.id === address &&
             <div>
               <div className="flex justify-between gap-4 mt-[50px]">
                 <CardButton
@@ -122,21 +125,21 @@ export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
                 />
                 <CardButton
                   onClick={() => {
-                    if (user?.username) {
-                      if (navigator.share) {
-                        navigator.share({
-                          url: `https://app.phoros.io/user/${user?.username}`,
-                        })
-                          .then(() => console.log('Successful share'))
-                          .catch((error) => console.log('Error sharing:', error));
-                      } else {
-                        navigator.clipboard.writeText(`https://app.phoros.io/user/${user?.username}`)
-                        setAddedToClipboard(true)
-                        console.log('Web Share API is not supported in your browser.');
-                      }
+                    // if (user?.username) {
+                    if (navigator.share) {
+                      navigator.share({
+                        url: `https://app.phoros.io/user/${user?.username}`,
+                      })
+                        .then(() => console.log('Successful share'))
+                        .catch((error) => console.log('Error sharing:', error));
                     } else {
-                      setOpenUsernameModal(true)
+                      navigator.clipboard.writeText(`https://app.phoros.io/user/${user?.username}`)
+                      setAddedToClipboard(true)
+                      console.log('Web Share API is not supported in your browser.');
                     }
+                    // } else {
+                    //   setOpenUsernameModal(true)
+                    // }
                   }}
                   title={addedToClipboard ? "Link copied to your Clipboard" : "Share"}
                   icon={<Rocket className="m-auto" />}
@@ -153,7 +156,7 @@ export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
             </div>
           }
 
-          <UsernameModal open={openUsernameModal} setOpen={setOpenUsernameModal} setRefreshUser={setRefreshUser} />
+          {/* <UsernameModal open={openUsernameModal} setOpen={setOpenUsernameModal} setRefreshUser={setRefreshUser} /> */}
         </div>
       </div>
     </div>

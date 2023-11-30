@@ -45,6 +45,7 @@ export const TokenGatedLinks = ({ setData, data }: TokenGatedLinksProps) => {
       <h3 className='text-base'>Socials</h3>
       <div className='flex'>
         <select
+        className='bg-transparent'
           value={socialPlatform}
           onChange={(e) => setSocialPlatform(e.target.value)}
         >

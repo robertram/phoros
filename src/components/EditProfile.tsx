@@ -6,16 +6,18 @@ import { UserData } from '@/types/types'
 import { Loading } from './Loading';
 import { useRouter } from 'next/router';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '@/firebase/firestore/getData';
 import Edit from '@/icons/Edit';
 import Button from './Button';
 import { TokenGatedLinks } from './TokenGatedLinks';
+import { query, collection, where } from "firebase/firestore";
+import { db, getDocuments } from '@/firebase/firestore/getData';
 
 export const EditProfile = ({ address }: any) => {
   const [data, setData] = useState<UserData>()
   const [imageUploadPercentage, setImageUploadPercentage] = useState(0)
   const [loading, setLoading] = useState(false)
   const [userInfo, setUserInfo] = useState<UserData | undefined>(undefined);
+  const [usernameError, setUsernameError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -34,6 +36,10 @@ export const EditProfile = ({ address }: any) => {
   }, [address]);
 
   const onSubmit = async () => {
+    const usernameExists = await checkUsernameExists()
+    if (usernameExists) {
+      return;
+    }
     setLoading(true)
     const usersRef = doc(db, 'users', address)
     try {
@@ -43,7 +49,36 @@ export const EditProfile = ({ address }: any) => {
     }
 
     setLoading(false)
-    router.push('/profile')
+    router.push(`/u/${data?.username}`)
+  }
+
+  const getAllData = async () => {
+    const customQuery = query(collection(db, "users"), where("username", "==", data?.username));
+    return await getDocuments({ customQuery })
+  }
+
+  const isUsernameValid = (username: string) => {
+    // This regex allows letters, numbers, underscores, and hyphens 
+    const validUsernameRegex = /^[A-Za-z0-9_-]+$/;
+    return validUsernameRegex.test(username) && username.length >= 6 && username.length <= 20;
+  }
+
+  const checkUsernameExists = async () => {
+    return getAllData().then((result: any) => {
+      console.log('result', result.result);
+      if (!isUsernameValid(data?.username ?? '')) {
+        setUsernameError('The username is invalid. Please follow the rules');
+        return true
+      }
+      else if (result.result.length > 0 && userInfo?.username != data?.username) {
+        console.log('Username is already taken. Please choose a different one.');
+        setUsernameError('Username is already taken. Please choose a different one.');
+        return true
+      } else {
+        setUsernameError('')
+        return false
+      }
+    })
   }
 
   return (
@@ -93,14 +128,18 @@ export const EditProfile = ({ address }: any) => {
           type='text'
           id='username'
           className={`border border-gray-border p-2 w-full text-black rounded-[50px]`}
-          //placeholder='Insert a name for your list'
-          placeholder={userInfo?.username??'Insert a username'}
+          placeholder={userInfo?.username ?? 'Insert a username'}
           value={data?.username}
-          //disabled={isEdit}
-          onChange={(event) =>
+          onChange={(event) => {
             setData({ ...data!, username: event.target.value })
-          }
+          }}
         />
+        <div className='mt-[5px]'>
+          <p className='text-base text-red-400'>{usernameError}</p>
+          <p><b>Special Characters:</b> Only underscores and hyphens are not allowed.</p>
+          <p><b>Length:</b> Must be between 6 to 20 characters long.</p>
+          <p><b>No Spaces:</b> Usernames should not contain any spaces.</p>
+        </div>
       </div>
 
       <div className='mb-[20px]'>
@@ -121,7 +160,7 @@ export const EditProfile = ({ address }: any) => {
       <div className='flex justify-end mt-[20px]'>
         <Button
           onClick={() => loading ? () => { } : onSubmit()}
-          className="bg-primary"
+          className="bg-primary flex justify-center"
         >
           {loading ? <Loading /> : 'Confirm'}
         </Button>
