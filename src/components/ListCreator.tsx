@@ -26,8 +26,6 @@ export const ListCreator = ({ id }: ListCreatorProps) => {
     }
   }, [id]);
 
-  console.log('listOwner', listOwner);
-
   return (
     <div className="flex justify-between">
       <p>Creator:</p>

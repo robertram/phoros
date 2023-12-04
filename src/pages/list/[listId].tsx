@@ -185,7 +185,7 @@ export default function Community() {
   //       .catch(console.error);
   //   }
   // }, [listInfo])
- 
+
   //Get Required Poaps
   useEffect(() => {
     const getPoapsInfo = async () => {
@@ -246,7 +246,6 @@ export default function Community() {
 
   useEffect(() => {
     if (listInfo) {
-      console.log('listInfo', listInfo);
       const newSocialLinks = generateSocialLinks(listInfo, socialLinks);
 
       if (newSocialLinks.length > 0) {
@@ -254,8 +253,6 @@ export default function Community() {
       }
     }
   }, [listInfo, socialLinks]);
-
-  console.log('socialLinks', socialLinks);
 
   if (userAddedToWaitlist) {
     return (
@@ -316,7 +313,7 @@ export default function Community() {
                   onClick={() => {
                     window.open(`https://twitter.com/i/lists/${listInfo?.listId}`, '_blank');
                   }}
-                  title="Open in X"
+                  title="Go to list"
                   icon={<Twitter className="m-auto" />}
                 />
                 <CardButton
@@ -333,9 +330,9 @@ export default function Community() {
                     }
                   }}
                   title={!address ? 'Log In' : hasRequiredPoap || hasRequiredNFTs ? "Join List" : "You don't have the required collectible"}
-                  icon={<AddUser className={`m-auto  ${hasRequiredPoap || hasRequiredNFTs ? 'text-white' : ''}`} color={hasRequiredPoap || hasRequiredNFTs ? "white" : "black"} />}
+                  icon={<AddUser className={`m-auto ${hasRequiredPoap || hasRequiredNFTs ? 'text-white' : ''}`} color={hasRequiredPoap || hasRequiredNFTs ? "white" : "black"} />}
                   loading={loading}
-                  className={`${hasRequiredPoap || hasRequiredNFTs ? 'bg-[#22C55E] text-white' : 'bg-white text-black cursor-auto'}`}
+                  className={`${hasRequiredPoap || hasRequiredNFTs ? '!bg-[#22C55E] text-white' : 'bg-white text-black cursor-auto'}`}
                 />
               </div>
             }
@@ -434,7 +431,7 @@ export default function Community() {
                 onClick={() => {
                   getUserId(twitterUsername)
                 }}
-                className={`mt-[0] ${twitterUsername == '' ? 'bg-primary' : 'bg-[#91D1F8]'}`}
+                className={`mt-[10px] ${twitterUsername == '' ? 'bg-primary' : 'bg-[#91D1F8]'}`}
               >
                 Confirm
               </Button>

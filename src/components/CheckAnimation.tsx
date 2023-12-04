@@ -1,27 +1,30 @@
 import styled from "styled-components"
 
 export const CheckAnimation = () => {
-  return (
-    <CheckAnimationContainer>
-      <div className="success-checkmark">
-        <div className="check-icon">
-          <span className="icon-line line-tip"></span>
-          <span className="icon-line line-long"></span>
-          <div className="icon-circle"></div>
-          <div className="icon-fix"></div>
-        </div>
-      </div>
-    </CheckAnimationContainer>
-  )
+    return (
+        <CheckAnimationContainer>
+            <div className="success-checkmark">
+                <div className="check-icon">
+                    <span className="icon-line line-tip"></span>
+                    <span className="icon-line line-long"></span>
+                    <div className="icon-circle"></div>
+                    <div className="icon-fix"></div>
+                </div>
+            </div>
+        </CheckAnimationContainer>
+    )
 }
 
 const CheckAnimationContainer = styled.div`
+background-color: transparent;
 .success-checkmark {
     width: 80px;
     height: 115px;
     margin: 0 auto;
+    background-color: transparent;
     
     .check-icon {
+        background-color: transparent;
         width: 80px;
         height: 80px;
         position: relative;
@@ -50,7 +53,7 @@ const CheckAnimationContainer = styled.div`
             content: '';
             height: 100px;
             position: absolute;
-            background: #FFFFFF;
+            background: transparent;
             transform: rotate(-45deg);
         }
         
@@ -99,7 +102,7 @@ const CheckAnimationContainer = styled.div`
             height: 85px;
             position: absolute;
             transform: rotate(-45deg);
-            background-color: #FFFFFF;
+            background-color: transparent;
         }
     }
 }

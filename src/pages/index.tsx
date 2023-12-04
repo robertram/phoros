@@ -27,8 +27,8 @@ export default function Index() {
           </div>
           :
           <div className="w-full">
-            <h1 className="text-2xl font-bold">Welcome {getShortAddress(address)} 👋 </h1>
-            <h2 className="mt-[10px] text-base font-semibold mb-[16px]">Recommended lists you can join</h2>
+            <h1 className="text-2xl font-bold">Welcome 👋 </h1>
+            <h2 className="mt-[10px] text-base font-semibold mb-[16px]">X-lists you can join:</h2>
             {/* <OwnedNFTs /> */}
 
             <Tabs
