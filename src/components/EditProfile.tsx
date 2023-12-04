@@ -11,6 +11,7 @@ import Button from './Button';
 import { TokenGatedLinks } from './TokenGatedLinks';
 import { query, collection, where } from "firebase/firestore";
 import { db, getDocuments } from '@/firebase/firestore/getData';
+import { removeAtSymbol } from '@/utils/utils';
 
 export const EditProfile = ({ address }: any) => {
   const [data, setData] = useState<UserData>()
@@ -36,24 +37,37 @@ export const EditProfile = ({ address }: any) => {
   }, [address]);
 
   const onSubmit = async () => {
-    const usernameExists = await checkUsernameExists()
-    if (usernameExists) {
-      return;
+    if (data?.username) {
+      const usernameExists = await checkUsernameExists()
+      if (usernameExists) {
+        return;
+      }
+    }
+    let instagram = ""
+    let twitter = ""
+    if (data?.instagram || data?.twitter) {
+      instagram = removeAtSymbol(data?.instagram ?? '')
+      twitter = removeAtSymbol(data?.twitter ?? '')
     }
     setLoading(true)
     const usersRef = doc(db, 'users', address)
     try {
-      await setDoc(usersRef, { ...data }, { merge: true })
+
+      await setDoc(usersRef, { ...data, instagram, twitter }, { merge: true })
     } catch (err) {
       console.error('You dont have permission')
     }
 
     setLoading(false)
-    router.push(`/u/${data?.username}`)
+    router.push(`/u/${data?.username
+      ? data?.username
+      : (data?.ens
+        ? data?.ens
+        : data?.id)}`)
   }
 
   const getAllData = async () => {
-    const customQuery = query(collection(db, "users"), where("username", "==", data?.username));
+    const customQuery = query(collection(db, "users"), where("id", "==", data?.id));
     return await getDocuments({ customQuery })
   }
 

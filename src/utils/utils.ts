@@ -31,3 +31,20 @@ export const generateSocialLinks = (listInfo: any, existingLinks: any) => {
     return accumulatedLinks;
   }, []);
 };
+
+export const getWhereParam = (addressParam: string) => {
+  let result;
+
+  switch (true) {
+    case addressParam?.includes('.eth'):
+      result = "ens";
+      break;
+    case addressParam === undefined || addressParam === null:
+      result = "username";
+      break;
+    default:
+      result = addressParam?.startsWith('0x') ? "id" : "username";
+      break;
+  }
+  return result
+}

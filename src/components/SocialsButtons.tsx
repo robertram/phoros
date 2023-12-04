@@ -6,6 +6,30 @@ interface SocialsButtonsProps {
 }
 
 export const SocialsButtons = ({ socialLinks }: SocialsButtonsProps) => {
+
+  const generateLink = (item: any) => {
+    switch (item.platform) {
+      case "twitter":
+        return `https://twitter.com/${item.url}`;
+      case "discord":
+        return item.url;
+      case "telegram":
+        return `https://twitter.com/${item.url}`;
+      case "linkedin":
+        return item.url;
+      case "Facebook":
+        return item.url;
+      case "youtube":
+        return item.url;
+      case "twitch":
+        return item.url;
+      case "instagram":
+        return `https://www.instagram.com/${item.url}`;
+      default:
+        return "#";
+    }
+  };
+
   return (
     <div>
       <div className="mt-[30px]">
@@ -15,7 +39,7 @@ export const SocialsButtons = ({ socialLinks }: SocialsButtonsProps) => {
               <LinkCard
                 title={item.platform}
                 icon={getSocialLogo(item.platform)}
-                link={item?.url ?? '#'}
+                link={generateLink(item)}
                 className="h-min !w-[49%]"
                 key={index}
               />

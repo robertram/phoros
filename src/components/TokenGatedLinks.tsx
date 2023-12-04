@@ -1,6 +1,6 @@
 import Trash from '@/icons/Trash';
 import { getSocialLogo } from '@/icons/utils';
-import { generateSocialLinks } from '@/utils/utils';
+import { generateSocialLinks, removeAtSymbol } from '@/utils/utils';
 import React, { useEffect, useState } from 'react';
 import Button from './Button';
 
@@ -40,12 +40,22 @@ export const TokenGatedLinks = ({ setData, data }: TokenGatedLinksProps) => {
     }
   }, [data, socialLinks]);
 
+  const platformPlaceholders: { [key: string]: string } = {
+    twitter: '@username',
+    facebook: 'https://www.facebook.com/profile',
+    instagram: '@username',
+    discord: 'https://discord.com/invite/code',
+    youtube: 'https://www.youtube.com/channel/channel',
+    telegram: 'https://t.me/username',
+    linkedin: 'https://www.linkedin.com/in/username',
+  };
+
   return (
     <div>
       <h3 className='text-base'>Socials</h3>
       <div className='flex'>
         <select
-        className='bg-transparent'
+          className='bg-transparent'
           value={socialPlatform}
           onChange={(e) => setSocialPlatform(e.target.value)}
         >
@@ -80,9 +90,11 @@ export const TokenGatedLinks = ({ setData, data }: TokenGatedLinksProps) => {
                 type='text'
                 id='social'
                 className={`border border-gray-border p-2 w-full text-black rounded-[50px]`}
-                placeholder='Insert a link for your social'
+                placeholder={platformPlaceholders[social.platform] || 'Insert a link for your social'}
                 value={social.url}
-                onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
+                onChange={(e) =>
+                  updateSocialLink(index, 'url', e.target.value)
+                }
               />
               <button
                 className="ml-2 p-1 text-sm text-red-500"

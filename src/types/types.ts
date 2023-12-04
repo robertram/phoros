@@ -80,6 +80,8 @@ export interface EventType {
 
 
 export interface UserData {
+  id: string
+  ens: string
   username: string
   bio: string
   profilePicture: string
@@ -88,10 +90,11 @@ export interface UserData {
   discord: string
   instagram: string
   telegram: string
+  bannerImage: string
 }
 
 export enum ContractType {
   editionDrop = 'editionDrop',
-  nftDrop = 'nftDrop', 
-  noSet='notSet'
+  nftDrop = 'nftDrop',
+  noSet = 'notSet'
 }

@@ -33,13 +33,13 @@ export const ListCreator = ({ id }: ListCreatorProps) => {
         ? listOwner?.username
         : (listOwner?.ens
           ? listOwner?.ens
-          : listOwner?.address)}`}>
+          : listOwner?.id)}`}>
         <img src={listOwner?.profilePicture} className="w-[25px] h-[25px] rounded-full mr-[5px]" />
         <p className="mr-[5px]">{listOwner?.username
           ? listOwner?.username
           : (listOwner?.ens
             ? listOwner?.ens
-            : getShortAddress(listOwner?.address))}</p>
+            : getShortAddress(listOwner?.id))}</p>
         <Verified className="my-auto mr-[5px]" />
         <Redirect className="my-auto mr-[5px]" />
       </a>

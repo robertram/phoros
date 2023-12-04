@@ -1,4 +1,3 @@
-
 import { getShortAddress } from "@/lib/utils";
 import { useEnsName } from "wagmi";
 import { useDisconnect } from 'wagmi'
@@ -10,24 +9,29 @@ import { useRouter } from "next/router";
 import usePoaps from "@/hooks/usePoaps";
 import { SocialsButtons } from "./SocialsButtons";
 import { useEffect, useState } from "react";
-import { generateSocialLinks } from "@/utils/utils";
+import { generateSocialLinks, getWhereParam } from "@/utils/utils";
 import { UsernameModal } from "./UsernameModal";
 import Logout from "@/icons/Logout";
 import useFetchNFTBalance from "@/hooks/useFetchNFTBalance";
-import { getDocuments, db } from "@/firebase/firestore/getData";
-import { query, collection, where, arrayUnion } from "firebase/firestore";
 import { Loading } from "./Loading";
 import { useAuth } from "@/context/AuthContext";
 
+import storage from "../firebase/firebaseConfig"
+import { ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
+import { uuid } from 'uuidv4';
+import { query, collection, where } from "firebase/firestore";
+import { db, getDocuments } from '@/firebase/firestore/getData';
+import { doc, setDoc } from 'firebase/firestore';
+
 interface ProfileProps {
-  user: any
   loggedIn: boolean
-  setRefreshUser: (refresh: boolean) => void
 }
 
-export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
+export const Profile = ({ loggedIn }: ProfileProps) => {
+  const router = useRouter();
+  const addressParam = Array.isArray(router.query.address) ? router.query.address[1] : router.query.address;
+  const [user, setUser] = useState<any>()
   const { disconnect } = useDisconnect()
-  const router = useRouter()
   const { address } = useAuth()
   const { poaps, loading: poapsLoading, error: poapsError } = usePoaps(user?.id ?? '');
   const { nfts, loading: nftsLoading } = useFetchNFTBalance(user?.id ?? '');
@@ -37,6 +41,9 @@ export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
   const [socialLinks, setSocialLinks] = useState<any[]>([]);
   const [addedToClipboard, setAddedToClipboard] = useState<boolean>(false);
   const [lists, setLists] = useState<any[]>([]);
+  const [bannerUploaded, setBannerUploaded] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [bannerImage, setBannerImage] = useState('')
 
   const getAllData = async () => {
     const customQuery = query(collection(db, "lists"), where("owner", "==", user?.id));
@@ -44,12 +51,28 @@ export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
   }
 
   useEffect(() => {
+    const getAllData = async () => {
+      const customQuery = query(collection(db, "users"), where(getWhereParam(addressParam ?? ''), "==", addressParam));
+      return await getDocuments({ customQuery })
+    }
+
+    if (addressParam) {
+      getAllData().then((result: any) => {
+        console.log('result', result);
+
+        setUser(result.result[0])
+      })
+    }
+  }, [addressParam, bannerUploaded]);
+
+  useEffect(() => {
+    console.log('refresh user!');
     if (user?.id) {
       getAllData().then((result: any) => {
         setLists(result.result)
       })
     }
-  }, [user]);
+  }, [user, bannerUploaded]);
 
   useEffect(() => {
     if (addedToClipboard) {
@@ -69,6 +92,29 @@ export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
     }
   }, [user, socialLinks]);
 
+  const onChangeImage = async (image: string) => {
+    setLoading(true)
+    const usersRef = doc(db, 'users', address ?? '')
+
+    console.log('banner! image', image);
+
+    try {
+      await setDoc(usersRef, { bannerImage: image }, { merge: true })
+      setBannerUploaded(true)
+    } catch (err) {
+      console.error('You dont have permission')
+    }
+
+    setLoading(false)
+    setBannerUploaded(false)
+  }
+
+  useEffect(() => {
+    if (bannerImage) {
+      onChangeImage(bannerImage)
+    }
+  }, [bannerImage])
+
   return (
     <div className='max-w-large flex items-center m-auto'>
       <div className="w-full">
@@ -77,6 +123,50 @@ export const Profile = ({ user, loggedIn, setRefreshUser }: ProfileProps) => {
             {/* <div className="absolute md:bottom-[20px] md:right-[50px] bottom-[10px] right-[20px]">
                <Button secondary onClick={() => { router.push('/account/edit') }}>Edit Profile</Button> 
             </div> */}
+
+            <input
+              className="hidden z-50"
+              type="file" id="image" accept="image/*"
+              onChange={(event) => {
+                if (!loggedIn || user?.id != address) {
+                  return
+                }
+                const image = event?.target?.files ? event.target.files[0] : ''
+                if (image) {
+                  const storageRef = ref(storage, `/${uuid()}/${image.name + uuid()}`)
+                  const uploadTask = uploadBytesResumable(storageRef, image);
+                  uploadTask.on(
+                    "state_changed",
+                    (snapshot) => {
+                      const percent = Math.round(
+                        (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                      );
+                      //setImageUploadPercentage(percent)
+                    },
+                    (err) => console.log(err),
+                    () => {
+                      getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+                        console.log('url', url);
+                        setBannerImage(url)
+                      });
+                    }
+                  );
+                }
+              }}
+            />
+            {loggedIn && user?.id === address ?
+              <label htmlFor="image"
+                className="w-full h-full bg-transparent cursor-pointer overflow-hidden flex items-center justify-center">
+                  <img src={user?.bannerImage} className='w-full object-cover' />
+                <div className="text-white absolute inset-0 flex justify-center items-center">
+                  <Edit className="" color="white" />
+                </div>
+              </label> :
+              <div className="w-full h-full bg-transparent  overflow-hidden flex items-center justify-center">
+                <img src={user?.bannerImage} className='w-full object-cover' />
+              </div>
+            }
+
           </div>
 
           <div className="absolute left-[20px] md:left-[30px] bottom-[-30px] md:bottom-[-50px] rounded-full w-[100px] h-[100px] bg-slate-800 md:w-[150px] md:h-[150px]">
