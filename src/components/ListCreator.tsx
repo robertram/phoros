@@ -20,7 +20,6 @@ export const ListCreator = ({ id }: ListCreatorProps) => {
 
     if (id) {
       getAllData().then((result: any) => {
-        console.log('result', result);
         setListOwner(result.result[0])
       })
     }
