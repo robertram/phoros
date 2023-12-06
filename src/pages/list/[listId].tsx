@@ -239,13 +239,38 @@ export default function Community() {
     }
   }, [poaps, requiredPOAPs])
 
+  // const checkIfOwnRequiredNFT = (ownedNFTs: any[], requiredNFTs: any[]) => {
+  //   const ownedTokenIds = ownedNFTs.map(nft => nft?.tokenAddress);
+  //   return requiredNFTs?.some(requiredNFT => {
+  //     const splittedString = requiredNFT.split('-')
+  //     const tokenAddress = splittedString[0]
+  //     return ownedTokenIds?.includes(tokenAddress)
+  //   });
+  // };
+
   const checkIfOwnRequiredNFT = (ownedNFTs: any[], requiredNFTs: any[]) => {
-    const ownedTokenIds = ownedNFTs.map(nft => nft?.tokenAddress);
-    return requiredNFTs?.some(requiredNFT => {
-      const splittedString = requiredNFT.split('-')
-      const tokenAddress = splittedString[0]
-      return ownedTokenIds?.includes(tokenAddress)
-    });
+    const ownedTokenAddresses = ownedNFTs.map(nft => nft?.tokenAddress);
+
+    if (listInfo?.eligibility === 'all') {
+      // Check if you own all required NFTs
+      const requiredTokenAddresses = requiredNFTs.map(requiredNFT => {
+        const splittedString = requiredNFT.split('-');
+        return splittedString[0];
+      });
+
+      const ownAllRequiredNFTs = requiredTokenAddresses.every(tokenAddress => ownedTokenAddresses.includes(tokenAddress));
+      console.log('ownAllRequiredNFTs all of them', ownAllRequiredNFTs);
+      return ownAllRequiredNFTs;
+    } else {
+      // Check if you own at least one required NFT
+      const ownRequiredNFT = requiredNFTs.some(requiredNFT => {
+        const splittedString = requiredNFT.split('-');
+        const tokenAddress = splittedString[0];
+        return ownedTokenAddresses.includes(tokenAddress);
+      });
+      console.log('ownRequiredNFT at least one', ownRequiredNFT);
+      return ownRequiredNFT;
+    }
   };
 
   useEffect(() => {
