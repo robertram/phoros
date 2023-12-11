@@ -48,7 +48,7 @@ exports.addToTwitterListEvery3Minutes = functions.pubsub.schedule('*/3 * * * *')
     const firestore = await getFirestore()
 
     //GET list information
-    const docId = 'c2636af0-1ef1-4d3d-aee4-089ed5feb7a9';
+    const docId = '446f89cf-5154-43ac-9252-68d87efd9356';
     const documentRef = firestore.collection("lists").doc(docId);
     const docSnapshot = await documentRef.get();
 
@@ -109,11 +109,8 @@ exports.addToTwitterListEvery3Minutes = functions.pubsub.schedule('*/3 * * * *')
 
     const [firstWaitlistItem, ...remainingWaitlist] = docData.waitlist;
 
-    const waitlistUserId = firstWaitlistItem.split('/');
-
     const isAlreadyOnWaitlist = docData?.waitlist?.some((item: any) => {
-      const parts = item.split('/');
-      return parts[1] === waitlistUserId;
+      return item === firstWaitlistItem;
     });
 
     if (isAlreadyOnWaitlist) {
@@ -121,8 +118,7 @@ exports.addToTwitterListEvery3Minutes = functions.pubsub.schedule('*/3 * * * *')
     }
 
     const isAlreadyOnMembersList = docData?.members?.some((item: any) => {
-      const parts = item.split('/');
-      return parts[1] === waitlistUserId;
+      return item === firstWaitlistItem;
     });
 
     if (isAlreadyOnMembersList) {
@@ -132,7 +128,7 @@ exports.addToTwitterListEvery3Minutes = functions.pubsub.schedule('*/3 * * * *')
     //RUN add user to twitter list
     const queryParams = new URLSearchParams({
       listId: docData?.listId,
-      userId: waitlistUserId[1],
+      userId: firstWaitlistItem,
       accessToken: accessToken,
       expireTime: expireTime,
     });
