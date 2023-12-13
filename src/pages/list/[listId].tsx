@@ -155,7 +155,7 @@ export default function Community() {
       return;
     }
     const dataToUpdate = {
-      waitlist: userInfo?.id
+      waitlist: arrayUnion(userInfo?.id)
       //arrayUnion(`${choosenCollectibleToAssign?.data?.event?.id}-${choosenCollectibleToAssign?.data?.tokenId}/${userInfo?.id}`)
     };
     addUserToFirebaseList(listInfo.id, dataToUpdate);
