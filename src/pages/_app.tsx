@@ -7,6 +7,9 @@ import { createWeb3Modal, defaultWagmiConfig } from '@web3modal/wagmi/react'
 import { WagmiConfig } from 'wagmi'
 import { arbitrum, mainnet, polygonMumbai, gnosis, gnosisChiado, goerli, polygon } from 'wagmi/chains'
 import localFont from 'next/font/local'
+import {
+  ThirdwebProvider,
+} from "@thirdweb-dev/react";
 
 const satoshi = localFont({
   src: [
@@ -37,21 +40,30 @@ function MyApp({ Component, pageProps }: any) {
 
   const chains = [mainnet, arbitrum, polygonMumbai, polygon, gnosis, gnosisChiado, goerli]
   const wagmiConfig = defaultWagmiConfig({ chains, projectId, metadata })
-
-  // 3. Create modal
   createWeb3Modal({ wagmiConfig, projectId, chains })
 
-  //font-satoshi
   return (
     <WagmiConfig config={wagmiConfig}>
-      <AuthProvider>
-        {/* <Layout> */}
-        <main className={`${satoshi.variable} `}>
-          <Component {...pageProps} />
-          <Analytics />
-        </main>
-        {/* </Layout> */}
-      </AuthProvider>
+      <ThirdwebProvider
+        // activeChain={activeChain}
+        // clientId={clientId}
+        sdkOptions={{
+          gasless: {
+            openzeppelin: {
+              relayerUrl: process.env.NEXT_PUBLIC_OPENZEPPELIN_DEFENDER_URL ?? ''
+            },
+          },
+        }}
+      >
+        <AuthProvider>
+          {/* <Layout> */}
+          <main className={`${satoshi.variable} `}>
+            <Component {...pageProps} />
+            <Analytics />
+          </main>
+          {/* </Layout> */}
+        </AuthProvider>
+      </ThirdwebProvider>
     </WagmiConfig>
   )
 }

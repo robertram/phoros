@@ -1,6 +1,6 @@
 import Head from 'next/head';
 
-const siteUrl = 'https://www.checkmyticket.xyz';
+const siteUrl = 'https://app.phoros.io';
 
 export default function SEO({
   title = 'Phoros',

@@ -18,7 +18,7 @@ export default function Document() {
         <meta property="og:description" content={description} />
         {/* <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/checkmyticket-20.appspot.com/o/Banner2.png?alt=media&token=beaf8527-f0d4-46aa-8ba5-7ce696d81f17" /> */}
         <meta property="og:image:alt" content={title} />
-        <meta property="og:url" content="https://www.checkmyticket.xyz/" />
+        <meta property="og:url" content="https://app.phoros.io/" />
 
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
