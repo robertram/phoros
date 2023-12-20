@@ -17,13 +17,14 @@ interface NewListFormProps {
 }
 
 export const NewListForm = ({ listData, setListData, error, loading, setStep, isEdit }: NewListFormProps) => {
+  const [eligibility, setEligibility] = useState<string>('one')
   const [requiredPoaps, setRequiredPoaps] = useState<any[]>([])
   const [requiredNFTs, setRequiredNFTs] = useState<any[]>([])
   const [firstLoad, setFirstLoad] = useState<boolean>(false)
 
   useEffect(() => {
-    setListData({ ...listData, requiredPoaps: requiredPoaps, requiredNFTs: requiredNFTs })
-  }, [requiredPoaps, requiredNFTs])
+    setListData({ ...listData, requiredPoaps: requiredPoaps, requiredNFTs: requiredNFTs, eligibility: eligibility })
+  }, [requiredPoaps, requiredNFTs, eligibility])
 
   useEffect(() => {
     if (!firstLoad) {
@@ -119,6 +120,8 @@ export const NewListForm = ({ listData, setListData, error, loading, setStep, is
           </div>
 
           <DigitalCollectionSelect
+            eligibility={eligibility}
+            setEligibility={setEligibility}
             requiredPoaps={requiredPoaps}
             setRequiredPoaps={setRequiredPoaps}
             requiredNFTs={requiredNFTs}

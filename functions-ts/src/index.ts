@@ -42,13 +42,13 @@ exports.makeuppercase = onDocumentCreated("/messages/{documentId}", (event: any)
   return event.data.ref.set({ uppercase }, { merge: true });
 });
 
-exports.addToTwitterListEvery3Minutes = functions.pubsub.schedule('*/3 * * * *').onRun(async (context: any) => {
+exports.addToTwitterListEvery3MinutesTest = functions.pubsub.schedule('*/3 * * * *').onRun(async (context: any) => {
   //exports.moveWaitlistToMember = onRequest(async (req: any, res: any) => {
   try {
     const firestore = await getFirestore()
 
     //GET list information
-    const docId = 'c2636af0-1ef1-4d3d-aee4-089ed5feb7a9';
+    const docId = '398a5a07-1414-4f11-96f9-e4338c51a540';
     const documentRef = firestore.collection("lists").doc(docId);
     const docSnapshot = await documentRef.get();
 
@@ -109,11 +109,8 @@ exports.addToTwitterListEvery3Minutes = functions.pubsub.schedule('*/3 * * * *')
 
     const [firstWaitlistItem, ...remainingWaitlist] = docData.waitlist;
 
-    const waitlistUserId = firstWaitlistItem.split('/');
-
     const isAlreadyOnWaitlist = docData?.waitlist?.some((item: any) => {
-      const parts = item.split('/');
-      return parts[1] === waitlistUserId;
+      return item === firstWaitlistItem;
     });
 
     if (isAlreadyOnWaitlist) {
@@ -121,8 +118,7 @@ exports.addToTwitterListEvery3Minutes = functions.pubsub.schedule('*/3 * * * *')
     }
 
     const isAlreadyOnMembersList = docData?.members?.some((item: any) => {
-      const parts = item.split('/');
-      return parts[1] === waitlistUserId;
+      return item === firstWaitlistItem;
     });
 
     if (isAlreadyOnMembersList) {
@@ -132,7 +128,7 @@ exports.addToTwitterListEvery3Minutes = functions.pubsub.schedule('*/3 * * * *')
     //RUN add user to twitter list
     const queryParams = new URLSearchParams({
       listId: docData?.listId,
-      userId: waitlistUserId[1],
+      userId: firstWaitlistItem,
       accessToken: accessToken,
       expireTime: expireTime,
     });

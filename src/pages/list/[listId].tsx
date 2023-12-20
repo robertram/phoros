@@ -39,7 +39,7 @@ export default function Community() {
 
   const [userInfo, setUserInfo] = useState<any>({});
   const [listInfo, setListInfo] = useState<any>();
-  
+
   const [showEnterUsername, setShowEnterUsername] = useState(false);
   const [twitterUsername, setTwitterUsername] = useState('');
   const [addToListError, setAddToListError] = useState(false)
@@ -155,7 +155,8 @@ export default function Community() {
       return;
     }
     const dataToUpdate = {
-      waitlist: arrayUnion(`${choosenCollectibleToAssign?.data?.event?.id}-${choosenCollectibleToAssign?.data?.tokenId}/${userInfo?.id}`)
+      waitlist: arrayUnion(userInfo?.id)
+      //arrayUnion(`${choosenCollectibleToAssign?.data?.event?.id}-${choosenCollectibleToAssign?.data?.tokenId}/${userInfo?.id}`)
     };
     addUserToFirebaseList(listInfo.id, dataToUpdate);
     setLoading(false)
@@ -195,7 +196,7 @@ export default function Community() {
       }));
 
       setRequiredPOAPs(results)
-      setChoosenCollectibleToAssign(results[0])
+      //setChoosenCollectibleToAssign(results[0])
     }
 
     if (listInfo?.requiredPoaps) {
@@ -218,7 +219,17 @@ export default function Community() {
 
   const checkIfOwnRequiredPoap = (ownedPoaps: any[], requiredPoaps: any[]) => {
     const ownedTokenIds = ownedPoaps.map(poap => poap?.event?.id);
-    return requiredPoaps?.some(requiredPoap => ownedTokenIds?.includes(requiredPoap?.data?.event?.id));
+    if (listInfo?.eligibility === 'all') {
+      // Check if you own all required NFTs
+      const ownAllRequiredPoaps = requiredPoaps.every(requiredPoap => ownedTokenIds.includes(requiredPoap?.data?.event?.id));
+      console.log('ownAllRequiredPoaps all of them', ownAllRequiredPoaps);
+      return ownAllRequiredPoaps;
+    } else {
+      // Check if you own at least one required NFT
+      const ownRequiredPoap = requiredPoaps.some(requiredPoap => ownedTokenIds.includes(requiredPoap?.data?.event?.id));
+      console.log('ownRequiredPoap at least one', ownRequiredPoap);
+      return ownRequiredPoap;
+    }
   };
 
   useEffect(() => {
@@ -228,13 +239,38 @@ export default function Community() {
     }
   }, [poaps, requiredPOAPs])
 
+  // const checkIfOwnRequiredNFT = (ownedNFTs: any[], requiredNFTs: any[]) => {
+  //   const ownedTokenIds = ownedNFTs.map(nft => nft?.tokenAddress);
+  //   return requiredNFTs?.some(requiredNFT => {
+  //     const splittedString = requiredNFT.split('-')
+  //     const tokenAddress = splittedString[0]
+  //     return ownedTokenIds?.includes(tokenAddress)
+  //   });
+  // };
+
   const checkIfOwnRequiredNFT = (ownedNFTs: any[], requiredNFTs: any[]) => {
-    const ownedTokenIds = ownedNFTs.map(nft => nft?.tokenAddress);
-    return requiredNFTs?.some(requiredNFT => {
-      const splittedString = requiredNFT.split('-')
-      const tokenAddress = splittedString[0]
-      return ownedTokenIds?.includes(tokenAddress)
-    });
+    const ownedTokenAddresses = ownedNFTs.map(nft => nft?.tokenAddress);
+
+    if (listInfo?.eligibility === 'all') {
+      // Check if you own all required NFTs
+      const requiredTokenAddresses = requiredNFTs.map(requiredNFT => {
+        const splittedString = requiredNFT.split('-');
+        return splittedString[0];
+      });
+
+      const ownAllRequiredNFTs = requiredTokenAddresses.every(tokenAddress => ownedTokenAddresses.includes(tokenAddress));
+      console.log('ownAllRequiredNFTs all of them', ownAllRequiredNFTs);
+      return ownAllRequiredNFTs;
+    } else {
+      // Check if you own at least one required NFT
+      const ownRequiredNFT = requiredNFTs.some(requiredNFT => {
+        const splittedString = requiredNFT.split('-');
+        const tokenAddress = splittedString[0];
+        return ownedTokenAddresses.includes(tokenAddress);
+      });
+      console.log('ownRequiredNFT at least one', ownRequiredNFT);
+      return ownRequiredNFT;
+    }
   };
 
   useEffect(() => {
@@ -349,7 +385,13 @@ export default function Community() {
           }
 
           <div className="mt-[20px]">
-            <h2 className="text-base font-bold mb-[5px]">Collectibles Required</h2>
+            <div className="flex mb-[10px]">
+              <h2 className="text-base font-bold my-auto mr-[10px]">Collectibles Required</h2>
+
+              <div className="bg-[#1717171a] rounded-[50px] text-[#737373] py-[4px] px-[8px]">
+                {listInfo?.eligibility == 'one' ? 'At least one' : 'All of them'}
+              </div>
+            </div>
             {/* {listInfo?.isPoap && <PoapItemContainer title={tokenData.name} image={tokenData.image_url} />} */}
 
             {requiredPOAPs.length > 0 && requiredPOAPs.map((item: any, index: number) => {

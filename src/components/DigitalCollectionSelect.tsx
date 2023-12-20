@@ -3,15 +3,18 @@ import { DigitalCollectionTabs } from "./DigitalCollectionTabs"
 import Modal from "./Modal"
 import { NFTsSelection } from "./NFTsSelection"
 import { PoapsSelection } from "./PoapsSelection"
+import { Toggle } from "./Toggle"
 
 interface DigitalCollectionSelectProps {
   requiredPoaps: any
   setRequiredPoaps: (items: any) => void
   requiredNFTs: any
   setRequiredNFTs: (items: any) => void
+  setEligibility: (items: any) => void
+  eligibility: string
 }
 
-export const DigitalCollectionSelect = ({ setRequiredNFTs, setRequiredPoaps, requiredNFTs, requiredPoaps }: DigitalCollectionSelectProps) => {
+export const DigitalCollectionSelect = ({ setEligibility, eligibility, setRequiredNFTs, setRequiredPoaps, requiredNFTs, requiredPoaps }: DigitalCollectionSelectProps) => {
   const [showSelectionModal, setShowSelectionModal] = useState(false)
   const [activeTab, setActiveTab] = useState(0);
 
@@ -34,12 +37,35 @@ export const DigitalCollectionSelect = ({ setRequiredNFTs, setRequiredPoaps, req
         <div className="flex justify-between mb-[10px]">
           <p>Select digital collection</p>
 
-          <button className=""
+          <button
+            className=""
             onClick={(event) => {
               event?.preventDefault()
               setShowSelectionModal(false)
             }}
           >Close</button>
+        </div>
+
+        <div className='mb-[20px] flex flex-col'>
+          <div className=''>
+            <div className="mb-[5px]">
+              <p className='text-xl'>Eligibility</p>
+            </div>
+            <div className='my-auto flex'>
+              <p className='text-body'>At least one</p>
+              <div className="mx-[5px]">
+                <Toggle
+                  bgColor="!bg-blue-600"
+                  name='eligibility'
+                  checked={eligibility == 'one' ? false : true}
+                  onChange={(event) => {
+                    setEligibility(event.target.checked ? 'all' : 'one')
+                  }}
+                />
+              </div>
+              <p className='text-body'>All of them</p>
+            </div>
+          </div>
         </div>
 
         <DigitalCollectionTabs
