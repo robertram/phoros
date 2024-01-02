@@ -2,7 +2,6 @@ import Button from "@/components/Button";
 import Layout from "@/components/Layout";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import POAP from '@/abis/POAP.json'
 import { getDocuments, db } from "@/firebase/firestore/getData";
 import { query, collection, where, arrayUnion } from "firebase/firestore";
 import Modal from "@/components/Modal";
@@ -12,12 +11,8 @@ import { CardButton } from "@/components/CardButton";
 import AddUser from "@/icons/AddUser";
 import Twitter from "@/icons/Twitter";
 import Edit from '@/icons/Edit';
-import { TokenInfo } from "@/components/TokenInfo";
 import { TokenItemContainer } from "@/components/TokenItemContainer";
 import { Loading } from "@/components/Loading";
-import { ResponseDto, NftTokenDetail } from '@tatumio/tatum'
-import useTatum from "@/hooks/useTatum";
-import { doc, getDoc } from 'firebase/firestore';
 import { fetchPoapToken } from "@/utils/poap";
 import usePoaps from "@/hooks/usePoaps";
 import { useAuth } from "@/context/AuthContext";
@@ -219,6 +214,7 @@ export default function Community() {
 
   const checkIfOwnRequiredPoap = (ownedPoaps: any[], requiredPoaps: any[]) => {
     const ownedTokenIds = ownedPoaps.map(poap => poap?.event?.id);
+    
     if (listInfo?.eligibility === 'all') {
       // Check if you own all required NFTs
       const ownAllRequiredPoaps = requiredPoaps.every(requiredPoap => ownedTokenIds.includes(requiredPoap?.data?.event?.id));

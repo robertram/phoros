@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import { OwnedNFTs } from "@/components/OwnedNFTs";
 import { Poaps } from "@/components/Poaps";
 import { Tabs } from "@/components/Tabs";
+import usePlans from "@/hooks/usePlan";
 import { getShortAddress } from "@/lib/utils";
 import { useState } from "react";
 import { useAccount } from "wagmi";
@@ -11,6 +12,8 @@ import { useAccount } from "wagmi";
 export default function Index() {
   const [activeTab, setActiveTab] = useState(1);
   const { address } = useAccount()
+
+  const { eligibleForPlans } = usePlans()
 
   const tabsList = ["NFTs", "POAPs"]
 
@@ -48,9 +51,9 @@ export default function Index() {
           </div>
         }
       </div>
-      {/* {address &&
+      {address && eligibleForPlans?.basic &&
         <FloatingButton />
-      } */}
+      }
     </Layout >
   )
 }
