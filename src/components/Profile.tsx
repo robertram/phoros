@@ -10,16 +10,14 @@ import usePoaps from "@/hooks/usePoaps";
 import { SocialsButtons } from "./SocialsButtons";
 import { useEffect, useState } from "react";
 import { generateSocialLinks, getWhereParam } from "@/utils/utils";
-import { UsernameModal } from "./UsernameModal";
 import Logout from "@/icons/Logout";
 import useFetchNFTBalance from "@/hooks/useFetchNFTBalance";
 import { Loading } from "./Loading";
 import { useAuth } from "@/context/AuthContext";
-
 import storage from "../firebase/firebaseConfig"
 import { ref, uploadBytesResumable, getDownloadURL, uploadBytes } from "firebase/storage";
 import { uuid } from 'uuidv4';
-import { query, collection, where } from "firebase/firestore";
+import { query, collection, where, getDocs, getDoc } from "firebase/firestore";
 import { db, getDocuments } from '@/firebase/firestore/getData';
 import { doc, setDoc } from 'firebase/firestore';
 
@@ -51,16 +49,18 @@ export const Profile = ({ loggedIn }: ProfileProps) => {
   }
 
   useEffect(() => {
-    const getAllData = async () => {
-      const customQuery = query(collection(db, "users"), where(getWhereParam(addressParam ?? ''), "==", addressParam));
-      return await getDocuments({ customQuery })
+    const getUserInfo = async () => {
+      const usersRef = doc(db, 'users', addressParam ?? '')
+      const docSnap = await getDoc(usersRef)
+
+      return { ...docSnap.data(), id: docSnap.id };
     }
 
     if (addressParam) {
-      getAllData().then((result: any) => {
+      getUserInfo().then((result: any) => {
         console.log('result', result);
 
-        setUser(result.result[0])
+        setUser(result)
       })
     }
   }, [addressParam, bannerUploaded]);
@@ -157,7 +157,7 @@ export const Profile = ({ loggedIn }: ProfileProps) => {
             {loggedIn && user?.id === address ?
               <label htmlFor="image"
                 className="w-full h-full bg-transparent cursor-pointer overflow-hidden flex items-center justify-center">
-                  <img src={user?.bannerImage} className='w-full object-cover' />
+                <img src={user?.bannerImage} className='w-full object-cover' />
                 <div className="text-white absolute inset-0 flex justify-center items-center">
                   <Edit className="" color="white" />
                 </div>
